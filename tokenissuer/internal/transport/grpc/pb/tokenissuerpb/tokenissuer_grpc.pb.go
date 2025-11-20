@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v6.33.0
-// source: tokenissuer.proto
+// source: proto/tokenissuer.proto
 
 package tokenissuerpb
 
@@ -117,5 +117,5 @@ var TokenValidator_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "tokenissuer.proto",
+	Metadata: "proto/tokenissuer.proto",
 }

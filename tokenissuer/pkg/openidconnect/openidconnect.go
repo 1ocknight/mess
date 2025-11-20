@@ -12,12 +12,6 @@ type Config struct {
 	ClientID  string `json:"client_id"`
 }
 
-type Claims struct {
-	SubjectID string `json:"sub"`
-	Username  string `json:"preferred_username"`
-	Email     string `json:"email"`
-}
-
 type OpenIDConnect struct {
 	cfg      Config
 	provider *oidc.Provider
@@ -41,16 +35,16 @@ func NewOpenIDConnect(ctx context.Context, cfg Config) (*OpenIDConnect, error) {
 	}, nil
 }
 
-func (oc *OpenIDConnect) VerifyToken(ctx context.Context, accessToken string) (*Claims, error) {
+func (oc *OpenIDConnect) VerifyToken(ctx context.Context, accessToken string) (*User, error) {
 	tok, err := oc.verifier.Verify(ctx, accessToken)
 	if err != nil {
 		return nil, fmt.Errorf("invalid token: %w", err)
 	}
 
-	var claims Claims
-	if err := tok.Claims(&claims); err != nil {
+	var user User
+	if err := tok.Claims(&user); err != nil {
 		return nil, fmt.Errorf("failed to parse claims: %w", err)
 	}
 
-	return &claims, nil
+	return &user, nil
 }

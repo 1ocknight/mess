@@ -4,8 +4,6 @@ package tokenissuer;
 
 option go_package = "./pb/tokenissuerpb";
 
-import "google/api/annotations.proto";
-
 service TokenValidator{
     rpc Validate(ValidateRequest) returns (ValidateResponse);
 }
@@ -17,7 +15,3 @@ message ValidateRequest {
 message ValidateResponse {
     string subject_id = 1;
 }
-
-grant_type=authorization_code  
-client_id=tokenissuier  
-code=6d3aa28a-9852-456a-9897-a8b2c0b3d262.377efe15-1762-4d06-b795-04d0739c4ae0.29e1c1cd-84e8-4a79-8e79-251529228195 
