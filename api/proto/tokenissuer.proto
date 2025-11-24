@@ -4,14 +4,17 @@ package tokenissuer;
 
 option go_package = "./pb/tokenissuerpb";
 
-service TokenValidator{
-    rpc Validate(ValidateRequest) returns (ValidateResponse);
+service TokenVerifier{
+    rpc Verify(VerifyRequest) returns (VerifyResponse);
 }
 
-message ValidateRequest {
+message VerifyRequest {
     string access_token = 1;
+    string token_type = 2;
 }
 
-message ValidateResponse {
+message VerifyResponse {
     string subject_id = 1;
+    string name = 2;
+    string email = 3;
 }

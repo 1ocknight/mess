@@ -29,7 +29,7 @@ func main() {
 			log.Fatal("Error: provide --local or set CONFIG_PATH environment variable")
 			os.Exit(1)
 		}
-	} 
+	}
 
 	cfg, err := config.Load(path)
 	if err != nil {
@@ -46,7 +46,7 @@ func main() {
 	httpMiddleware := rest.NewMiddleware(l)
 	httpServer := rest.NewServer(cfg.HTTP, httpHandler, httpMiddleware)
 
-	grpcHandler := grpc.NewHandlerImpl(service.Verify)
+	grpcHandler := grpc.NewService(service.Verify)
 	grpcInterceptor := grpc.NewInterceptorImpl(l)
 	grpcServer := grpc.NewServer(cfg.GRPC, grpcInterceptor, grpcHandler)
 

@@ -26,8 +26,8 @@ func NewServer(cfg Config, handlers Handler, middleware Middleware) *Server {
 	router.Use(middleware.Log())
 
 	api := router.Group("/api")
-	api.GET("/token", handlers.GetToken)
-	api.POST("/refresh", handlers.Refresh)
+	api.POST("/token", handlers.GetToken)
+	api.GET("/refresh", handlers.Refresh)
 
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf("%v:%v", cfg.Host, cfg.Port),

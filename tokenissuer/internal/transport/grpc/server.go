@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type Config struct {
@@ -17,7 +18,7 @@ type Server struct {
 	server *grpc.Server
 }
 
-func NewServer(cfg Config, interceptor Interceptor, handler Handler) *Server {
+func NewServer(cfg Config, interceptor Interceptor, svc *Service) *Server {
 	srv := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptor.SetMethodName,
@@ -26,7 +27,8 @@ func NewServer(cfg Config, interceptor Interceptor, handler Handler) *Server {
 		),
 	)
 
-	Register(srv, handler)
+	Register(srv, svc)
+	reflection.Register(srv)
 
 	return &Server{
 		cfg:    cfg,

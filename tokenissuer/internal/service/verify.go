@@ -32,12 +32,19 @@ type VerifyImpl struct {
 	jwksTTL     time.Duration
 
 	parser *jwt.Parser
-	mu     sync.RWMutex
+	mu     *sync.RWMutex
 }
 
 func NewVerifyImpl(iden identifier.Service) *VerifyImpl {
 	return &VerifyImpl{
 		iden: iden,
+
+		jwks:        make(map[string]jwks.JWKS),
+		jwksUpdated: time.Now(),
+		jwksTTL:     5 * time.Minute,
+
+		parser: jwt.NewParser(),
+		mu:     &sync.RWMutex{},
 	}
 }
 
@@ -72,21 +79,23 @@ func (v *VerifyImpl) findKeyByKid(ctx context.Context, kid string) (*rsa.PublicK
 }
 
 func (v *VerifyImpl) VerifyToken(ctx context.Context, typeToken, accessToken string) (*model.User, error) {
-	
 	token, _, err := v.parser.ParseUnverified(accessToken, jwt.MapClaims{})
 	if err != nil {
 		return nil, fmt.Errorf("parse unverified: %w", err)
 	}
+	fmt.Println("halo1")
 
 	kid, ok := token.Header[KidHeader].(string)
 	if !ok {
 		return nil, fmt.Errorf("no kid in token header")
 	}
+	fmt.Println("halo2")
 
 	pubKey, err := v.findKeyByKid(ctx, kid)
 	if err != nil {
 		return nil, fmt.Errorf("find key by kid: %w", err)
 	}
+	fmt.Println("halo3")
 
 	claims := jwt.MapClaims{}
 
@@ -96,6 +105,8 @@ func (v *VerifyImpl) VerifyToken(ctx context.Context, typeToken, accessToken str
 	if err != nil {
 		return nil, fmt.Errorf("parse with claims: %w", err)
 	}
+
+	fmt.Println("halo")
 
 	user := &model.User{
 		ID:    claims[SubClaim].(string),

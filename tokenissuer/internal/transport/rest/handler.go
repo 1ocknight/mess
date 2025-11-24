@@ -52,7 +52,7 @@ func (h *HandlerImpl) respondTokenPair(c *gin.Context, tokenPair identifier.Toke
 		tokenPair.GetRefreshExpiresIn(),
 		"/",
 		"",
-		true,
+		false,
 		true,
 	)
 
