@@ -1,0 +1,80 @@
+package main
+
+import (
+	"context"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+	"tokenissuer/internal/adapter/identifier/keycloak"
+	"tokenissuer/internal/config"
+	"tokenissuer/internal/ctxkey"
+	"tokenissuer/internal/service"
+	"tokenissuer/internal/transport/grpc"
+	"tokenissuer/internal/transport/rest"
+	"tokenissuer/pkg/logger"
+)
+
+func main() {
+	localPath := flag.String("local", "", "Path to local config file")
+	flag.Parse()
+
+	path := *localPath
+	if path == "" {
+		path = os.Getenv("CONFIG_PATH")
+		if path == "" {
+			log.Fatal("Error: provide --local or set CONFIG_PATH environment variable")
+			os.Exit(1)
+		}
+	} 
+
+	cfg, err := config.Load(path)
+	if err != nil {
+		log.Fatalf("Error loading config: %v\n", err)
+		os.Exit(1)
+	}
+
+	l := logger.New(os.Stdin, ctxkey.Parse)
+
+	iden := keycloak.NewKeycloak(cfg.Keycloak)
+	service := service.NewServiceImpl(iden)
+
+	httpHandler := rest.NewHandler(service.Token)
+	httpMiddleware := rest.NewMiddleware(l)
+	httpServer := rest.NewServer(cfg.HTTP, httpHandler, httpMiddleware)
+
+	grpcHandler := grpc.NewHandlerImpl(service.Verify)
+	grpcInterceptor := grpc.NewInterceptorImpl(l)
+	grpcServer := grpc.NewServer(cfg.GRPC, grpcInterceptor, grpcHandler)
+
+	go func() {
+		if err := httpServer.Run(); err != nil {
+			l.Error(err)
+			os.Exit(1)
+		}
+	}()
+	l.Info(fmt.Sprintf("http server start - host: %v, port: %v", cfg.HTTP.Host, cfg.HTTP.Port))
+
+	go func() {
+		if err := grpcServer.Run(); err != nil {
+			l.Error(err)
+			os.Exit(1)
+		}
+	}()
+	l.Info(fmt.Sprintf("grpc server start - host: %v, port: %v", cfg.GRPC.Host, cfg.GRPC.Port))
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	<-stop
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	l.Info("Shutting down servers...")
+	httpServer.Stop(ctx)
+	grpcServer.Stop()
+	l.Info("Servers stopped")
+}

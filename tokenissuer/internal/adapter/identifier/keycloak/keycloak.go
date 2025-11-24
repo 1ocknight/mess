@@ -7,12 +7,12 @@ import (
 )
 
 type Config struct {
-	RefreshEndpoint      string        `json:"refresh_endpoint"`
-	ExchangeCodeEndpoint string        `json:"exchange_code_endpoint"`
-	JWKSEndpoint         string        `json:"jwks_endpoint"`
-	ClientID             string        `json:"client_id"`
-	ClientSecret         string        `json:"client_secret"`
-	Timeout              time.Duration `json:"timeout"`
+	RefreshEndpoint      string        `yaml:"refresh_endpoint"`
+	ExchangeCodeEndpoint string        `yaml:"exchange_code_endpoint"`
+	JWKSEndpoint         string        `yaml:"jwks_endpoint"`
+	ClientID             string        `yaml:"client_id"`
+	ClientSecret         string        `yaml:"client_secret"`
+	Timeout              time.Duration `yaml:"timeout"`
 }
 
 type Keycloak struct {

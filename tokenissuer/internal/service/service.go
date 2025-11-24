@@ -1,5 +1,7 @@
 package service
 
+import "tokenissuer/internal/adapter/identifier"
+
 type Service interface {
 	TokenService() Token
 	VerifyService() Verify
@@ -10,9 +12,9 @@ type ServiceImpl struct {
 	Verify
 }
 
-func NewServiceImpl(tokenSvc Token, verifySvc Verify) *ServiceImpl {
+func NewServiceImpl(iden identifier.Service) *ServiceImpl {
 	return &ServiceImpl{
-		Token:  tokenSvc,
-		Verify: verifySvc,
+		Token:  NewTokenImpl(iden),
+		Verify: NewVerifyImpl(iden),
 	}
 }

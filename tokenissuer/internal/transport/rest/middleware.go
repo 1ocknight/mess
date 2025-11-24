@@ -18,8 +18,10 @@ type MiddlewareImpl struct {
 	log logger.Logger
 }
 
-func NewMiddleware() *MiddlewareImpl {
-	return &MiddlewareImpl{}
+func NewMiddleware(log logger.Logger) *MiddlewareImpl {
+	return &MiddlewareImpl{
+		log: log,
+	}
 }
 
 func (m *MiddlewareImpl) SetMethodName() gin.HandlerFunc {

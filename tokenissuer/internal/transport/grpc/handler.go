@@ -19,6 +19,12 @@ type HandlerImpl struct {
 	srv     service.Verify
 }
 
+func NewHandlerImpl(srv service.Verify) *HandlerImpl {
+	return &HandlerImpl{
+		srv: srv,
+	}
+}
+
 func Register(gRPCServer *grpc.Server, handler Handler) {
 	pb.RegisterTokenVerifierServer(gRPCServer, &HandlerImpl{handler: handler})
 }

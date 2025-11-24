@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"io"
 	"net/http"
 	"tokenissuer/internal/adapter/identifier"
 	"tokenissuer/internal/service"
@@ -23,14 +24,17 @@ type HandlerImpl struct {
 	service service.Token
 }
 
-func NewHandlers(src service.Token) *HandlerImpl {
+func NewHandler(src service.Token) *HandlerImpl {
 	return &HandlerImpl{
 		service: src,
 	}
 }
 
 func (h *HandlerImpl) sendError(c *gin.Context, code int, err error) {
-	c.Error(err)
+	if err != io.EOF {
+		c.Error(err)
+	}
+
 	c.JSON(code, gin.H{
 		ErrorLabel: err.Error(),
 	})

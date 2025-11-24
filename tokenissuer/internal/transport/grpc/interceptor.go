@@ -19,6 +19,12 @@ type InterceptorImpl struct {
 	log logger.Logger
 }
 
+func NewInterceptorImpl(log logger.Logger) *InterceptorImpl {
+	return &InterceptorImpl{
+		log: log,
+	}
+}
+
 func (i *InterceptorImpl) SetRequestID(
 	ctx context.Context,
 	req interface{},

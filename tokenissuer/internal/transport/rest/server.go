@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"tokenissuer/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Config struct {
-	Port int
-	Host string
+	Host string `yaml:"host"`
+	Port string `yaml:"port"`
 }
 
 type Server struct {
@@ -19,7 +18,7 @@ type Server struct {
 	cfg    Config
 }
 
-func NewServer(cfg Config, log logger.Logger, handlers Handler, middleware Middleware) *Server {
+func NewServer(cfg Config, handlers Handler, middleware Middleware) *Server {
 	router := gin.New()
 
 	router.Use(middleware.SetMethodName())

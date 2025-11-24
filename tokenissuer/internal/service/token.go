@@ -15,7 +15,7 @@ type TokenImpl struct {
 	iden identifier.Service
 }
 
-func NewTokenDomain(iden identifier.Service) *TokenImpl {
+func NewTokenImpl(iden identifier.Service) *TokenImpl {
 	return &TokenImpl{
 		iden: iden,
 	}

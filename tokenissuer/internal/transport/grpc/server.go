@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	Host string
-	Port string
+	Host string `yaml:"host"`
+	Port string `yaml:"port"`
 }
 
 type Server struct {
