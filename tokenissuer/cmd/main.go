@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -40,18 +41,18 @@ func main() {
 	l := logger.New(os.Stdin, ctxkey.Parse)
 
 	iden := keycloak.NewKeycloak(cfg.Keycloak)
-	service := service.NewServiceImpl(iden)
+	service := service.NewServiceImpl(iden, time.Hour)
 
 	httpHandler := rest.NewHandler(service.Token)
 	httpMiddleware := rest.NewMiddleware(l)
 	httpServer := rest.NewServer(cfg.HTTP, httpHandler, httpMiddleware)
 
-	grpcHandler := grpc.NewService(service.Verify)
+	grpcHandler := grpc.NewHandlerImpl(service.Verify)
 	grpcInterceptor := grpc.NewInterceptorImpl(l)
 	grpcServer := grpc.NewServer(cfg.GRPC, grpcInterceptor, grpcHandler)
 
 	go func() {
-		if err := httpServer.Run(); err != nil {
+		if err := httpServer.Run(); err != nil && err != http.ErrServerClosed {
 			l.Error(err)
 			os.Exit(1)
 		}

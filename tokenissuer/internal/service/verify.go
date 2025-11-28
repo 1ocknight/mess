@@ -18,6 +18,7 @@ const (
 	SubClaim      = "sub"
 	EmailClaim    = "email"
 	UsernameClaim = "preferred_username"
+	BearerType    = "Bearer:"
 )
 
 type Verify interface {
@@ -35,13 +36,13 @@ type VerifyImpl struct {
 	mu     *sync.RWMutex
 }
 
-func NewVerifyImpl(iden identifier.Service) *VerifyImpl {
+func NewVerifyImpl(iden identifier.JWKSLoader, jwksTTL time.Duration) *VerifyImpl {
 	return &VerifyImpl{
 		iden: iden,
 
 		jwks:        make(map[string]jwks.JWKS),
 		jwksUpdated: time.Now(),
-		jwksTTL:     5 * time.Minute,
+		jwksTTL:     jwksTTL,
 
 		parser: jwt.NewParser(),
 		mu:     &sync.RWMutex{},
@@ -79,23 +80,24 @@ func (v *VerifyImpl) findKeyByKid(ctx context.Context, kid string) (*rsa.PublicK
 }
 
 func (v *VerifyImpl) VerifyToken(ctx context.Context, typeToken, accessToken string) (*model.User, error) {
+	if typeToken != BearerType {
+		return nil, fmt.Errorf("invalid token type")
+	}
+
 	token, _, err := v.parser.ParseUnverified(accessToken, jwt.MapClaims{})
 	if err != nil {
 		return nil, fmt.Errorf("parse unverified: %w", err)
 	}
-	fmt.Println("halo1")
 
 	kid, ok := token.Header[KidHeader].(string)
 	if !ok {
 		return nil, fmt.Errorf("no kid in token header")
 	}
-	fmt.Println("halo2")
 
 	pubKey, err := v.findKeyByKid(ctx, kid)
 	if err != nil {
 		return nil, fmt.Errorf("find key by kid: %w", err)
 	}
-	fmt.Println("halo3")
 
 	claims := jwt.MapClaims{}
 
@@ -105,8 +107,6 @@ func (v *VerifyImpl) VerifyToken(ctx context.Context, typeToken, accessToken str
 	if err != nil {
 		return nil, fmt.Errorf("parse with claims: %w", err)
 	}
-
-	fmt.Println("halo")
 
 	user := &model.User{
 		ID:    claims[SubClaim].(string),

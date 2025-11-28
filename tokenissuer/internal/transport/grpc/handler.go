@@ -9,22 +9,27 @@ import (
 	"google.golang.org/grpc"
 )
 
-type Service struct {
+type Handler interface {
+	pb.TokenVerifierServer
+	Verify(ctx context.Context, req *pb.VerifyRequest) (*pb.VerifyResponse, error)
+}
+
+type HandlerImpl struct {
 	pb.UnimplementedTokenVerifierServer
 	srv service.Verify
 }
 
-func NewService(srv service.Verify) *Service {
-	return &Service{
+func NewHandlerImpl(srv service.Verify) *HandlerImpl {
+	return &HandlerImpl{
 		srv: srv,
 	}
 }
 
-func Register(gRPCServer *grpc.Server, srv *Service) {
-	pb.RegisterTokenVerifierServer(gRPCServer, srv)
+func Register(gRPCServer *grpc.Server, handler Handler) {
+	pb.RegisterTokenVerifierServer(gRPCServer, handler)
 }
 
-func (h *Service) Verify(ctx context.Context, req *pb.VerifyRequest) (*pb.VerifyResponse, error) {
+func (h *HandlerImpl) Verify(ctx context.Context, req *pb.VerifyRequest) (*pb.VerifyResponse, error) {
 	if req.GetTokenType() == "" {
 		return nil, fmt.Errorf("not have token type")
 	}

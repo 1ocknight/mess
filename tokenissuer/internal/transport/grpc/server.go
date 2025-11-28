@@ -18,7 +18,7 @@ type Server struct {
 	server *grpc.Server
 }
 
-func NewServer(cfg Config, interceptor Interceptor, svc *Service) *Server {
+func NewServer(cfg Config, interceptor Interceptor, svc Handler) *Server {
 	srv := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptor.SetMethodName,
