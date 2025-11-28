@@ -24,3 +24,5 @@ grpcurl -plaintext -d '{
 
 mockery --output internal/mocks/identifier --dir internal/adapter/identifier/ --all
 gotests -all -w internal/service/
+
+mockgen -source=pkg/jwks/jwks.go -destination=pkg/jwks/mocks/mocks.go -package=jwksmocks
