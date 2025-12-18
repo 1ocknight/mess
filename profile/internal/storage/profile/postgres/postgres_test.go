@@ -70,8 +70,6 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	fmt.Println("its ok")
-
 	os.Exit(m.Run())
 }
 
