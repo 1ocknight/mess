@@ -59,7 +59,6 @@ func (s *Storage) GetProfileFromSubjectID(subjID string) (*model.Profile, error)
 
 	var entity ProfileEntity
 	err = s.db.Get(&entity, query, args...)
-
 	if err != nil {
 		return nil, fmt.Errorf("select profile by subject id: %w", err)
 	}
