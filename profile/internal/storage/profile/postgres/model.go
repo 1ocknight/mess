@@ -25,6 +25,10 @@ func (p *ProfileEntity) ToModel() *model.Profile {
 	}
 }
 
+func (p *ProfileEntity) Key() *string {
+	return &p.SubjectID
+}
+
 func ProfileEntitiesToModels(entities []*ProfileEntity) []*model.Profile {
 	models := make([]*model.Profile, 0, len(entities))
 	for _, entity := range entities {

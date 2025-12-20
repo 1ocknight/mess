@@ -1,8 +1,10 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"profile/internal/model"
+	p "profile/internal/storage/profile"
 	"profile/pkg/postgres"
 
 	sq "github.com/Masterminds/squirrel"
@@ -27,18 +29,24 @@ func (s *Storage) Close() error {
 	return s.db.Close()
 }
 
-func (s *Storage) AddProfile(profile *model.Profile) error {
+func (s *Storage) AddProfile(ctx context.Context, prof *model.Profile) error {
 	query, args, err := sq.
-		Insert(ProfileTable).
-		Columns(SubjectIDLabel, AliasLabel, AvatarURLLabel, VersionLabel, UpdatedAtLabel, CreatedAtLabel).
-		Values(profile.SubjectID, profile.Alias, profile.AvatarURL, profile.Version, profile.UpdatedAt, profile.CreatedAt).
+		Insert(p.ProfileTable).
+		Columns(
+			p.SubjectIDLabel,
+			p.AliasLabel,
+			p.AvatarURLLabel,
+			p.VersionLabel,
+			p.UpdatedAtLabel,
+			p.CreatedAtLabel).
+		Values(prof.SubjectID, prof.Alias, prof.AvatarURL, prof.Version, prof.UpdatedAt, prof.CreatedAt).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("build insert profile sql: %w", err)
 	}
 
-	_, err = s.db.Exec(query, args...)
+	_, err = s.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("insert profile: %w", err)
 	}
@@ -46,11 +54,11 @@ func (s *Storage) AddProfile(profile *model.Profile) error {
 	return nil
 }
 
-func (s *Storage) GetProfileFromSubjectID(subjID string) (*model.Profile, error) {
+func (s *Storage) GetProfileFromSubjectID(ctx context.Context, subjID string) (*model.Profile, error) {
 	query, args, err := sq.
 		Select(AllLabelsSelect).
-		From(ProfileTable).
-		Where(sq.Eq{SubjectIDLabel: subjID}).
+		From(p.ProfileTable).
+		Where(sq.Eq{p.SubjectIDLabel: subjID}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
@@ -58,30 +66,30 @@ func (s *Storage) GetProfileFromSubjectID(subjID string) (*model.Profile, error)
 	}
 
 	var entity ProfileEntity
-	err = s.db.Get(&entity, query, args...)
+	err = s.db.GetContext(ctx, &entity, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("select profile by subject id: %w", err)
+		return nil, fmt.Errorf("db get: %w", err)
 	}
 
 	return entity.ToModel(), nil
 }
 
-func (s *Storage) UpdateProfile(profile *model.Profile) error {
+func (s *Storage) UpdateProfile(ctx context.Context, prof *model.Profile) error {
 	query, args, err := sq.
-		Update(ProfileTable).
-		Set(AliasLabel, profile.Alias).
-		Set(AvatarURLLabel, profile.AvatarURL).
-		Set(VersionLabel, profile.Version).
-		Set(UpdatedAtLabel, profile.UpdatedAt).
-		Where(sq.Eq{SubjectIDLabel: profile.SubjectID}).
-		Where(sq.Eq{VersionLabel: profile.Version - 1}).
+		Update(p.ProfileTable).
+		Set(p.AliasLabel, prof.Alias).
+		Set(p.AvatarURLLabel, prof.AvatarURL).
+		Set(p.VersionLabel, prof.Version).
+		Set(p.UpdatedAtLabel, prof.UpdatedAt).
+		Where(sq.Eq{p.SubjectIDLabel: prof.SubjectID}).
+		Where(sq.Eq{p.VersionLabel: prof.Version - 1}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("build update profile sql: %w", err)
 	}
 
-	res, err := s.db.Exec(query, args...)
+	res, err := s.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("update profile: %w", err)
 	}
@@ -96,4 +104,36 @@ func (s *Storage) UpdateProfile(profile *model.Profile) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) GetProfilesFromAliasWithInfo(ctx context.Context, size int, asc bool, sortLabel p.Label, alias string) {
+	
+}
+
+func (s *Storage) GetProfilesFromAliasWithToken(ctx context.Context, token, alias string) (string, []*model.Profile, error) {
+	pag, err := postgres.ParsePaginationToken(token)
+	if err != nil {
+		return "", nil, fmt.Errorf("parse pagination token: %w", err)
+	}
+
+	return s.getProfilesFromAlias(ctx, pag, alias)
+}
+
+func (s *Storage) getProfilesFromAlias(ctx context.Context, pag *postgres.Pagination, alias string) (string, []*model.Profile, error) {
+	builder := sq.
+		Select(AllLabelsSelect).
+		From(p.ProfileTable).
+		Where(sq.Like{p.AliasLabel: fmt.Sprintf("%v%%", alias)})
+
+	newP, entities, err := postgres.MakeQueryWithPagination[*ProfileEntity](
+		ctx,
+		s.db,
+		builder,
+		pag,
+	)
+	if err != nil {
+		return "", nil, fmt.Errorf("make query with pagination: %w", err)
+	}
+
+	return newP.Token(), ProfileEntitiesToModels(entities), nil
 }

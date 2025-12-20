@@ -9,18 +9,46 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 
 	"profile/internal/model"
+	p "profile/internal/storage/profile"
 	storage "profile/internal/storage/profile/postgres"
-	pg "profile/pkg/postgres"
+	pq "profile/pkg/postgres"
 	"testing"
 
 	pgcontainer "github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-var CFG pg.Config
+var CFG pq.Config
 
 const (
 	MigrationsPath = "file://../../../../migrations/"
 )
+
+var InitProfiles = []*model.Profile{
+	{
+		SubjectID: "subject_id1",
+		Alias:     "al",
+		AvatarURL: "url",
+		Version:   1,
+		UpdatedAt: time.Now().UTC(),
+		CreatedAt: time.Now().UTC(),
+	},
+	{
+		SubjectID: "subject_id2",
+		Alias:     "alias",
+		AvatarURL: "url",
+		Version:   1,
+		UpdatedAt: time.Now().UTC(),
+		CreatedAt: time.Now().UTC(),
+	},
+	{
+		SubjectID: "subject_id3",
+		Alias:     "alias pro",
+		AvatarURL: "url",
+		Version:   1,
+		UpdatedAt: time.Now().UTC(),
+		CreatedAt: time.Now().UTC(),
+	},
+}
 
 // init pg container
 func TestMain(m *testing.M) {
@@ -52,7 +80,7 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	CFG = pg.Config{
+	CFG = pq.Config{
 		Host:     host,
 		Port:     port.Int(),
 		User:     "test",
@@ -61,7 +89,7 @@ func TestMain(m *testing.M) {
 		SSLMode:  "disable",
 	}
 
-	mig, err := pg.NewMigrator(CFG, MigrationsPath)
+	mig, err := pq.NewMigrator(CFG, MigrationsPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "failed to create migrator:", err)
 		os.Exit(1)
@@ -78,14 +106,30 @@ func TestMain(m *testing.M) {
 func cleanupDB(t *testing.T) {
 	t.Helper()
 
-	db, err := pg.New(CFG)
+	db, err := pq.New(CFG)
 	if err != nil {
 		t.Fatalf("connect to db: %v", err)
 	}
 
-	_, err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE", storage.ProfileTable))
+	_, err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE", p.ProfileTable))
 	if err != nil {
 		t.Fatalf("cleanup db: %v", err)
+	}
+}
+
+func initData(t *testing.T) {
+	t.Helper()
+
+	s, err := storage.New(CFG)
+	if err != nil {
+		t.Fatalf("could not construct receiver type: %v", err)
+	}
+
+	for _, prof := range InitProfiles {
+		err = s.AddProfile(t.Context(), prof)
+		if err != nil {
+			t.Fatalf("first add: %v", err)
+		}
 	}
 }
 
@@ -104,12 +148,12 @@ func TestStorage_AddProfile_GetProfileFromSubjectID(t *testing.T) {
 		CreatedAt: time.Now().UTC(),
 	}
 
-	err = s.AddProfile(profileToAdd)
+	err = s.AddProfile(t.Context(), profileToAdd)
 	if err != nil {
 		t.Fatalf("first add: %v", err)
 	}
 
-	profileFromDB, err := s.GetProfileFromSubjectID(profileToAdd.SubjectID)
+	profileFromDB, err := s.GetProfileFromSubjectID(t.Context(), profileToAdd.SubjectID)
 	if err != nil {
 		t.Fatalf("get profile: %v", err)
 	}
@@ -121,7 +165,7 @@ func TestStorage_AddProfile_GetProfileFromSubjectID(t *testing.T) {
 		t.Fatalf("retrieved profile does not match added profile")
 	}
 
-	err = s.AddProfile(profileToAdd)
+	err = s.AddProfile(t.Context(), profileToAdd)
 	if err == nil {
 		t.Fatalf("expected error on duplicate add, got nil")
 	}
@@ -135,19 +179,8 @@ func TestStorage_UpdateProfile(t *testing.T) {
 		t.Fatalf("could not construct receiver type: %v", err)
 	}
 
-	profileToAdd := &model.Profile{
-		SubjectID: "subject_id",
-		Alias:     "alias",
-		AvatarURL: "url",
-		Version:   1,
-		UpdatedAt: time.Now().UTC(),
-		CreatedAt: time.Now().UTC(),
-	}
-
-	err = s.AddProfile(profileToAdd)
-	if err != nil {
-		t.Fatalf("first add: %v", err)
-	}
+	initData(t)
+	defer cleanupDB(t)
 
 	tests := []struct {
 		name    string
@@ -157,12 +190,11 @@ func TestStorage_UpdateProfile(t *testing.T) {
 		{
 			name: "successful update",
 			profile: &model.Profile{
-				SubjectID: "subject_id",
+				SubjectID: "subject_id1",
 				Alias:     "new_alias",
 				AvatarURL: "new_url",
 				Version:   2,
 				UpdatedAt: time.Now().UTC(),
-				CreatedAt: profileToAdd.CreatedAt,
 			},
 			wantErr: false,
 		},
@@ -174,7 +206,6 @@ func TestStorage_UpdateProfile(t *testing.T) {
 				AvatarURL: "another_url",
 				Version:   2,
 				UpdatedAt: time.Now().UTC(),
-				CreatedAt: profileToAdd.CreatedAt,
 			},
 			wantErr: true,
 		},
@@ -186,14 +217,13 @@ func TestStorage_UpdateProfile(t *testing.T) {
 				AvatarURL: "url",
 				Version:   1,
 				UpdatedAt: time.Now().UTC(),
-				CreatedAt: time.Now().UTC(),
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotErr := s.UpdateProfile(tt.profile)
+			gotErr := s.UpdateProfile(t.Context(), tt.profile)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("UpdateProfile() failed: %v", gotErr)
@@ -204,7 +234,7 @@ func TestStorage_UpdateProfile(t *testing.T) {
 				t.Fatal("UpdateProfile() succeeded unexpectedly")
 			}
 
-			updatedProfile, err := s.GetProfileFromSubjectID(tt.profile.SubjectID)
+			updatedProfile, err := s.GetProfileFromSubjectID(t.Context(), tt.profile.SubjectID)
 			if err != nil {
 				t.Fatalf("GetProfileFromSubjectID() failed: %v", err)
 			}
@@ -217,3 +247,87 @@ func TestStorage_UpdateProfile(t *testing.T) {
 		})
 	}
 }
+
+// func TestStorage_GetProfilesFromAlias(t *testing.T) {
+// 	s, err := storage.New(CFG)
+// 	if err != nil {
+// 		t.Fatalf("could not construct receiver type: %v", err)
+// 	}
+
+// 	initData(t)
+// 	defer cleanupDB(t)
+
+// 	tests := []struct {
+// 		name string
+// 		p    *pq.Pagination
+// 		ea   []string
+// 	}{
+// 		{
+// 			name: "asc",
+// 			p: pq.NewPagination(
+// 				10,
+// 				&pq.Sort{
+// 					Field: p.AliasLabel,
+// 					Asc:   true,
+// 				},
+// 				&pq.Last{
+// 					Field: p.SubjectIDLabel,
+// 					Key:   nil,
+// 				},
+// 			),
+// 			ea: []string{"al", "alias", "alias pro"},
+// 		},
+// 		{
+// 			name: "desc",
+// 			p: pq.NewPagination(
+// 				1,
+// 				&pq.Sort{
+// 					Field: p.AliasLabel,
+// 					Asc:   false,
+// 				},
+// 				&pq.Last{
+// 					Field: p.SubjectIDLabel,
+// 					Key:   nil,
+// 				},
+// 			),
+// 			ea: []string{"alias pro", "alias", "al"},
+// 		},
+// 	}
+
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			token, res, err := s.GetProfilesFromAlias(
+// 				t.Context(),
+// 				*tt.p.Last.Key,
+// 				"al",
+// 			)
+// 			if err != nil {
+// 				t.Fatalf("get profiles from alias: %v", err)
+// 			}
+
+// 			if len(res) != len(tt.ea) {
+// 				t.Fatalf("expected %d profiles, got %d", len(tt.ea), len(res))
+// 			}
+
+// 			for i, prof := range res {
+// 				if prof.Alias != tt.ea[i] {
+// 					t.Errorf(
+// 						"unexpected alias at index %d: want %q, got %q",
+// 						i,
+// 						tt.ea[i],
+// 						prof.Alias,
+// 					)
+// 				}
+// 			}
+
+// 			pag, err := pq.ParsePaginationToken(token)
+// 			if err != nil {
+// 				t.Fatalf("parse pagination token: %v", err)
+// 			}
+
+// 			if pag.Last.Key != nil {
+// 				t.Fatalf("invalid last val")
+// 			}
+// 		})
+// 	}
+// }

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -9,10 +10,18 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var (
+	InvalidTokenError error = fmt.Errorf("invalid token")
+)
+
 const (
 	AscSortLabel  = "ASC"
 	DescSortLabel = "DESC"
 )
+
+type Keyer interface {
+	Key() *string
+}
 
 type Sort struct {
 	Field string `json:"field"`
@@ -20,8 +29,8 @@ type Sort struct {
 }
 
 type Last struct {
-	Field string `json:"field"`
-	Key   any    `json:"key"`
+	Field string  `json:"field"`
+	Key   *string `json:"key"`
 }
 
 type Pagination struct {
@@ -38,11 +47,7 @@ func NewPagination(size int, sort *Sort, last *Last) *Pagination {
 	}
 }
 
-func GetPaginationToken(p *Pagination) string {
-	if p == nil {
-		return ""
-	}
-
+func (p *Pagination) Token() string {
 	data, err := json.Marshal(p)
 	if err != nil {
 		return ""
@@ -52,10 +57,6 @@ func GetPaginationToken(p *Pagination) string {
 }
 
 func ParsePaginationToken(token string) (*Pagination, error) {
-	if token == "" {
-		return nil, nil
-	}
-
 	raw, err := base64.RawURLEncoding.DecodeString(token)
 	if err != nil {
 		return nil, fmt.Errorf("decode pagination token: %w", err)
@@ -63,16 +64,18 @@ func ParsePaginationToken(token string) (*Pagination, error) {
 
 	var p Pagination
 	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("unmarshal pagination token: %w", err)
+		return nil, fmt.Errorf("%w: %w", InvalidTokenError, err)
 	}
 
 	return &p, nil
 }
 
-func MakeQueryWithPagination[T any](db *sqlx.DB, b sq.SelectBuilder, p *Pagination) (*Pagination, []T, error) {
-	if p != nil {
-		b = addPaginationQuery(b, p)
+func MakeQueryWithPagination[T Keyer](ctx context.Context, db *sqlx.DB, b sq.SelectBuilder, p *Pagination) (*Pagination, []T, error) {
+	if p == nil || p.Last == nil || p.Sort == nil {
+		return nil, nil, fmt.Errorf("invalid pagination")
 	}
+
+	b = addPaginationQuery(b, p)
 
 	query, args, err := b.
 		PlaceholderFormat(sq.Dollar).
@@ -82,40 +85,29 @@ func MakeQueryWithPagination[T any](db *sqlx.DB, b sq.SelectBuilder, p *Paginati
 	}
 
 	var res []T
-	err = db.Get(&res, query, args...)
+	err = db.SelectContext(ctx, &res, query, args...)
 	if err != nil {
-		return nil, nil, fmt.Errorf("select profile by subject id: %w", err)
-	}
-
-	if p == nil {
-		return nil, res, nil
+		return nil, nil, fmt.Errorf("db get: %w", err)
 	}
 
 	newP := *p
-	if len(res) > p.Size {
-		newP.Last.Key = res[p.Size-1]
+	lnRes := len(res)
+	if lnRes > p.Size {
+		newP.Last.Key = res[p.Size-1].Key()
+		lnRes -= 2
 	}
 
-	return &newP, res[:p.Size], nil
+	return &newP, res[:lnRes], nil
 }
 
 func addPaginationQuery(b sq.SelectBuilder, p *Pagination) sq.SelectBuilder {
-	if p.Sort != nil {
-		order := AscSortLabel
-		if !p.Sort.Asc {
-			order = DescSortLabel
-		}
-		b = b.OrderBy(fmt.Sprintf("%s %s", p.Sort.Field, order))
+	order := AscSortLabel
+	if !p.Sort.Asc {
+		order = DescSortLabel
 	}
+	b = b.OrderBy(fmt.Sprintf("%s %s", p.Sort.Field, order))
 
-	if p.Sort == nil {
-		p.Sort = &Sort{
-			Field: "",
-			Asc:   true,
-		}
-	}
-
-	if p.Last != nil && p.Sort != nil {
+	if p.Last.Key != nil {
 		if !p.Sort.Asc {
 			b = b.Where(sq.Lt{p.Last.Field: p.Last.Key})
 		} else {
