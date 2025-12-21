@@ -1,5 +1,5 @@
 keycloak:
-  jwks_endpoint: http://localhost:7070/realms/testrealm/protocol/openid-connect/certs
+  jwks_endpoint: http://localhost:7070/realms/main/protocol/openid-connect/certs
   timeout: 30s
 
 grpc:
