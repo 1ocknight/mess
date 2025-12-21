@@ -2,7 +2,7 @@ syntax="proto3";
 
 package tokenissuer;
 
-option go_package = "./pb/tokenissuerpb";
+option go_package = "./pb/tokenissuer";
 
 service TokenVerifier{
     rpc Verify(VerifyRequest) returns (VerifyResponse);
