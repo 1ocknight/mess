@@ -1,3 +1,3 @@
-module github.com/TATAROmangol/mess/api
+module github.com/TATAROmangol/mess
 
 go 1.25.5
