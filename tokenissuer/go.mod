@@ -1,8 +1,9 @@
-module tokenissuer
+module github.com/TATAROmangol/mess/tokenissuer
 
-go 1.25.4
+go 1.25.5
 
 require (
+	github.com/TATAROmangol/mess/api v0.0.0-20251221225618-f16e06a117f2
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/goccy/go-yaml v1.18.0
@@ -11,7 +12,6 @@ require (
 	github.com/google/uuid v1.6.0
 	golang.org/x/sync v0.17.0
 	google.golang.org/grpc v1.77.0
-	google.golang.org/protobuf v1.36.10
 )
 
 require (
@@ -44,4 +44,5 @@ require (
 	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/tools v0.37.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251029180050-ab9386a59fda // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 )

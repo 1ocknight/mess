@@ -3,8 +3,10 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"tokenissuer/internal/service"
-	pb "tokenissuer/internal/transport/grpc/pb/tokenissuerpb"
+
+	"github.com/TATAROmangol/mess/tokenissuer/internal/service"
+
+	pb "github.com/TATAROmangol/mess/api/pb/tokenissuer"
 
 	"google.golang.org/grpc"
 )

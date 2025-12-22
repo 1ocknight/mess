@@ -3,7 +3,8 @@ package keycloak
 import (
 	"context"
 	"fmt"
-	"tokenissuer/pkg/jwks"
+
+	"github.com/TATAROmangol/mess/tokenissuer/pkg/jwks"
 )
 
 func (k *Keycloak) LoadJWKS(ctx context.Context) (map[string]jwks.JWKS, error) {

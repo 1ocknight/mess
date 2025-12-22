@@ -2,7 +2,8 @@ package jwksloader
 
 import (
 	"context"
-	"tokenissuer/pkg/jwks"
+
+	"github.com/TATAROmangol/mess/tokenissuer/pkg/jwks"
 )
 
 type Service interface {

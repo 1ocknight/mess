@@ -8,10 +8,12 @@ import (
 	"sync"
 	"testing"
 	"time"
-	jwksloadermocks "tokenissuer/internal/adapter/jwksloader/mocks"
-	"tokenissuer/internal/model"
-	"tokenissuer/pkg/jwks"
-	jwksmocks "tokenissuer/pkg/jwks/mocks"
+
+	"github.com/TATAROmangol/mess/tokenissuer/internal/model"
+	"github.com/TATAROmangol/mess/tokenissuer/pkg/jwks"
+
+	jwksloadermocks "github.com/TATAROmangol/mess/tokenissuer/internal/adapter/jwksloader/mocks"
+	jwksmocks "github.com/TATAROmangol/mess/tokenissuer/pkg/jwks/mocks"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/golang/mock/gomock"

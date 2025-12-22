@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"tokenissuer/internal/adapter/jwksloader"
-	"tokenissuer/internal/model"
-	"tokenissuer/pkg/jwks"
+
+	"github.com/TATAROmangol/mess/tokenissuer/pkg/jwks"
+
+	"github.com/TATAROmangol/mess/tokenissuer/internal/adapter/jwksloader"
+	"github.com/TATAROmangol/mess/tokenissuer/internal/model"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/sync/singleflight"

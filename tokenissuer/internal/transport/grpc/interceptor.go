@@ -2,8 +2,9 @@ package grpc
 
 import (
 	"context"
-	"tokenissuer/internal/ctxkey"
-	"tokenissuer/pkg/logger"
+
+	"github.com/TATAROmangol/mess/tokenissuer/internal/ctxkey"
+	"github.com/TATAROmangol/mess/tokenissuer/pkg/logger"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"

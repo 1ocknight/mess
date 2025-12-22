@@ -7,7 +7,8 @@ package jwksloadermocks
 import (
 	context "context"
 	reflect "reflect"
-	jwks "tokenissuer/pkg/jwks"
+
+	jwks "github.com/TATAROmangol/mess/tokenissuer/pkg/jwks"
 
 	gomock "github.com/golang/mock/gomock"
 )

@@ -9,12 +9,13 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"tokenissuer/internal/adapter/jwksloader/keycloak"
-	"tokenissuer/internal/config"
-	"tokenissuer/internal/ctxkey"
-	"tokenissuer/internal/service"
-	"tokenissuer/internal/transport/grpc"
-	"tokenissuer/pkg/logger"
+
+	"github.com/TATAROmangol/mess/tokenissuer/internal/adapter/jwksloader/keycloak"
+	"github.com/TATAROmangol/mess/tokenissuer/internal/config"
+	"github.com/TATAROmangol/mess/tokenissuer/internal/ctxkey"
+	"github.com/TATAROmangol/mess/tokenissuer/internal/service"
+	"github.com/TATAROmangol/mess/tokenissuer/internal/transport/grpc"
+	"github.com/TATAROmangol/mess/tokenissuer/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 )

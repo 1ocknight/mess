@@ -3,9 +3,10 @@ package config
 import (
 	"fmt"
 	"os"
-	"tokenissuer/internal/adapter/jwksloader/keycloak"
-	"tokenissuer/internal/service"
-	"tokenissuer/internal/transport/grpc"
+
+	"github.com/TATAROmangol/mess/tokenissuer/internal/adapter/jwksloader/keycloak"
+	"github.com/TATAROmangol/mess/tokenissuer/internal/service"
+	"github.com/TATAROmangol/mess/tokenissuer/internal/transport/grpc"
 
 	"github.com/goccy/go-yaml"
 )
