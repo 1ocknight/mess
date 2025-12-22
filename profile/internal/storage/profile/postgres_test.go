@@ -128,14 +128,14 @@ func initData(t *testing.T) {
 	}
 
 	for _, prof := range InitProfiles {
-		err = s.AddProfile(t.Context(), prof)
+		_, err = s.AddProfile(t.Context(), prof)
 		if err != nil {
 			t.Fatalf("first add: %v", err)
 		}
 	}
 }
 
-func TestStorage_AddProfile_GetProfileFromSubjectID(t *testing.T) {
+func TestStorage_AddProfile(t *testing.T) {
 	s, err := p.New(CFG)
 	if err != nil {
 		t.Fatalf("could not construct receiver type: %v", err)
@@ -150,14 +150,9 @@ func TestStorage_AddProfile_GetProfileFromSubjectID(t *testing.T) {
 		CreatedAt: time.Now().UTC(),
 	}
 
-	err = s.AddProfile(t.Context(), profileToAdd)
+	profileFromDB, err := s.AddProfile(t.Context(), profileToAdd)
 	if err != nil {
 		t.Fatalf("first add: %v", err)
-	}
-
-	profileFromDB, err := s.GetProfileFromSubjectID(t.Context(), profileToAdd.SubjectID)
-	if err != nil {
-		t.Fatalf("get profile: %v", err)
 	}
 
 	if profileFromDB.SubjectID != profileToAdd.SubjectID ||
@@ -167,7 +162,7 @@ func TestStorage_AddProfile_GetProfileFromSubjectID(t *testing.T) {
 		t.Fatalf("retrieved profile does not match added profile")
 	}
 
-	err = s.AddProfile(t.Context(), profileToAdd)
+	_, err = s.AddProfile(t.Context(), profileToAdd)
 	if err == nil {
 		t.Fatalf("expected error on duplicate add, got nil")
 	}
@@ -225,7 +220,7 @@ func TestStorage_UpdateProfile(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotErr := s.UpdateProfile(t.Context(), tt.profile)
+			updatedProfile, gotErr := s.UpdateProfile(t.Context(), tt.profile)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("UpdateProfile() failed: %v", gotErr)
@@ -234,11 +229,6 @@ func TestStorage_UpdateProfile(t *testing.T) {
 			}
 			if tt.wantErr {
 				t.Fatal("UpdateProfile() succeeded unexpectedly")
-			}
-
-			updatedProfile, err := s.GetProfileFromSubjectID(t.Context(), tt.profile.SubjectID)
-			if err != nil {
-				t.Fatalf("GetProfileFromSubjectID() failed: %v", err)
 			}
 
 			if updatedProfile.Alias != tt.profile.Alias ||

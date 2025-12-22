@@ -14,6 +14,7 @@ import (
 
 const (
 	AllLabelsSelect = "*"
+	ReturningSuffix = "RETURNING *"
 )
 
 type Storage struct {
@@ -33,7 +34,7 @@ func (s *Storage) Close() error {
 	return s.db.Close()
 }
 
-func (s *Storage) AddProfile(ctx context.Context, prof *model.Profile) error {
+func (s *Storage) AddProfile(ctx context.Context, prof *model.Profile) (*model.Profile, error) {
 	query, args, err := sq.
 		Insert(ProfileTable).
 		Columns(
@@ -44,18 +45,20 @@ func (s *Storage) AddProfile(ctx context.Context, prof *model.Profile) error {
 			UpdatedAtLabel,
 			CreatedAtLabel).
 		Values(prof.SubjectID, prof.Alias, prof.AvatarURL, prof.Version, prof.UpdatedAt, prof.CreatedAt).
+		Suffix(ReturningSuffix).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("build insert profile sql: %w", err)
+		return nil, fmt.Errorf("build insert profile sql: %w", err)
 	}
 
-	_, err = s.db.ExecContext(ctx, query, args...)
+	var entity ProfileEntity
+	err = s.db.GetContext(ctx, &entity, query, args...)
 	if err != nil {
-		return fmt.Errorf("insert profile: %w", err)
+		return nil, fmt.Errorf("db get: %w", err)
 	}
 
-	return nil
+	return entity.ToModel(), nil
 }
 
 func (s *Storage) GetProfileFromSubjectID(ctx context.Context, subjID string) (*model.Profile, error) {
@@ -78,7 +81,7 @@ func (s *Storage) GetProfileFromSubjectID(ctx context.Context, subjID string) (*
 	return entity.ToModel(), nil
 }
 
-func (s *Storage) UpdateProfile(ctx context.Context, prof *model.Profile) error {
+func (s *Storage) UpdateProfile(ctx context.Context, prof *model.Profile) (*model.Profile, error) {
 	query, args, err := sq.
 		Update(ProfileTable).
 		Set(AliasLabel, prof.Alias).
@@ -87,27 +90,20 @@ func (s *Storage) UpdateProfile(ctx context.Context, prof *model.Profile) error 
 		Set(UpdatedAtLabel, prof.UpdatedAt).
 		Where(sq.Eq{SubjectIDLabel: prof.SubjectID}).
 		Where(sq.Eq{VersionLabel: prof.Version - 1}).
+		Suffix(ReturningSuffix).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("build update profile sql: %w", err)
+		return nil, fmt.Errorf("build update profile sql: %w", err)
 	}
 
-	res, err := s.db.ExecContext(ctx, query, args...)
+	var entity ProfileEntity
+	err = s.db.GetContext(ctx, &entity, query, args...)
 	if err != nil {
-		return fmt.Errorf("update profile: %w", err)
+		return nil, fmt.Errorf("db get: %w", err)
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("get rows affected: %w", err)
-	}
-
-	if rowsAffected == 0 {
-		return fmt.Errorf("no rows updated, possible version conflict")
-	}
-
-	return nil
+	return entity.ToModel(), nil
 }
 
 func (s *Storage) GetProfilesFromAlias(ctx context.Context, size int, asc bool, sortLabel Label, alias string) (string, []*model.Profile, error) {
