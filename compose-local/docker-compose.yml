@@ -70,3 +70,17 @@ services:
       - keycloak
     ports:
       - "50051:50051"
+  
+  e2e:
+    build:
+      context: ../e2e/
+      dockerfile: dockerfile
+    container_name: e2e
+    environment:
+      CONFIG_PATH: /root/e2e.yaml
+    volumes:
+      - ./configs/e2e.yaml:/root/e2e.yaml
+    depends_on:
+      - keycloak
+      - tokenissuer-e2e
+

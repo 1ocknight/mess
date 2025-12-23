@@ -13,12 +13,26 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+type Tests struct {
+	cfg *Config
+}
+
+func New(cfg *Config) *Tests {
+	return &Tests{
+		cfg: cfg,
+	}
+}
+
+func (ts *Tests) RunTests(t *testing.T) {
+	t.Run("login in services", ts.testLoginInServices)
+}
+
 type Token struct {
 	Access string `json:"access_token"`
 	Type   string `json:"token_type"`
 }
 
-func getTokens(ctx context.Context, t *testing.T) *Token {
+func (ts *Tests) getTokens(ctx context.Context, t *testing.T) *Token {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -29,12 +43,12 @@ func getTokens(ctx context.Context, t *testing.T) *Token {
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetFormData(map[string]string{
 			"grant_type":    "password",
-			"client_id":     CFG.Adapter.ClientID,
-			"client_secret": CFG.Adapter.ClientSecret,
-			"username":      CFG.Adapter.Login,
-			"password":      CFG.Adapter.Password,
+			"client_id":     ts.cfg.Adapter.ClientID,
+			"client_secret": ts.cfg.Adapter.ClientSecret,
+			"username":      ts.cfg.Adapter.Login,
+			"password":      ts.cfg.Adapter.Password,
 		}).
-		Post(CFG.Adapter.AuthURL)
+		Post(ts.cfg.Adapter.AuthURL)
 
 	if err != nil {
 		t.Fatalf("failed to request token: %v", err)
@@ -53,7 +67,7 @@ func getTokens(ctx context.Context, t *testing.T) *Token {
 	return &res
 }
 
-func getSubjectID(ctx context.Context, t *testing.T, client pb.TokenVerifierClient, token Token) (string, error) {
+func (ts *Tests) getSubjectID(ctx context.Context, t *testing.T, client pb.TokenVerifierClient, token Token) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -68,29 +82,32 @@ func getSubjectID(ctx context.Context, t *testing.T, client pb.TokenVerifierClie
 	return resp.GetSubjectId(), nil
 }
 
-func TestTokenIssuer_LoginInServices(t *testing.T) {
+func (ts *Tests) testLoginInServices(t *testing.T) {
 	ctx := context.Background()
 
-	clientConn, err := grpc.NewClient(CFG.Issuer.VerifyGrpcAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	clientConn, err := grpc.NewClient(ts.cfg.Issuer.VerifyGrpcAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		t.Fatalf("failed to create gRPC client: %v", err)
 	}
 	defer clientConn.Close()
 	clientGRPC := pb.NewTokenVerifierClient(clientConn)
-	t.Log("gRPC client ready")
+	t.Log("create grpc client")
 
-	tok := getTokens(ctx, t)
+	tok := ts.getTokens(ctx, t)
+	t.Logf("get tokens: %v", *tok)
 
-	id, err := getSubjectID(ctx, t, clientGRPC, *tok)
+	id, err := ts.getSubjectID(ctx, t, clientGRPC, *tok)
 	if err != nil {
 		t.Fatalf("failed to get subject ID: %v", err)
 	}
-	if id != CFG.Adapter.SubjectID {
-		t.Fatalf("unexpected subject ID: got %s, want %s", id, CFG.Adapter.SubjectID)
+	if id != ts.cfg.Adapter.SubjectID {
+		t.Fatalf("unexpected subject ID: got %s, want %s", id, ts.cfg.Adapter.SubjectID)
 	}
+	t.Logf("get subject: %v", id)
 
-	time.Sleep(CFG.Adapter.TokenDuration)
-	_, err = getSubjectID(ctx, t, clientGRPC, *tok)
+	t.Log("wait token expire")
+	time.Sleep(ts.cfg.Adapter.TokenDuration)
+	_, err = ts.getSubjectID(ctx, t, clientGRPC, *tok)
 	if err == nil {
 		t.Fatalf("expected error for expired token, got none")
 	}

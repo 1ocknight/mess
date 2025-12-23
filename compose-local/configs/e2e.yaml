@@ -1,6 +1,6 @@
 token_issuer:
   adapter:
-    url: http://localhost:7070/realms/e2e/protocol/openid-connect/token
+    url: http://keycloak:8080/realms/e2e/protocol/openid-connect/token
     client_id: e2e
     client_secret: fTQwn8jHrT5uJDbn20b1g1jntRFiPU5w
     login: e2e
@@ -8,4 +8,4 @@ token_issuer:
     subject_id: 758c5b0e-aacf-49e9-a150-d43f896f0b45
     token_duration: 5m
   issuer:
-    verify_grpc_address: localhost:50052
+    verify_grpc_address: tokenissuer-e2e:50052

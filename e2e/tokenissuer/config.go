@@ -1,11 +1,7 @@
 package tokenissuer
 
 import (
-	"fmt"
-	"os"
 	"time"
-
-	"go.yaml.in/yaml/v3"
 )
 
 type AdapterConfig struct {
@@ -18,25 +14,11 @@ type AdapterConfig struct {
 	TokenDuration time.Duration `yaml:"token_duration"`
 }
 
-type TokenIssuerConfig struct {
+type IssuerConfig struct {
 	VerifyGrpcAddress string `yaml:"verify_grpc_address"`
 }
 
 type Config struct {
-	Adapter AdapterConfig     `yaml:"adapter"`
-	Issuer  TokenIssuerConfig `yaml:"token_issuer"`
-}
-
-func LoadConfig(path string) (*Config, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("read config file: %w", err)
-	}
-
-	var cfg Config
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		return nil, fmt.Errorf("unmarshal config file: %w", err)
-	}
-
-	return &cfg, nil
+	Adapter AdapterConfig `yaml:"adapter"`
+	Issuer  IssuerConfig  `yaml:"issuer"`
 }
