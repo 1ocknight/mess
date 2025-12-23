@@ -46,7 +46,7 @@ func (l *Log) PushFromContext(ctx context.Context) context.Context {
 	return context.WithValue(ctx, LoggerKey, l)
 }
 
-func GetFromContext(ctx context.Context) (*Log, error) {
+func GetFromContext(ctx context.Context) (Logger, error) {
 	lg, ok := ctx.Value(LoggerKey).(*Log)
 	if !ok {
 		return nil, fmt.Errorf("logger not found in context")
