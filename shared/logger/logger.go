@@ -2,54 +2,54 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
-)
-
-const (
-	OkMessage = "OK"
 )
 
 type Logger interface {
 	Info(msg string)
 	Error(err error)
-	InfoContext(ctx context.Context, msg string)
-	ErrorContext(ctx context.Context, err error)
+	With(key string, val any) Logger
 }
+
+type loggerCtxKey struct{}
+
+var LoggerKey = loggerCtxKey{}
 
 type Log struct {
-	slog  *slog.Logger
-	parse func(ctx context.Context) map[string]any
+	lg *slog.Logger
 }
 
-func New(w io.Writer, parseCtx func(ctx context.Context) map[string]any) *Log {
-	handler := slog.NewTextHandler(w, nil)
+func New(w io.Writer, handler slog.Handler) *Log {
+	lg := slog.New(handler)
 	return &Log{
-		slog:  slog.New(handler),
-		parse: parseCtx,
+		lg: lg,
 	}
 }
 
 func (l *Log) Info(msg string) {
-	l.slog.Info(msg)
+	l.lg.Info(msg)
 }
 
 func (l *Log) Error(err error) {
-	l.slog.Error(err.Error())
+	l.lg.Error(err.Error())
 }
 
-func (l *Log) InfoContext(ctx context.Context, msg string) {
-	attrs := []slog.Attr{}
-	for k, v := range l.parse(ctx) {
-		attrs = append(attrs, slog.Any(k, v))
+func (l *Log) With(key string, val any) *Log {
+	return &Log{
+		lg: l.lg.With(slog.Any(key, val)),
 	}
-	l.slog.LogAttrs(ctx, slog.LevelInfo, msg, attrs...)
 }
 
-func (l *Log) ErrorContext(ctx context.Context, err error) {
-	attrs := []slog.Attr{}
-	for k, v := range l.parse(ctx) {
-		attrs = append(attrs, slog.Any(k, v))
+func (l *Log) PushFromContext(ctx context.Context) context.Context {
+	return context.WithValue(ctx, LoggerKey, l)
+}
+
+func GetFromContext(ctx context.Context) (*Log, error) {
+	lg, ok := ctx.Value(LoggerKey).(*Log)
+	if !ok {
+		return nil, fmt.Errorf("logger not found in context")
 	}
-	l.slog.LogAttrs(ctx, slog.LevelError, err.Error(), attrs...)
+	return lg, nil
 }
