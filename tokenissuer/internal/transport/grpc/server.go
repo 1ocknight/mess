@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/TATAROmangol/mess/shared/logger"
+	"github.com/TATAROmangol/mess/tokenissuer/internal/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -18,16 +20,20 @@ type Server struct {
 	server *grpc.Server
 }
 
-func NewServer(cfg Config, interceptor Interceptor, svc Handler) *Server {
+func NewServer(cfg Config, log logger.Logger, svc service.Verify) *Server {
+	interceptor := NewInterceptorImpl(log)
+
 	srv := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			interceptor.SetPath,
-			interceptor.SetRequestID,
-			interceptor.Loggining,
+			interceptor.InitLogger(log),
+			interceptor.SetMetadataWithRequestID,
+			interceptor.LogResponse,
 		),
 	)
 
-	Register(srv, svc)
+	handler := NewHandlerImpl(svc)
+
+	Register(srv, handler)
 	reflection.Register(srv)
 
 	return &Server{

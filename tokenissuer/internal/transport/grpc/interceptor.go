@@ -2,62 +2,88 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/TATAROmangol/mess/shared/logger"
-	"github.com/TATAROmangol/mess/tokenissuer/internal/ctxkey"
+	"github.com/TATAROmangol/mess/shared/requestmeta"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 )
 
+const (
+	OKMessage      = "OK"
+	RequestIDLabel = "request_id"
+	MetadataLabel  = "metadata"
+)
+
 type Interceptor interface {
-	SetRequestID(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error)
-	SetPath(ctx context.Context, eq interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error)
-	Loggining(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error)
+	InitLogger(log logger.Logger) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error)
+	SetMetadataWithRequestID(ctx context.Context, eq interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error)
+	LogResponse(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error)
 }
 
 type InterceptorImpl struct {
-	log logger.Logger
 }
 
-func NewInterceptorImpl(log logger.Logger) *InterceptorImpl {
-	return &InterceptorImpl{
-		log: log,
+func NewInterceptorImpl(log logger.Logger) Interceptor {
+	return &InterceptorImpl{}
+}
+
+func (i *InterceptorImpl) InitLogger(log logger.Logger) func(
+	ctx context.Context,
+	req interface{},
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (resp interface{}, err error) {
+	return func(
+		ctx context.Context,
+		req interface{},
+		info *grpc.UnaryServerInfo,
+		handler grpc.UnaryHandler,
+	) (resp interface{}, err error) {
+		ctx = log.PushFromContext(ctx)
+		return handler(ctx, req)
 	}
 }
 
-func (i *InterceptorImpl) SetRequestID(
+func (i *InterceptorImpl) SetMetadataWithRequestID(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp interface{}, err error) {
+	l, err := logger.GetFromContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("logger get from context: %w", err)
+	}
+
 	reqID := uuid.NewString()
-	ctx = ctxkey.WithRequestID(ctx, reqID)
+	l = l.With(RequestIDLabel, reqID)
+
+	metadata := requestmeta.GetFromGRPCRequest(ctx, info)
+	l = l.With(MetadataLabel, metadata)
+
+	ctx = l.PushFromContext(ctx)
 	return handler(ctx, req)
 }
 
-func (i *InterceptorImpl) SetPath(
+func (i *InterceptorImpl) LogResponse(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp interface{}, err error) {
-	ctx = ctxkey.WithPath(ctx, info.FullMethod)
-	return handler(ctx, req)
-}
+	l, err := logger.GetFromContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("logger get from context: %w", err)
+	}
 
-func (i *InterceptorImpl) Loggining(
-	ctx context.Context,
-	req interface{},
-	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler,
-) (resp interface{}, err error) {
 	resp, err = handler(ctx, req)
 	if err != nil {
-		i.log.ErrorContext(ctx, err)
+		l.Error(err)
 	} else {
-		i.log.InfoContext(ctx, logger.OkMessage)
+		l.Info(OKMessage)
 	}
 
 	return resp, err

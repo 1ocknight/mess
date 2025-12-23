@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,7 +14,6 @@ import (
 	"github.com/TATAROmangol/mess/shared/logger"
 	"github.com/TATAROmangol/mess/tokenissuer/internal/adapter/jwksloader/keycloak"
 	"github.com/TATAROmangol/mess/tokenissuer/internal/config"
-	"github.com/TATAROmangol/mess/tokenissuer/internal/ctxkey"
 	"github.com/TATAROmangol/mess/tokenissuer/internal/service"
 	"github.com/TATAROmangol/mess/tokenissuer/internal/transport/grpc"
 
@@ -44,7 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	l := logger.New(os.Stdout, ctxkey.Parse)
+	l := logger.New(slog.NewJSONHandler(os.Stdout, nil))
 	ctx := context.Background()
 
 	iden := keycloak.NewKeycloak(cfg.Keycloak)
@@ -55,9 +55,7 @@ func main() {
 	}
 	service := service.NewServiceImpl(ver)
 
-	grpcHandler := grpc.NewHandlerImpl(service.Verify())
-	grpcInterceptor := grpc.NewInterceptorImpl(l)
-	grpcServer := grpc.NewServer(cfg.GRPC, grpcInterceptor, grpcHandler)
+	grpcServer := grpc.NewServer(cfg.GRPC, l, service.Verify())
 
 	go func() {
 		if err := grpcServer.Run(); err != nil {

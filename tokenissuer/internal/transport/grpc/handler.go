@@ -21,7 +21,7 @@ type HandlerImpl struct {
 	srv service.Verify
 }
 
-func NewHandlerImpl(srv service.Verify) *HandlerImpl {
+func NewHandlerImpl(srv service.Verify) Handler {
 	return &HandlerImpl{
 		srv: srv,
 	}
