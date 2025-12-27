@@ -3,6 +3,7 @@ package profile
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/TATAROmangol/mess/profile/internal/model"
 	"github.com/TATAROmangol/mess/shared/postgres"
@@ -34,7 +35,7 @@ func (s *Storage) Close() error {
 	return s.db.Close()
 }
 
-func (s *Storage) AddProfile(ctx context.Context, prof *model.Profile) (*model.Profile, error) {
+func (s *Storage) AddProfile(ctx context.Context, subjID string, alias string, avatarURL string) (*model.Profile, error) {
 	query, args, err := sq.
 		Insert(ProfileTable).
 		Columns(
@@ -44,7 +45,7 @@ func (s *Storage) AddProfile(ctx context.Context, prof *model.Profile) (*model.P
 			VersionLabel,
 			UpdatedAtLabel,
 			CreatedAtLabel).
-		Values(prof.SubjectID, prof.Alias, prof.AvatarURL, prof.Version, prof.UpdatedAt, prof.CreatedAt).
+		Values(subjID, alias, avatarURL, 1, time.Now().UTC(), time.Now().UTC()).
 		Suffix(ReturningSuffix).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()

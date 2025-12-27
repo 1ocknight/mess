@@ -31,24 +31,18 @@ var InitProfiles = []*model.Profile{
 		Alias:     "al",
 		AvatarURL: "url",
 		Version:   1,
-		UpdatedAt: time.Now().UTC(),
-		CreatedAt: time.Now().UTC(),
 	},
 	{
 		SubjectID: "subject_id2",
 		Alias:     "alias",
 		AvatarURL: "url",
 		Version:   1,
-		UpdatedAt: time.Now().UTC(),
-		CreatedAt: time.Now().UTC(),
 	},
 	{
 		SubjectID: "subject_id3",
 		Alias:     "alias pro",
 		AvatarURL: "url",
 		Version:   1,
-		UpdatedAt: time.Now().UTC(),
-		CreatedAt: time.Now().UTC(),
 	},
 }
 
@@ -128,7 +122,7 @@ func initData(t *testing.T) {
 	}
 
 	for _, prof := range InitProfiles {
-		_, err = s.AddProfile(t.Context(), prof)
+		_, err = s.AddProfile(t.Context(), prof.SubjectID, prof.Alias, prof.AvatarURL)
 		if err != nil {
 			t.Fatalf("first add: %v", err)
 		}
@@ -150,7 +144,7 @@ func TestStorage_AddProfile(t *testing.T) {
 		CreatedAt: time.Now().UTC(),
 	}
 
-	profileFromDB, err := s.AddProfile(t.Context(), profileToAdd)
+	profileFromDB, err := s.AddProfile(t.Context(), profileToAdd.SubjectID, profileToAdd.Alias, profileToAdd.AvatarURL)
 	if err != nil {
 		t.Fatalf("first add: %v", err)
 	}
@@ -162,7 +156,7 @@ func TestStorage_AddProfile(t *testing.T) {
 		t.Fatalf("retrieved profile does not match added profile")
 	}
 
-	_, err = s.AddProfile(t.Context(), profileToAdd)
+	_, err = s.AddProfile(t.Context(), profileToAdd.SubjectID, profileToAdd.Alias, profileToAdd.AvatarURL)
 	if err == nil {
 		t.Fatalf("expected error on duplicate add, got nil")
 	}

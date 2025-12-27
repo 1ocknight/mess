@@ -7,10 +7,10 @@ import (
 )
 
 type Service interface {
-	AddProfile(ctx context.Context, profile *model.Profile) (*model.Profile, error)
+	AddProfile(ctx context.Context, subjID string, alias string, avatarURL string) (*model.Profile, error)
 	GetProfileFromSubjectID(ctx context.Context, subjID string) (*model.Profile, error)
 	UpdateProfile(ctx context.Context, profile *model.Profile) (*model.Profile, error)
-	GetProfilesFromAlias(ctx context.Context, size int, asc bool, sortLabel Label, alias string)
+	GetProfilesFromAlias(ctx context.Context, size int, asc bool, sortLabel Label, alias string) (string, []*model.Profile, error)
 	GetProfilesFromAliasWithToken(ctx context.Context, token, alias string) (string, []*model.Profile, error)
 	DeleteProfileFromSubjectID(ctx context.Context, subjID string) error
 }
