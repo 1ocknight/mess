@@ -14,27 +14,27 @@ type loggerCtxKey struct{}
 
 var LoggerKey = loggerCtxKey{}
 
-type Log struct {
+type log struct {
 	lg *slog.Logger
 }
 
-func New(handler slog.Handler) *Log {
+func New(handler slog.Handler) *log {
 	lg := slog.New(handler)
-	return &Log{
+	return &log{
 		lg: lg,
 	}
 }
 
-func (l *Log) Info(msg string) {
+func (l *log) Info(msg string) {
 	l.lg.Info(msg)
 }
 
-func (l *Log) Error(err error) {
+func (l *log) Error(err error) {
 	l.lg.Error(err.Error())
 }
 
-func (l *Log) With(key string, val any) Logger {
-	return &Log{
+func (l *log) With(key string, val any) Logger {
+	return &log{
 		lg: l.lg.With(slog.Any(key, val)),
 	}
 }
