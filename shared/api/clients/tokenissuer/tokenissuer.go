@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	pb "github.com/TATAROmangol/mess/shared/api/pb/tokenissuer"
+	"github.com/TATAROmangol/mess/shared/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -14,15 +15,9 @@ type Config struct {
 	Port int    `yaml:"port"`
 }
 
-type Subject interface {
-	GetSubjectId() string
-	GetName() string
-	GetEmail() string
-}
-
 type Client interface {
 	Close() error
-	Verify(ctx context.Context, token string, tokenType string) (Subject, error)
+	Verify(ctx context.Context, token string, tokenType string) (model.Subject, error)
 }
 
 type ClientIMPL struct {
@@ -54,7 +49,7 @@ func (c *ClientIMPL) Close() error {
 	return c.conn.Close()
 }
 
-func (c *ClientIMPL) Verify(ctx context.Context, token string, tokenType string) (Subject, error) {
+func (c *ClientIMPL) Verify(ctx context.Context, token string, tokenType string) (model.Subject, error) {
 	req := pb.VerifyRequest{
 		AccessToken: token,
 		TokenType:   tokenType,
