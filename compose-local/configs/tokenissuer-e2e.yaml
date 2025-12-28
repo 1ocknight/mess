@@ -1,5 +1,5 @@
 keycloak:
-  jwks_endpoint: http://keycloak:8080/realms/e2e/protocol/openid-connect/certs
+  jwks_endpoint: http://keycloak:8080/realms/e2e-realm/protocol/openid-connect/certs
   timeout: 5s
 
 grpc:

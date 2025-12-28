@@ -1,0 +1,1 @@
+minio-address="localhost:9000"

@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
     volumes:
-      - ./pq/data:/var/lib/postgresql/data
+      - pqdata:/var/lib/postgresql/data
     ports:
       - "5430:5432"
 
@@ -21,7 +21,7 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     volumes:
-      - ./minio/data:/data
+      - miniodata:/data
     command: server /data --console-address ":9001"
     restart: unless-stopped
 
@@ -84,3 +84,6 @@ services:
       - keycloak
       - tokenissuer-e2e
 
+volumes:
+  miniodata:
+  pqdata:

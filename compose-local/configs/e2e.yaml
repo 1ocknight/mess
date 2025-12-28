@@ -1,11 +1,11 @@
 token_issuer:
   adapter:
-    url: http://keycloak:8080/realms/e2e/protocol/openid-connect/token
+    url: http://keycloak:8080/realms/e2e-realm/protocol/openid-connect/token
     client_id: e2e
-    client_secret: fTQwn8jHrT5uJDbn20b1g1jntRFiPU5w
+    client_secret: e2e
     login: e2e
     password: e2e
-    subject_id: 758c5b0e-aacf-49e9-a150-d43f896f0b45
+    subject_id: 2b6f8158-82b2-47fc-a320-be6b19680a7a
     token_duration: 5m
   issuer:
     verify_grpc_address: tokenissuer-e2e:50052
