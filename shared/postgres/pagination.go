@@ -84,7 +84,7 @@ func ParsePaginationToken(token string) (*Pagination, error) {
 	return &p, nil
 }
 
-func MakeQueryWithPagination[T Keyer](ctx context.Context, db *sqlx.DB, b sq.SelectBuilder, p *Pagination) (*Pagination, []T, error) {
+func MakeQueryWithPagination[T Keyer](ctx context.Context, exec sqlx.ExtContext, b sq.SelectBuilder, p *Pagination) (*Pagination, []T, error) {
 	if p == nil || p.Last == nil || p.Sort == nil {
 		return nil, nil, fmt.Errorf("invalid pagination")
 	}
@@ -99,7 +99,7 @@ func MakeQueryWithPagination[T Keyer](ctx context.Context, db *sqlx.DB, b sq.Sel
 	}
 
 	var res []T
-	err = db.SelectContext(ctx, &res, query, args...)
+	err = sqlx.SelectContext(ctx, exec, &res, query, args...)
 	if err != nil {
 		return nil, nil, fmt.Errorf("db get: %w", err)
 	}
