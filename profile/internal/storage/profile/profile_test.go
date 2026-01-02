@@ -1,8 +1,6 @@
 package profile_test
 
 import (
-	"time"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 
 	"testing"
@@ -25,8 +23,6 @@ func TestStorage_AddProfile(t *testing.T) {
 		SubjectID: "subject_id",
 		Alias:     "alias",
 		Version:   1,
-		UpdatedAt: time.Now().UTC(),
-		CreatedAt: time.Now().UTC(),
 	}
 
 	profileFromDB, err := s.AddProfile(t.Context(), profileToAdd.SubjectID, profileToAdd.Alias, profileToAdd.AvatarKey)
