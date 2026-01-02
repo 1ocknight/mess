@@ -1,2 +1,2 @@
--- Active: 1766314077599@@127.0.0.1@5430@profile@public
+-- Active: 1766314077599@@127.0.0.1@5430@profile
 DROP TABLE IF EXISTS profile;

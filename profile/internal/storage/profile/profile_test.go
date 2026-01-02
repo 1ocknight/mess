@@ -1,9 +1,6 @@
 package profile_test
 
 import (
-	"context"
-	"fmt"
-	"os"
 	"time"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -15,156 +12,43 @@ import (
 	"github.com/TATAROmangol/mess/profile/internal/model"
 	p "github.com/TATAROmangol/mess/profile/internal/storage/profile"
 	"github.com/TATAROmangol/mess/shared/postgres"
-
-	pgcontainer "github.com/testcontainers/testcontainers-go/modules/postgres"
 )
-
-var CFG pq.Config
-
-const (
-	MigrationsPath = "file://../../../migrations/"
-)
-
-var InitProfiles = []*model.Profile{
-	{
-		SubjectID: "subject_id1",
-		Alias:     "al",
-		AvatarURL: "url",
-		Version:   1,
-	},
-	{
-		SubjectID: "subject_id2",
-		Alias:     "alias",
-		AvatarURL: "url",
-		Version:   1,
-	},
-	{
-		SubjectID: "subject_id3",
-		Alias:     "alias pro",
-		AvatarURL: "url",
-		Version:   1,
-	},
-}
-
-// init pg container
-func TestMain(m *testing.M) {
-	ctx := context.Background()
-
-	container, err := pgcontainer.Run(
-		ctx,
-		"postgres:15-alpine",
-		pgcontainer.WithDatabase("test"),
-		pgcontainer.WithUsername("test"),
-		pgcontainer.WithPassword("test"),
-		pgcontainer.BasicWaitStrategies(),
-	)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "failed to start postgres container:", err)
-		os.Exit(1)
-	}
-	defer container.Terminate(ctx)
-
-	host, err := container.Host(ctx)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "failed to get container host:", err)
-		os.Exit(1)
-	}
-
-	port, err := container.MappedPort(ctx, "5432/tcp")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "failed to get container port:", err)
-		os.Exit(1)
-	}
-
-	CFG = pq.Config{
-		Host:     host,
-		Port:     port.Int(),
-		User:     "test",
-		Password: "test",
-		DBName:   "test",
-		SSLMode:  "disable",
-	}
-
-	mig, err := pq.NewMigrator(CFG, MigrationsPath)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "failed to create migrator:", err)
-		os.Exit(1)
-	}
-
-	if err := mig.Up(); err != nil {
-		fmt.Fprintln(os.Stderr, "failed to run migrations:", err)
-		os.Exit(1)
-	}
-
-	os.Exit(m.Run())
-}
-
-func cleanupDB(t *testing.T) {
-	t.Helper()
-
-	db, err := pq.New(CFG)
-	if err != nil {
-		t.Fatalf("connect to db: %v", err)
-	}
-
-	_, err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE", p.ProfileTable))
-	if err != nil {
-		t.Fatalf("cleanup db: %v", err)
-	}
-}
-
-func initData(t *testing.T) {
-	t.Helper()
-
-	s, err := p.New(CFG)
-	if err != nil {
-		t.Fatalf("could not construct receiver type: %v", err)
-	}
-
-	for _, prof := range InitProfiles {
-		_, err = s.AddProfile(t.Context(), prof.SubjectID, prof.Alias, prof.AvatarURL)
-		if err != nil {
-			t.Fatalf("first add: %v", err)
-		}
-	}
-}
 
 func TestStorage_AddProfile(t *testing.T) {
 	s, err := p.New(CFG)
 	if err != nil {
 		t.Fatalf("could not construct receiver type: %v", err)
 	}
+	defer cleanupDB(t)
 
 	profileToAdd := &model.Profile{
 		SubjectID: "subject_id",
 		Alias:     "alias",
-		AvatarURL: "url",
 		Version:   1,
 		UpdatedAt: time.Now().UTC(),
 		CreatedAt: time.Now().UTC(),
 	}
 
-	profileFromDB, err := s.AddProfile(t.Context(), profileToAdd.SubjectID, profileToAdd.Alias, profileToAdd.AvatarURL)
+	profileFromDB, err := s.AddProfile(t.Context(), profileToAdd.SubjectID, profileToAdd.Alias, profileToAdd.AvatarKey)
 	if err != nil {
 		t.Fatalf("first add: %v", err)
 	}
 
 	if profileFromDB.SubjectID != profileToAdd.SubjectID ||
 		profileFromDB.Alias != profileToAdd.Alias ||
-		profileFromDB.AvatarURL != profileToAdd.AvatarURL ||
-		profileFromDB.Version != profileToAdd.Version {
+		profileFromDB.AvatarKey != profileToAdd.AvatarKey ||
+		profileFromDB.Version != profileToAdd.Version ||
+		profileFromDB.DeletedAt != nil {
 		t.Fatalf("retrieved profile does not match added profile")
 	}
 
-	_, err = s.AddProfile(t.Context(), profileToAdd.SubjectID, profileToAdd.Alias, profileToAdd.AvatarURL)
+	_, err = s.AddProfile(t.Context(), profileToAdd.SubjectID, profileToAdd.Alias, profileToAdd.AvatarKey)
 	if err == nil {
 		t.Fatalf("expected error on duplicate add, got nil")
 	}
-
-	cleanupDB(t)
 }
 
-func TestStorage_UpdateProfile(t *testing.T) {
+func TestStorage_UpdateProfileMetadata(t *testing.T) {
 	s, err := p.New(CFG)
 	if err != nil {
 		t.Fatalf("could not construct receiver type: %v", err)
@@ -173,48 +57,48 @@ func TestStorage_UpdateProfile(t *testing.T) {
 	initData(t)
 	defer cleanupDB(t)
 
+	type temp struct {
+		SubjectID   string
+		Alias       string
+		PrevVersion int
+	}
+
 	tests := []struct {
 		name    string
-		profile *model.Profile
+		profile temp
 		wantErr bool
 	}{
 		{
 			name: "successful update",
-			profile: &model.Profile{
-				SubjectID: "subject_id1",
-				Alias:     "new_alias",
-				AvatarURL: "new_url",
-				Version:   2,
-				UpdatedAt: time.Now().UTC(),
+			profile: temp{
+				SubjectID:   InitProfiles[0].SubjectID,
+				Alias:       "new_alias",
+				PrevVersion: 1,
 			},
 			wantErr: false,
 		},
 		{
-			name: "nont version update",
-			profile: &model.Profile{
-				SubjectID: "subject_id",
-				Alias:     "another_alias",
-				AvatarURL: "another_url",
-				Version:   2,
-				UpdatedAt: time.Now().UTC(),
+			name: "non version update",
+			profile: temp{
+				SubjectID:   InitProfiles[0].SubjectID,
+				Alias:       "another_alias",
+				PrevVersion: 1,
 			},
 			wantErr: true,
 		},
 		{
 			name: "update non-existing profile",
-			profile: &model.Profile{
-				SubjectID: "non_existing_subject_id",
-				Alias:     "alias",
-				AvatarURL: "url",
-				Version:   1,
-				UpdatedAt: time.Now().UTC(),
+			profile: temp{
+				SubjectID:   "non_existing_subject_id",
+				Alias:       "alias",
+				PrevVersion: 1,
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			updatedProfile, gotErr := s.UpdateProfile(t.Context(), tt.profile)
+			updatedProfile, gotErr := s.UpdateProfileMetadata(t.Context(), tt.profile.SubjectID, tt.profile.PrevVersion, tt.profile.Alias)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("UpdateProfile() failed: %v", gotErr)
@@ -226,15 +110,39 @@ func TestStorage_UpdateProfile(t *testing.T) {
 			}
 
 			if updatedProfile.Alias != tt.profile.Alias ||
-				updatedProfile.AvatarURL != tt.profile.AvatarURL ||
-				updatedProfile.Version != tt.profile.Version {
-				t.Errorf("Profile not updated correctly")
+				updatedProfile.Version != tt.profile.PrevVersion+1 {
+				t.Errorf("Profile not updated correctly new: %v, prev: %v", updatedProfile, tt.profile)
 			}
 		})
 	}
 }
 
-func TestStorage_getProfilesWithPagination_Sort(t *testing.T) {
+func TestStorage_UpdateAvatarKey(t *testing.T) {
+	s, err := p.New(CFG)
+	if err != nil {
+		t.Fatalf("could not construct receiver type: %v", err)
+	}
+
+	initData(t)
+	defer cleanupDB(t)
+
+	key := "test-key"
+	err = s.UpdateAvatarKey(t.Context(), InitProfiles[0].SubjectID, key)
+	if err != nil {
+		t.Fatalf("update avatar key: %v", err)
+	}
+
+	prof, err := s.GetProfileFromSubjectID(t.Context(), InitProfiles[0].SubjectID)
+	if err != nil {
+		t.Fatalf("get profile from subject id: %v", err)
+	}
+
+	if *prof.AvatarKey != key {
+		t.Fatalf("avatar keys not equals, new: %v, cur %v", *prof.AvatarKey, key)
+	}
+}
+
+func TestStorage_GetProfilesWithPagination_Sort(t *testing.T) {
 	s, err := p.New(CFG)
 	if err != nil {
 		t.Fatalf("could not construct receiver type: %v", err)
@@ -266,7 +174,7 @@ func TestStorage_getProfilesWithPagination_Sort(t *testing.T) {
 				t.Context(),
 				3,
 				tt.asc,
-				p.AliasLabel,
+				p.ProfileAliasLabel,
 				"al",
 			)
 			if err != nil {
@@ -300,7 +208,7 @@ func TestStorage_getProfilesWithPagination_Sort(t *testing.T) {
 	}
 }
 
-func TestStorage_getProfilesWithPagination_Pagination(t *testing.T) {
+func TestStorage_GetProfilesWithPagination_Pagination(t *testing.T) {
 	s, err := p.New(CFG)
 	if err != nil {
 		t.Fatalf("could not construct receiver type: %v", err)
@@ -311,8 +219,8 @@ func TestStorage_getProfilesWithPagination_Pagination(t *testing.T) {
 
 	alias := "al"
 
-	last := postgres.NewLast(p.SubjectIDLabel, nil)
-	sort := postgres.NewSort(p.AliasLabel, true)
+	last := postgres.NewLast(p.ProfileSubjectIDLabel, nil)
+	sort := postgres.NewSort(p.ProfileAliasLabel, true)
 
 	pag := postgres.NewPagination(
 		2,
@@ -351,7 +259,7 @@ func TestStorage_getProfilesWithPagination_Pagination(t *testing.T) {
 	}
 }
 
-func TestStorage_DeleteProfileFromSubjectID(t *testing.T) {
+func TestStorage_DeleteProfile(t *testing.T) {
 	s, err := p.New(CFG)
 	if err != nil {
 		t.Fatalf("could not construct receiver type: %v", err)
@@ -362,12 +270,12 @@ func TestStorage_DeleteProfileFromSubjectID(t *testing.T) {
 
 	delID := InitProfiles[0].SubjectID
 
-	err = s.DeleteProfileFromSubjectID(t.Context(), delID)
+	err = s.DeleteProfile(t.Context(), delID)
 	if err != nil {
 		t.Fatalf("delete profile from subjectID: %v", err)
 	}
 
-	_, res, err := s.GetProfilesFromAlias(t.Context(), 100, true, p.AliasLabel, "")
+	_, res, err := s.GetProfilesFromAlias(t.Context(), 100, true, p.ProfileAliasLabel, "")
 	if err != nil {
 		t.Fatalf("get profiles from alias: %v", err)
 	}
@@ -376,8 +284,32 @@ func TestStorage_DeleteProfileFromSubjectID(t *testing.T) {
 		t.Fatalf("not delete profile")
 	}
 
-	err = s.DeleteProfileFromSubjectID(t.Context(), "not")
-	if err == nil {
-		t.Fatalf("not err not found")
+	err = s.DeleteProfile(t.Context(), "not")
+	if err != nil {
+		t.Fatalf("delete profile subject id: %v", err)
+	}
+}
+
+func TestStorage_DeleteAvatarKey(t *testing.T) {
+	s, err := p.New(CFG)
+	if err != nil {
+		t.Fatalf("could not construct receiver type: %v", err)
+	}
+
+	initData(t)
+	defer cleanupDB(t)
+
+	err = s.DeleteAvatarKey(t.Context(), InitProfiles[0].SubjectID)
+	if err != nil {
+		t.Fatalf("delete avatar key: %v", err)
+	}
+
+	prof, err := s.GetProfileFromSubjectID(t.Context(), InitProfiles[0].SubjectID)
+	if err != nil {
+		t.Fatalf("get profile from subject id: %v", err)
+	}
+
+	if prof.AvatarKey != nil {
+		t.Fatalf("avatar key not nil")
 	}
 }

@@ -37,13 +37,9 @@ func TestMain(m *testing.M) {
 
 func cleanUP(t *testing.T, s *avatar.Storage) {
 	ctx := context.Background()
-	notDeleted, err := s.DeleteObjects(ctx, TestIDs)
+	err := s.DeleteObjects(ctx, TestIDs)
 	if err != nil {
 		t.Logf("cleanup failed: %v", err)
-	}
-
-	if len(notDeleted) != 0 {
-		t.Fatalf("expected all objects to be deleted, not deleted: %v", notDeleted)
 	}
 }
 
@@ -117,12 +113,8 @@ func TestDeleteObjects(t *testing.T) {
 	}
 
 	uploadDefaultFiles(t.Context(), t, st)
-	notDeleted, err := st.DeleteObjects(t.Context(), TestIDs)
+	err = st.DeleteObjects(t.Context(), TestIDs)
 	if err != nil {
 		t.Fatalf("DeleteObjects failed: %v", err)
-	}
-
-	if len(notDeleted) != 0 {
-		t.Fatalf("expected all objects to be deleted, not deleted: %v", notDeleted)
 	}
 }

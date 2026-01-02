@@ -67,13 +67,13 @@ func (s *Storage) GetAvatarURL(ctx context.Context, key string) (string, error) 
 }
 
 // returns non deleted keys
-func (s *Storage) DeleteObjects(ctx context.Context, keys []string) ([]string, error) {
+func (s *Storage) DeleteObjects(ctx context.Context, keys []string) error {
 	objects := make([]types.ObjectIdentifier, len(keys))
 	for i, key := range keys {
 		objects[i] = types.ObjectIdentifier{Key: aws.String(key)}
 	}
 
-	resp, err := s.c.DeleteObjects(ctx,
+	_, err := s.c.DeleteObjects(ctx,
 		&s3.DeleteObjectsInput{
 			Bucket: &s.cfg.Bucket,
 			Delete: &types.Delete{
@@ -83,13 +83,8 @@ func (s *Storage) DeleteObjects(ctx context.Context, keys []string) ([]string, e
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("delete objects")
+		return fmt.Errorf("delete objects")
 	}
 
-	notDeleted := make([]string, 0, len(resp.Errors))
-	for _, errObj := range resp.Errors {
-		notDeleted = append(notDeleted, *errObj.Key)
-	}
-
-	return notDeleted, nil
+	return nil
 }
