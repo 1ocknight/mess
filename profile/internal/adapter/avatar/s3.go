@@ -81,8 +81,8 @@ func (s *S3) DeleteObjects(ctx context.Context, keys []string) error {
 			Bucket: &s.cfg.Bucket,
 			Delete: &types.Delete{
 				Objects: objects,
+				Quiet:   aws.Bool(false),
 			},
-			s3.WithPresignExpires(s.cfg.PresignDuration),
 		},
 	)
 
