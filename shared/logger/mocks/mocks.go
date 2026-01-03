@@ -7,6 +7,7 @@ package loggermocks
 import (
 	reflect "reflect"
 
+	logger "github.com/TATAROmangol/mess/shared/logger"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -67,4 +68,18 @@ func (m *MockLogger) Info(msg string) {
 func (mr *MockLoggerMockRecorder) Info(msg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Info", reflect.TypeOf((*MockLogger)(nil).Info), msg)
+}
+
+// With mocks base method.
+func (m *MockLogger) With(key string, val any) logger.Logger {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "With", key, val)
+	ret0, _ := ret[0].(logger.Logger)
+	return ret0
+}
+
+// With indicates an expected call of With.
+func (mr *MockLoggerMockRecorder) With(key, val interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "With", reflect.TypeOf((*MockLogger)(nil).With), key, val)
 }
