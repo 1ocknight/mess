@@ -10,14 +10,6 @@ github.com/Masterminds/squirrel v1.5.4 h1:uUcX/aBc8O7Fg9kaISIUsHXdKuqehiXAMQTYX8
 github.com/Masterminds/squirrel v1.5.4/go.mod h1:NNaOrjSoIDfDA40n7sr2tPNZRfjzjA400rg+riTZj10=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
-github.com/TATAROmangol/mess/shared v0.0.0-20260102063702-335232f0e2f0 h1:X6VNZ/Vp24kE+XCXATYSfpBi72AdJnh3evovNvdDcyM=
-github.com/TATAROmangol/mess/shared v0.0.0-20260102063702-335232f0e2f0/go.mod h1:moDY0EUMjBNg1NENZyTzIARbqX0pQvyOAvwBI+pbRRQ=
-github.com/TATAROmangol/mess/shared v0.0.0-20260103063939-a1f72623ce72 h1:rOccEKAbUbPqPXQhK36YUvkIWMU/M2Nv5TygrpwwS/E=
-github.com/TATAROmangol/mess/shared v0.0.0-20260103063939-a1f72623ce72/go.mod h1:moDY0EUMjBNg1NENZyTzIARbqX0pQvyOAvwBI+pbRRQ=
-github.com/TATAROmangol/mess/shared v0.0.0-20260103072159-9b32a00a31a3 h1:jJWEf9p7aePwDdd7BVjZGgUgaJCyOljjOVJTciBvF28=
-github.com/TATAROmangol/mess/shared v0.0.0-20260103072159-9b32a00a31a3/go.mod h1:moDY0EUMjBNg1NENZyTzIARbqX0pQvyOAvwBI+pbRRQ=
-github.com/TATAROmangol/mess/shared v0.0.0-20260103083006-5ee2034fbab1 h1:NRDAzqXJUJmRpbVk2rQkD1aqzmNHiCURHVxx3+BGZ60=
-github.com/TATAROmangol/mess/shared v0.0.0-20260103083006-5ee2034fbab1/go.mod h1:moDY0EUMjBNg1NENZyTzIARbqX0pQvyOAvwBI+pbRRQ=
 github.com/TATAROmangol/mess/shared v0.0.0-20260104004405-f2d60a491afe h1:TKyUN7VVfWyLD96ynB9iMENUc9cvNf0GE4172u/E8oc=
 github.com/TATAROmangol/mess/shared v0.0.0-20260104004405-f2d60a491afe/go.mod h1:moDY0EUMjBNg1NENZyTzIARbqX0pQvyOAvwBI+pbRRQ=
 github.com/aws/aws-sdk-go-v2 v1.41.0 h1:tNvqh1s+v0vFYdA1xq0aOJH+Y5cRyZ5upu6roPgPKd4=
