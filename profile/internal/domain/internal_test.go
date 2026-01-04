@@ -9,6 +9,31 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
+func TestDomain_UpdateAvatar_EqualKeys(t *testing.T) {
+	const SubjID = "subj-1"
+
+	ind := domain.NewAvatarIdentifier(SubjID, utils.StringPtr("test"))
+	key, err := ind.Key()
+	if err != nil {
+		t.Fatalf("key: %v", err)
+	}
+
+	profile := &model.Profile{
+		SubjectID: SubjID,
+		AvatarKey: &key,
+	}
+
+	env := newTestEnv(t)
+	defer env.Finish()
+
+	env.profile.EXPECT().GetProfileFromSubjectID(env.ctx, SubjID).Return(profile, nil)
+
+	err = env.domain.UpdateAvatar(env.ctx, SubjID, key)
+	if err != nil {
+		t.Fatalf("update avatar: %v", err)
+	}
+}
+
 func TestDomain_UpdateAvatar_IncorrectPreviousKey(t *testing.T) {
 	const SubjID = "subj-1"
 

@@ -25,6 +25,10 @@ func (d *Domain) UpdateAvatar(ctx context.Context, subjID string, avatarKey stri
 		return fmt.Errorf("profile get profile from subject id: %v", err)
 	}
 
+	if utils.StringPtrEqual(profile.AvatarKey, &avatarKey) {
+		return nil
+	}
+
 	if !utils.StringPtrEqual(ind.PreviousKey, profile.AvatarKey) {
 		outboxKey, err := d.Storage.AvatarKeyOutbox().AddKey(ctx, subjID, avatarKey)
 		if err != nil {
