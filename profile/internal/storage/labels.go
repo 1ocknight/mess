@@ -10,7 +10,7 @@ type Table = string
 
 const (
 	ProfileTable         Table = "profile"
-	AvatarKeyOutboxTable Table = "avatar_key_outbox"
+	AvatarKeyOutboxTable Table = "avatar_outbox"
 )
 
 type Label = string

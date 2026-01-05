@@ -43,7 +43,7 @@ var InitProfiles = []*model.Profile{
 	},
 }
 
-var InitAvatarKeys = []*model.AvatarKeyOutbox{
+var InitAvatarKeys = []*model.AvatarOutbox{
 	{
 		SubjectID: "subject_id1",
 		Key:       "key1",
@@ -146,7 +146,7 @@ func initData(t *testing.T) {
 	}
 
 	for _, k := range InitAvatarKeys {
-		_, err = s.AvatarKeyOutbox().AddKey(t.Context(), k.SubjectID, k.Key)
+		_, err = s.AvatarOutbox().AddKey(t.Context(), k.SubjectID, k.Key)
 		if err != nil {
 			t.Fatalf("init add: %v", err)
 		}
@@ -171,7 +171,7 @@ func TestStorage_Transaction_Commit(t *testing.T) {
 		t.Fatalf("delete avatar key: %v", err)
 	}
 
-	key, err := s.AvatarKeyOutbox().AddKey(t.Context(), InitProfiles[0].SubjectID, "test")
+	key, err := s.AvatarOutbox().AddKey(t.Context(), InitProfiles[0].SubjectID, "test")
 	if err != nil {
 		t.Fatalf("add key: %v", err)
 	}
@@ -192,7 +192,7 @@ func TestStorage_Transaction_Commit(t *testing.T) {
 	}
 	assert.Equal(t, prof, prof2)
 
-	keys, err := st.AvatarKeyOutbox().GetKeys(t.Context(), 100)
+	keys, err := st.AvatarOutbox().GetKeys(t.Context(), 100)
 	if err != nil {
 		t.Fatalf("get keys: %v", err)
 	}
@@ -220,7 +220,7 @@ func TestStorage_Transaction_Rollback(t *testing.T) {
 		t.Fatalf("delete avatar key: %v", err)
 	}
 
-	_, err = s.AvatarKeyOutbox().AddKey(t.Context(), InitProfiles[0].SubjectID, "test")
+	_, err = s.AvatarOutbox().AddKey(t.Context(), InitProfiles[0].SubjectID, "test")
 	if err != nil {
 		t.Fatalf("add key: %v", err)
 	}
@@ -235,7 +235,7 @@ func TestStorage_Transaction_Rollback(t *testing.T) {
 		t.Fatalf("get profile from subject id: %v", err)
 	}
 
-	_, err = st.AvatarKeyOutbox().GetKeys(t.Context(), 100)
+	_, err = st.AvatarOutbox().GetKeys(t.Context(), 100)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("get keys: %v", err)
 	}

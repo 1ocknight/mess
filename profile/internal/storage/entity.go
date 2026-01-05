@@ -9,7 +9,7 @@ import (
 type ProfileEntity struct {
 	SubjectID string     `db:"subject_id"`
 	Alias     string     `db:"alias"`
-	AvatarKey *string     `db:"avatar_key"`
+	AvatarKey *string    `db:"avatar_key"`
 	Version   int        `db:"version"`
 	UpdatedAt time.Time  `db:"updated_at"`
 	CreatedAt time.Time  `db:"created_at"`
@@ -40,15 +40,15 @@ func ProfileEntitiesToModels(entities []*ProfileEntity) []*model.Profile {
 	return models
 }
 
-type AvatarKeyOutboxEntity struct {
+type AvatarOutboxEntity struct {
 	SubjectID string     `db:"subject_id"`
 	KeyLabel  string     `db:"key"`
 	CreatedAt time.Time  `db:"created_at"`
 	DeletedAt *time.Time `db:"deleted_at"`
 }
 
-func (p *AvatarKeyOutboxEntity) ToModel() *model.AvatarKeyOutbox {
-	return &model.AvatarKeyOutbox{
+func (p *AvatarOutboxEntity) ToModel() *model.AvatarOutbox {
+	return &model.AvatarOutbox{
 		SubjectID: p.SubjectID,
 		Key:       p.KeyLabel,
 		DeletedAt: p.DeletedAt,
@@ -56,12 +56,12 @@ func (p *AvatarKeyOutboxEntity) ToModel() *model.AvatarKeyOutbox {
 	}
 }
 
-func (p *AvatarKeyOutboxEntity) Key() *string {
+func (p *AvatarOutboxEntity) Key() *string {
 	return &p.KeyLabel
 }
 
-func AvatarKeyOutboxEntitiesToModels(entities []*AvatarKeyOutboxEntity) []*model.AvatarKeyOutbox {
-	models := make([]*model.AvatarKeyOutbox, 0, len(entities))
+func AvatarOutboxEntitiesToModels(entities []*AvatarOutboxEntity) []*model.AvatarOutbox {
+	models := make([]*model.AvatarOutbox, 0, len(entities))
 	for _, entity := range entities {
 		models = append(models, entity.ToModel())
 	}

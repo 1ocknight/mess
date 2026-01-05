@@ -23,21 +23,21 @@ type Profile interface {
 	DeleteAvatarKey(ctx context.Context, subjID string) (*model.Profile, error)
 }
 
-type AvatarKeyOutbox interface {
-	GetKeys(ctx context.Context, limit int) ([]*model.AvatarKeyOutbox, error)
-	AddKey(ctx context.Context, subjectID string, key string) (*model.AvatarKeyOutbox, error)
-	DeleteKeys(ctx context.Context, keys []string) ([]*model.AvatarKeyOutbox, error)
+type AvatarOutbox interface {
+	GetKeys(ctx context.Context, limit int) ([]*model.AvatarOutbox, error)
+	AddKey(ctx context.Context, subjectID string, key string) (*model.AvatarOutbox, error)
+	DeleteKeys(ctx context.Context, keys []string) ([]*model.AvatarOutbox, error)
 }
 
 type Service interface {
 	WithTransaction(ctx context.Context) (ServiceTransaction, error)
 	Profile() Profile
-	AvatarKeyOutbox() AvatarKeyOutbox
+	AvatarOutbox() AvatarOutbox
 }
 
 type ServiceTransaction interface {
 	Profile() Profile
-	AvatarKeyOutbox() AvatarKeyOutbox
+	AvatarOutbox() AvatarOutbox
 	Commit() error
 	Rollback() error
 }
@@ -82,7 +82,7 @@ func (s *Storage) Profile() Profile {
 	}
 }
 
-func (s *Storage) AvatarKeyOutbox() AvatarKeyOutbox {
+func (s *Storage) AvatarOutbox() AvatarOutbox {
 	return &Storage{
 		db:   s.db,
 		exec: s.exec,

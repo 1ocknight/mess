@@ -1,2 +1,2 @@
-CREATE INDEX idx_avatar_key_outbox_subject_id
-ON avatar_key_outbox(subject_id);
+CREATE INDEX idx_avatar_outbox_subject_id
+ON avatar_outbox(subject_id);

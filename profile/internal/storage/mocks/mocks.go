@@ -52,11 +52,12 @@ func (mr *MockProfileMockRecorder) AddProfile(ctx, subjID, alias interface{}) *g
 }
 
 // DeleteAvatarKey mocks base method.
-func (m *MockProfile) DeleteAvatarKey(ctx context.Context, subjID string) error {
+func (m *MockProfile) DeleteAvatarKey(ctx context.Context, subjID string) (*model.Profile, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteAvatarKey", ctx, subjID)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*model.Profile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // DeleteAvatarKey indicates an expected call of DeleteAvatarKey.
@@ -66,11 +67,12 @@ func (mr *MockProfileMockRecorder) DeleteAvatarKey(ctx, subjID interface{}) *gom
 }
 
 // DeleteProfile mocks base method.
-func (m *MockProfile) DeleteProfile(ctx context.Context, subjID string) error {
+func (m *MockProfile) DeleteProfile(ctx context.Context, subjID string) (*model.Profile, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteProfile", ctx, subjID)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*model.Profile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // DeleteProfile indicates an expected call of DeleteProfile.
@@ -127,11 +129,12 @@ func (mr *MockProfileMockRecorder) GetProfilesFromAliasWithToken(ctx, token, ali
 }
 
 // UpdateAvatarKey mocks base method.
-func (m *MockProfile) UpdateAvatarKey(ctx context.Context, subjID, avatarKey string) error {
+func (m *MockProfile) UpdateAvatarKey(ctx context.Context, subjID, avatarKey string) (*model.Profile, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAvatarKey", ctx, subjID, avatarKey)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*model.Profile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UpdateAvatarKey indicates an expected call of UpdateAvatarKey.
@@ -155,71 +158,72 @@ func (mr *MockProfileMockRecorder) UpdateProfileMetadata(ctx, subjectID, prevVer
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProfileMetadata", reflect.TypeOf((*MockProfile)(nil).UpdateProfileMetadata), ctx, subjectID, prevVersion, alias)
 }
 
-// MockAvatarKeyOutbox is a mock of AvatarKeyOutbox interface.
-type MockAvatarKeyOutbox struct {
+// MockAvatarOutbox is a mock of AvatarOutbox interface.
+type MockAvatarOutbox struct {
 	ctrl     *gomock.Controller
-	recorder *MockAvatarKeyOutboxMockRecorder
+	recorder *MockAvatarOutboxMockRecorder
 }
 
-// MockAvatarKeyOutboxMockRecorder is the mock recorder for MockAvatarKeyOutbox.
-type MockAvatarKeyOutboxMockRecorder struct {
-	mock *MockAvatarKeyOutbox
+// MockAvatarOutboxMockRecorder is the mock recorder for MockAvatarOutbox.
+type MockAvatarOutboxMockRecorder struct {
+	mock *MockAvatarOutbox
 }
 
-// NewMockAvatarKeyOutbox creates a new mock instance.
-func NewMockAvatarKeyOutbox(ctrl *gomock.Controller) *MockAvatarKeyOutbox {
-	mock := &MockAvatarKeyOutbox{ctrl: ctrl}
-	mock.recorder = &MockAvatarKeyOutboxMockRecorder{mock}
+// NewMockAvatarOutbox creates a new mock instance.
+func NewMockAvatarOutbox(ctrl *gomock.Controller) *MockAvatarOutbox {
+	mock := &MockAvatarOutbox{ctrl: ctrl}
+	mock.recorder = &MockAvatarOutboxMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockAvatarKeyOutbox) EXPECT() *MockAvatarKeyOutboxMockRecorder {
+func (m *MockAvatarOutbox) EXPECT() *MockAvatarOutboxMockRecorder {
 	return m.recorder
 }
 
 // AddKey mocks base method.
-func (m *MockAvatarKeyOutbox) AddKey(ctx context.Context, subjectID, key string) (*model.AvatarKeyOutbox, error) {
+func (m *MockAvatarOutbox) AddKey(ctx context.Context, subjectID, key string) (*model.AvatarOutbox, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddKey", ctx, subjectID, key)
-	ret0, _ := ret[0].(*model.AvatarKeyOutbox)
+	ret0, _ := ret[0].(*model.AvatarOutbox)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AddKey indicates an expected call of AddKey.
-func (mr *MockAvatarKeyOutboxMockRecorder) AddKey(ctx, subjectID, key interface{}) *gomock.Call {
+func (mr *MockAvatarOutboxMockRecorder) AddKey(ctx, subjectID, key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddKey", reflect.TypeOf((*MockAvatarKeyOutbox)(nil).AddKey), ctx, subjectID, key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddKey", reflect.TypeOf((*MockAvatarOutbox)(nil).AddKey), ctx, subjectID, key)
 }
 
 // DeleteKeys mocks base method.
-func (m *MockAvatarKeyOutbox) DeleteKeys(ctx context.Context, keys []string) error {
+func (m *MockAvatarOutbox) DeleteKeys(ctx context.Context, keys []string) ([]*model.AvatarOutbox, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteKeys", ctx, keys)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].([]*model.AvatarOutbox)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // DeleteKeys indicates an expected call of DeleteKeys.
-func (mr *MockAvatarKeyOutboxMockRecorder) DeleteKeys(ctx, keys interface{}) *gomock.Call {
+func (mr *MockAvatarOutboxMockRecorder) DeleteKeys(ctx, keys interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteKeys", reflect.TypeOf((*MockAvatarKeyOutbox)(nil).DeleteKeys), ctx, keys)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteKeys", reflect.TypeOf((*MockAvatarOutbox)(nil).DeleteKeys), ctx, keys)
 }
 
 // GetKeys mocks base method.
-func (m *MockAvatarKeyOutbox) GetKeys(ctx context.Context, limit int) ([]*model.AvatarKeyOutbox, error) {
+func (m *MockAvatarOutbox) GetKeys(ctx context.Context, limit int) ([]*model.AvatarOutbox, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetKeys", ctx, limit)
-	ret0, _ := ret[0].([]*model.AvatarKeyOutbox)
+	ret0, _ := ret[0].([]*model.AvatarOutbox)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetKeys indicates an expected call of GetKeys.
-func (mr *MockAvatarKeyOutboxMockRecorder) GetKeys(ctx, limit interface{}) *gomock.Call {
+func (mr *MockAvatarOutboxMockRecorder) GetKeys(ctx, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetKeys", reflect.TypeOf((*MockAvatarKeyOutbox)(nil).GetKeys), ctx, limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetKeys", reflect.TypeOf((*MockAvatarOutbox)(nil).GetKeys), ctx, limit)
 }
 
 // MockService is a mock of Service interface.
@@ -245,18 +249,18 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
-// AvatarKeyOutbox mocks base method.
-func (m *MockService) AvatarKeyOutbox() storage.AvatarKeyOutbox {
+// AvatarOutbox mocks base method.
+func (m *MockService) AvatarOutbox() storage.AvatarOutbox {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AvatarKeyOutbox")
-	ret0, _ := ret[0].(storage.AvatarKeyOutbox)
+	ret := m.ctrl.Call(m, "AvatarOutbox")
+	ret0, _ := ret[0].(storage.AvatarOutbox)
 	return ret0
 }
 
-// AvatarKeyOutbox indicates an expected call of AvatarKeyOutbox.
-func (mr *MockServiceMockRecorder) AvatarKeyOutbox() *gomock.Call {
+// AvatarOutbox indicates an expected call of AvatarOutbox.
+func (mr *MockServiceMockRecorder) AvatarOutbox() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AvatarKeyOutbox", reflect.TypeOf((*MockService)(nil).AvatarKeyOutbox))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AvatarOutbox", reflect.TypeOf((*MockService)(nil).AvatarOutbox))
 }
 
 // Profile mocks base method.
@@ -311,18 +315,18 @@ func (m *MockServiceTransaction) EXPECT() *MockServiceTransactionMockRecorder {
 	return m.recorder
 }
 
-// AvatarKeyOutbox mocks base method.
-func (m *MockServiceTransaction) AvatarKeyOutbox() storage.AvatarKeyOutbox {
+// AvatarOutbox mocks base method.
+func (m *MockServiceTransaction) AvatarOutbox() storage.AvatarOutbox {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AvatarKeyOutbox")
-	ret0, _ := ret[0].(storage.AvatarKeyOutbox)
+	ret := m.ctrl.Call(m, "AvatarOutbox")
+	ret0, _ := ret[0].(storage.AvatarOutbox)
 	return ret0
 }
 
-// AvatarKeyOutbox indicates an expected call of AvatarKeyOutbox.
-func (mr *MockServiceTransactionMockRecorder) AvatarKeyOutbox() *gomock.Call {
+// AvatarOutbox indicates an expected call of AvatarOutbox.
+func (mr *MockServiceTransactionMockRecorder) AvatarOutbox() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AvatarKeyOutbox", reflect.TypeOf((*MockServiceTransaction)(nil).AvatarKeyOutbox))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AvatarOutbox", reflect.TypeOf((*MockServiceTransaction)(nil).AvatarOutbox))
 }
 
 // Commit mocks base method.

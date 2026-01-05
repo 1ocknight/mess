@@ -16,7 +16,7 @@ var (
 	deletedATIsNullAvatarKeyFilter = fmt.Sprintf("%v %v", AvatarKeyOutboxDeletedAtLabel, IsNullLabel)
 )
 
-func (s *Storage) GetKeys(ctx context.Context, limit int) ([]*model.AvatarKeyOutbox, error) {
+func (s *Storage) GetKeys(ctx context.Context, limit int) ([]*model.AvatarOutbox, error) {
 	query, args, err := sq.
 		Select(AllLabelsSelect).
 		From(AvatarKeyOutboxTable).
@@ -29,7 +29,7 @@ func (s *Storage) GetKeys(ctx context.Context, limit int) ([]*model.AvatarKeyOut
 		return nil, fmt.Errorf("build select not deleted key sql: %w", err)
 	}
 
-	var entities []*AvatarKeyOutboxEntity
+	var entities []*AvatarOutboxEntity
 	err = sqlx.SelectContext(ctx, s.exec, &entities, query, args...)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -38,10 +38,10 @@ func (s *Storage) GetKeys(ctx context.Context, limit int) ([]*model.AvatarKeyOut
 		return nil, fmt.Errorf("db get: %w", err)
 	}
 
-	return AvatarKeyOutboxEntitiesToModels(entities), nil
+	return AvatarOutboxEntitiesToModels(entities), nil
 }
 
-func (s *Storage) AddKey(ctx context.Context, subjectID string, key string) (*model.AvatarKeyOutbox, error) {
+func (s *Storage) AddKey(ctx context.Context, subjectID string, key string) (*model.AvatarOutbox, error) {
 	query, args, err := sq.
 		Insert(AvatarKeyOutboxTable).
 		Columns(
@@ -59,7 +59,7 @@ func (s *Storage) AddKey(ctx context.Context, subjectID string, key string) (*mo
 		return nil, fmt.Errorf("build insert profile sql: %w", err)
 	}
 
-	var entity AvatarKeyOutboxEntity
+	var entity AvatarOutboxEntity
 	err = sqlx.GetContext(ctx, s.exec, &entity, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("db get: %w", err)
@@ -68,9 +68,9 @@ func (s *Storage) AddKey(ctx context.Context, subjectID string, key string) (*mo
 	return entity.ToModel(), nil
 }
 
-func (s *Storage) DeleteKeys(ctx context.Context, keys []string) ([]*model.AvatarKeyOutbox, error) {
+func (s *Storage) DeleteKeys(ctx context.Context, keys []string) ([]*model.AvatarOutbox, error) {
 	if len(keys) == 0 {
-		return []*model.AvatarKeyOutbox{}, nil
+		return []*model.AvatarOutbox{}, nil
 	}
 
 	query, args, err := sq.
@@ -86,11 +86,11 @@ func (s *Storage) DeleteKeys(ctx context.Context, keys []string) ([]*model.Avata
 		return nil, fmt.Errorf("build update avatar keys sql: %w", err)
 	}
 
-	var entities []*AvatarKeyOutboxEntity
+	var entities []*AvatarOutboxEntity
 	err = sqlx.SelectContext(ctx, s.exec, &entities, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("db get: %w", err)
 	}
 
-	return AvatarKeyOutboxEntitiesToModels(entities), nil
+	return AvatarOutboxEntitiesToModels(entities), nil
 }
