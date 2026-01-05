@@ -21,7 +21,7 @@ type TestEnv struct {
 	ctx     context.Context
 	storage *storagemocks.MockService
 	profile *storagemocks.MockProfile
-	outbox  *storagemocks.MockAvatarKeyOutbox
+	outbox  *storagemocks.MockAvatarOutbox
 	avatar  *avatarmocks.MockService
 	tx      *storagemocks.MockServiceTransaction
 	subj    *subjmocks.MockSubject
@@ -33,14 +33,14 @@ func newTestEnv(t *testing.T) *TestEnv {
 
 	storage := storagemocks.NewMockService(ctrl)
 	profile := storagemocks.NewMockProfile(ctrl)
-	outbox := storagemocks.NewMockAvatarKeyOutbox(ctrl)
+	outbox := storagemocks.NewMockAvatarOutbox(ctrl)
 	tx := storagemocks.NewMockServiceTransaction(ctrl)
 
 	storage.EXPECT().Profile().Return(profile).AnyTimes()
-	storage.EXPECT().AvatarKeyOutbox().Return(outbox).AnyTimes()
+	storage.EXPECT().AvatarOutbox().Return(outbox).AnyTimes()
 	storage.EXPECT().WithTransaction(gomock.Any()).Return(tx, nil).AnyTimes()
 	tx.EXPECT().Profile().Return(profile).AnyTimes()
-	tx.EXPECT().AvatarKeyOutbox().Return(outbox).AnyTimes()
+	tx.EXPECT().AvatarOutbox().Return(outbox).AnyTimes()
 	tx.EXPECT().Commit().Return(nil).AnyTimes()
 	tx.EXPECT().Rollback().Return(fmt.Errorf("test")).AnyTimes()
 

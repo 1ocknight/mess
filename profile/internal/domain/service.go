@@ -8,7 +8,7 @@ import (
 	"github.com/TATAROmangol/mess/profile/internal/storage"
 )
 
-type PublicService interface {
+type Service interface {
 	GetCurrentProfile(ctx context.Context) (*model.Profile, string, error)
 
 	GetProfileFromSubjectID(ctx context.Context, subjID string) (*model.Profile, string, error)
@@ -19,18 +19,7 @@ type PublicService interface {
 	UpdateProfileMetadata(ctx context.Context, prevVersion int, alias string) (*model.Profile, string, error)
 	UploadAvatar(ctx context.Context) (string, error)
 
-	DeleteAvatar(ctx context.Context) error
-}
-
-type InternalService interface {
-	UpdateAvatar(ctx context.Context, subjID string, avatarKey string) error
-	DeleteOldAvatars(ctx context.Context) error
-	DeleteProfile(ctx context.Context, subjID string) error
-}
-
-type Service interface {
-	PublicService
-	InternalService
+	DeleteAvatar(ctx context.Context) (*model.Profile, string, error)
 }
 
 const (

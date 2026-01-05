@@ -202,7 +202,7 @@ func TestDomain_LoadAvatar_Success_EmptyPrevKey(t *testing.T) {
 	const SubjID = "subj-1"
 	const URL = "url"
 
-	ind := domain.NewAvatarIdentifier(SubjID, nil)
+	ind := model.NewAvatarIdentifier(SubjID, nil)
 	key, err := ind.Key()
 	if err != nil {
 		t.Fatalf("token: %v", err)
@@ -229,7 +229,7 @@ func TestDomain_LoadAvatar_Success(t *testing.T) {
 	const SubjID = "subj-1"
 	const URL = "url"
 
-	sKey := domain.NewAvatarIdentifier(SubjID, utils.StringPtr("prev-key"))
+	sKey := model.NewAvatarIdentifier(SubjID, utils.StringPtr("prev-key"))
 	src, err := sKey.Key()
 	if err != nil {
 		t.Fatalf("token: %v", err)
@@ -260,7 +260,7 @@ func TestDomain_DeleteAvatar_SuccessWithLogger(t *testing.T) {
 		AvatarKey: utils.StringPtr("avatar-key"),
 	}
 
-	outboxKey := &model.AvatarKeyOutbox{
+	outboxKey := &model.AvatarOutbox{
 		SubjectID: subjID,
 		Key:       "test",
 	}
@@ -274,12 +274,15 @@ func TestDomain_DeleteAvatar_SuccessWithLogger(t *testing.T) {
 		GetProfileFromSubjectID(env.ctx, subjID).
 		Return(profile, nil)
 
-	env.profile.EXPECT().DeleteAvatarKey(env.ctx, subjID).Return(nil)
+	env.profile.EXPECT().DeleteAvatarKey(env.ctx, subjID).Return(profile, nil)
 	env.outbox.EXPECT().AddKey(env.ctx, subjID, *profile.AvatarKey).Return(outboxKey, nil)
 
-	env.lg.EXPECT().With(domain.AvatarOutboxKeyLogLabel, *outboxKey).Return(env.lg)
 	env.lg.EXPECT().Info(gomock.Any())
 
-	err := env.domain.DeleteAvatar(env.ctx)
+	prof, url, err := env.domain.DeleteAvatar(env.ctx)
 	require.NoError(t, err)
+	if url != ""{
+		t.Fatalf("not empty url: %v", url)
+	}
+	require.Equal(t, prof, profile)
 }

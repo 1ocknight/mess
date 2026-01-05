@@ -118,7 +118,7 @@ func (d *Domain) UploadAvatar(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("profile get profile from subject id: %v", err)
 	}
 
-	key, err := NewAvatarIdentifier(prof.SubjectID, prof.AvatarKey).Key()
+	key, err := model.NewAvatarIdentifier(prof.SubjectID, prof.AvatarKey).Key()
 	if err != nil {
 		return "", fmt.Errorf("key: %v", err)
 	}
@@ -131,42 +131,45 @@ func (d *Domain) UploadAvatar(ctx context.Context) (string, error) {
 	return url, nil
 }
 
-func (d *Domain) DeleteAvatar(ctx context.Context) error {
+func (d *Domain) DeleteAvatar(ctx context.Context) (*model.Profile, string, error) {
 	subj, err := ctxkey.ExtractSubject(ctx)
 	if err != nil {
-		return fmt.Errorf("extract subject: %v", err)
+		return nil, "", fmt.Errorf("extract subject: %v", err)
 	}
 	lg, err := ctxkey.ExtractLogger(ctx)
 	if err != nil {
-		return fmt.Errorf("extract logger: %v", err)
+		return nil, "", fmt.Errorf("extract logger: %v", err)
 	}
 
 	prof, err := d.Storage.Profile().GetProfileFromSubjectID(ctx, subj.GetSubjectId())
 	if err != nil {
-		return fmt.Errorf("profile get profile from subject id: %v", err)
+		return nil, "", fmt.Errorf("profile get profile from subject id: %v", err)
 	}
 
 	if prof.AvatarKey == nil {
-		return nil
+		return prof, "", nil
 	}
 
 	s, err := d.Storage.WithTransaction(ctx)
 	if err != nil {
-		return fmt.Errorf("with transaction: %v", err)
+		return nil, "", fmt.Errorf("with transaction: %v", err)
 	}
 	defer s.Rollback()
 
-	if err = s.Profile().DeleteAvatarKey(ctx, prof.SubjectID); err != nil {
-		return fmt.Errorf("profile delete avatar key: %v", err)
-	}
-
-	outboxKey, err := s.AvatarKeyOutbox().AddKey(ctx, prof.SubjectID, *prof.AvatarKey)
+	prof, err = s.Profile().DeleteAvatarKey(ctx, prof.SubjectID)
 	if err != nil {
-		return fmt.Errorf("avatar key outbox add key: %v", err)
+		return nil, "", fmt.Errorf("profile delete avatar key: %v", err)
 	}
 
-	lg.With(AvatarOutboxKeyLogLabel, *outboxKey)
-	lg.Info("add outbox key")
+	outbox, err := s.AvatarOutbox().AddKey(ctx, prof.SubjectID, *prof.AvatarKey)
+	if err != nil {
+		return nil, "", fmt.Errorf("avatar key outbox add key: %v", err)
+	}
+	lg.Info(fmt.Sprintf("add outbox: %v", *outbox))
 
-	return s.Commit()
+	if err := s.Commit(); err != nil {
+		return nil, "", fmt.Errorf("commit: %v", err)
+	}
+
+	return prof, "", nil
 }
