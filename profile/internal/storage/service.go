@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/TATAROmangol/mess/profile/internal/model"
@@ -41,6 +42,10 @@ type ServiceTransaction interface {
 	Commit() error
 	Rollback() error
 }
+
+var (
+	ErrNoRows = sql.ErrNoRows
+)
 
 type Storage struct {
 	db   *sqlx.DB
