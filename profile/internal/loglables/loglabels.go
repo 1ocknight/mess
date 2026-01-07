@@ -5,4 +5,8 @@ const (
 	DeletedAvatarKeys = "deleted_avatar_keys"
 	Profile           = "profile"
 	AvatarKey         = "avatar_key"
+	RequestMetadata   = "request_metadata"
+	Response          = "response"
+	RequestID         = "request_id"
+	StatusResponse    = "status"
 )
