@@ -11,6 +11,7 @@ import (
 	storagemocks "github.com/TATAROmangol/mess/profile/internal/storage/mocks"
 	workers "github.com/TATAROmangol/mess/profile/internal/wokers"
 	loggermocks "github.com/TATAROmangol/mess/shared/logger/mocks"
+	messagequeuemocks "github.com/TATAROmangol/mess/shared/messagequeue/mocks"
 	"github.com/golang/mock/gomock"
 )
 
@@ -18,72 +19,67 @@ func TestAvatarUploader_Upload_SuccessUpdate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	consumer := mqmocks.NewMockConsumer(ctrl)
+	consumer := messagequeuemocks.NewMockConsumer(ctrl)
 	storage := storagemocks.NewMockService(ctrl)
 	profileRepo := storagemocks.NewMockProfile(ctrl)
 	outboxRepo := storagemocks.NewMockAvatarOutbox(ctrl)
 	tx := storagemocks.NewMockServiceTransaction(ctrl)
-
 	lg := loggermocks.NewMockLogger(ctrl)
+
 	ctx := ctxkey.WithLogger(context.Background(), lg)
 
-	au := workers.NewAvatarUploader(workers.AvatarUploaderConfig{}, storage)
-
-	msg := workers.AvatarUploaderMessage{
-		Key: "user/123/avatar/new.png",
+	au := workers.AvatarUploader{
+		Consumer: consumer,
+		Storage:  storage,
 	}
+
+	subjectID := "123"
+	ind := model.NewAvatarIdentifier(subjectID, nil)
+	fKey, _ := ind.Key()
+
+	sInd := model.NewAvatarIdentifier(subjectID, &fKey)
+	sKey, _ := sInd.Key()
+
+	msg := workers.AvatarUploaderMessage{Key: sKey}
 	msgBytes, _ := json.Marshal(msg)
 
-	mqMsg := mqmocks.NewMockMessage(ctrl)
-	subjectID := "123"
-	prevKey := "user/123/avatar/old.png"
+	mqMsg := messagequeuemocks.NewMockMessage(ctrl)
 
 	profileBefore := &model.Profile{
 		SubjectID: subjectID,
-		AvatarKey: &prevKey,
+		AvatarKey: &fKey,
 	}
-
 	profileAfter := &model.Profile{
 		SubjectID: subjectID,
-		AvatarKey: &msg.Key,
+		AvatarKey: &sKey,
 	}
-
 	outbox := &model.AvatarOutbox{
-		Key: prevKey,
+		SubjectID: subjectID,
+		Key:       fKey,
 	}
 
 	consumer.EXPECT().ReadMessage(ctx).Return(mqMsg, nil)
-
 	mqMsg.EXPECT().Value().Return(msgBytes)
 
 	storage.EXPECT().Profile().Return(profileRepo)
-
 	profileRepo.EXPECT().GetProfileFromSubjectID(ctx, subjectID).Return(profileBefore, nil)
 
 	storage.EXPECT().WithTransaction(ctx).Return(tx, nil)
-
 	tx.EXPECT().Profile().Return(profileRepo)
-
 	profileRepo.EXPECT().UpdateAvatarKey(ctx, subjectID, msg.Key).Return(profileAfter, nil)
-
 	lg.EXPECT().With(loglables.Profile, *profileAfter).Return(lg)
 
 	storage.EXPECT().AvatarOutbox().Return(outboxRepo)
-
-	outboxRepo.EXPECT().AddKey(ctx, subjectID, prevKey).Return(outbox, nil)
-
+	outboxRepo.EXPECT().AddKey(ctx, subjectID, fKey).Return(outbox, nil)
 	lg.EXPECT().With(loglables.AvatarOutbox, *outbox).Return(lg)
 
 	tx.EXPECT().Commit().Return(nil)
-
-	tx.EXPECT().Rollback()
+	tx.EXPECT().Rollback().Return(nil)
 
 	consumer.EXPECT().Commit(ctx, mqMsg).Return(nil)
 	lg.EXPECT().Info("success update")
 
-	err := au.Upload(ctx)
-
-	if err != nil {
+	if err := au.Upload(ctx); err != nil {
 		t.Fatalf("upload: %v", err)
 	}
 }

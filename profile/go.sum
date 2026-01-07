@@ -16,6 +16,8 @@ github.com/TATAROmangol/mess/shared v0.0.0-20260104070136-36b1fe3556ce h1:4N0HFN
 github.com/TATAROmangol/mess/shared v0.0.0-20260104070136-36b1fe3556ce/go.mod h1:sw8Ed2Fnx6tmghd5hDuTQfI5hsnTPgWl+hCVzCUVhPA=
 github.com/TATAROmangol/mess/shared v0.0.0-20260104100119-eb8933fc3266 h1:tKfzIZkqzOwvlf4QTOdO14KStYlFPmrnuBkxWo2h0QU=
 github.com/TATAROmangol/mess/shared v0.0.0-20260104100119-eb8933fc3266/go.mod h1:sw8Ed2Fnx6tmghd5hDuTQfI5hsnTPgWl+hCVzCUVhPA=
+github.com/TATAROmangol/mess/shared v0.0.0-20260107093909-314358b75ec0 h1:xMQaAc4i0qsvLmObt7vIEgAR5cDHIWiiu1xpDd2Ke6g=
+github.com/TATAROmangol/mess/shared v0.0.0-20260107093909-314358b75ec0/go.mod h1:sw8Ed2Fnx6tmghd5hDuTQfI5hsnTPgWl+hCVzCUVhPA=
 github.com/aws/aws-sdk-go-v2 v1.41.0 h1:tNvqh1s+v0vFYdA1xq0aOJH+Y5cRyZ5upu6roPgPKd4=
 github.com/aws/aws-sdk-go-v2 v1.41.0/go.mod h1:MayyLB8y+buD9hZqkCW3kX1AKq07Y5pXxtgB+rRFhz0=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.4 h1:489krEF9xIGkOaaX3CE/Be2uWjiXrkCH6gUX+bZA/BU=

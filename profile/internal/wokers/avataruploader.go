@@ -60,16 +60,16 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 		return fmt.Errorf("parse avatar key token: %v", err)
 	}
 
-	profile, err := au.Storage.Profile().GetProfileFromSubjectID(ctx, ind.SubjectID)
+	prevProfile, err := au.Storage.Profile().GetProfileFromSubjectID(ctx, ind.SubjectID)
 	if err != nil {
 		return fmt.Errorf("profile get profile from subject id: %v", err)
 	}
 
-	if utils.StringPtrEqual(profile.AvatarKey, &msg.Key) {
+	if utils.StringPtrEqual(prevProfile.AvatarKey, &msg.Key) {
 		return nil
 	}
 
-	if !utils.StringPtrEqual(ind.PreviousKey, profile.AvatarKey) {
+	if !utils.StringPtrEqual(ind.PreviousKey, prevProfile.AvatarKey) {
 		outboxKey, err := au.Storage.AvatarOutbox().AddKey(ctx, ind.SubjectID, msg.Key)
 		if err != nil {
 			return fmt.Errorf("avatar key outbox add key: %v", err)
@@ -85,7 +85,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 
-	profile, err = tx.Profile().UpdateAvatarKey(ctx, ind.SubjectID, msg.Key)
+	profile, err := tx.Profile().UpdateAvatarKey(ctx, ind.SubjectID, msg.Key)
 	if err != nil {
 		return fmt.Errorf("profile update avatar key: %v", err)
 	}
@@ -98,7 +98,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 		return nil
 	}
 
-	outbox, err := au.Storage.AvatarOutbox().AddKey(ctx, ind.SubjectID, *profile.AvatarKey)
+	outbox, err := au.Storage.AvatarOutbox().AddKey(ctx, ind.SubjectID, *prevProfile.AvatarKey)
 	if err != nil {
 		return fmt.Errorf("avatar key outbox add key: %v", err)
 	}

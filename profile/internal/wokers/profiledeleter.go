@@ -32,11 +32,11 @@ func (cpdm *ClientProfileDeleteMessage) GetSubjectID() string {
 }
 
 type AdminProfileDeleteMessage struct {
-	Data ProfileDeleteMessage `json:"authDetails"`
+	AuthDetails *ClientProfileDeleteMessage `json:"authDetails"`
 }
 
 func (apdm *AdminProfileDeleteMessage) GetSubjectID() string {
-	return apdm.Data.GetSubjectID()
+	return apdm.AuthDetails.GetSubjectID()
 }
 
 type ProfileDeleter struct {

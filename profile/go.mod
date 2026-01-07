@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/TATAROmangol/mess/shared v0.0.0-20260104100119-eb8933fc3266
+	github.com/TATAROmangol/mess/shared v0.0.0-20260107093909-314358b75ec0
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.95.0
 	github.com/golang-migrate/migrate/v4 v4.19.1
