@@ -1,87 +1,136 @@
 package workers
 
-// import (
-// 	"context"
-// 	"fmt"
-// 	"time"
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"time"
 
-// 	"github.com/TATAROmangol/mess/profile/internal/adapter/avatar"
-// 	"github.com/TATAROmangol/mess/profile/internal/ctxkey"
-// 	"github.com/TATAROmangol/mess/profile/internal/storage"
-// )
+	"github.com/TATAROmangol/mess/profile/internal/ctxkey"
+	"github.com/TATAROmangol/mess/profile/internal/loglables"
+	"github.com/TATAROmangol/mess/profile/internal/storage"
+	"github.com/TATAROmangol/mess/shared/messagequeue"
+	"github.com/TATAROmangol/mess/shared/messagequeue/kafka"
+)
 
-// type ProfileDeleterConfig struct {
-// 	runAt        time.Duration `yaml:"run_at"`
-// 	intervalDays int           `yaml:"interval_days"`
-// }
+type ProfileDeleterConfig struct {
+	ClientKafka kafka.ConsumerConfig `yaml:"client_kafka"`
+	AdminKafka  kafka.ConsumerConfig `yaml:"admin_kafka"`
+	Delay       time.Duration        `yaml:"delay"`
+}
 
-// type ProfileDeleter struct {
-// 	cfg     AvatarDeleterConfig
-// 	avatar  avatar.Service
-// 	profile storage.Profile
-// }
+type ProfileDeleteMessage interface {
+	GetSubjectID() string
+}
 
-// func NewProfileDeleter(cfg AvatarDeleterConfig, avatar avatar.Service, outbox storage.AvatarOutbox) *AvatarDeleter {
-// 	return &AvatarDeleter{
-// 		cfg:    cfg,
-// 		avatar: avatar,
-// 		outbox: outbox,
-// 	}
-// }
+type ClientProfileDeleteMessage struct {
+	SubjectID string `json:"userId"`
+}
 
-// func (pd *ProfileDeleter) Delete(ctx context.Context) error {
-// 	prof, err := d.Storage.Profile().DeleteProfile(ctx, subjID)
-// 	if err != nil {
-// 		return fmt.Errorf("profile delete profile: %v", err)
-// 	}
+func (cpdm *ClientProfileDeleteMessage) GetSubjectID() string {
+	return cpdm.SubjectID
+}
 
-// 	if prof.AvatarKey == nil {
-// 		return prof, nil
-// 	}
+type AdminProfileDeleteMessage struct {
+	Data ProfileDeleteMessage `json:"authDetails"`
+}
 
-// 	key, err := d.Storage.AvatarKeyOutbox().AddKey(ctx, prof.SubjectID, *prof.AvatarKey)
-// 	if err != nil {
-// 		return fmt.Errorf("add key: %v", err)
-// 	}
+func (apdm *AdminProfileDeleteMessage) GetSubjectID() string {
+	return apdm.Data.GetSubjectID()
+}
 
-// 	return nil
-// }
+type ProfileDeleter struct {
+	CFG            ProfileDeleterConfig
+	ClientConsumer messagequeue.Consumer
+	AdminConsumer  messagequeue.Consumer
+	Profile        storage.Profile
+}
 
-// func (pd *ProfileDeleter) Start(ctx context.Context) error {
-// 	lg, err := ctxkey.ExtractLogger(ctx)
-// 	if err != nil {
-// 		return fmt.Errorf("extract logger: %v", err)
-// 	}
+func NewProfileDeleter(cfg ProfileDeleterConfig, profile storage.Profile) *ProfileDeleter {
+	clientConsumer := kafka.NewConsumer(cfg.ClientKafka)
+	adminConsumer := kafka.NewConsumer(cfg.AdminKafka)
 
-// 	go func() {
-// 		delay := pd.delayUntilRunAt()
+	return &ProfileDeleter{
+		CFG:            cfg,
+		ClientConsumer: clientConsumer,
+		AdminConsumer:  adminConsumer,
+		Profile:        profile,
+	}
+}
 
-// 		timer := time.NewTimer(delay)
-// 		defer timer.Stop()
+func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeue.Consumer, store storage.Profile) error {
+	lg, err := ctxkey.ExtractLogger(ctx)
+	if err != nil {
+		return fmt.Errorf("extract logger: %v", err)
+	}
 
-// 		select {
-// 		case <-timer.C:
-// 			if err := pd.Delete(ctx); err != nil {
-// 				lg.Error(fmt.Errorf("delete old avatars: %v", err))
-// 			}
-// 		case <-ctx.Done():
-// 			return
-// 		}
+	mqMsg, err := cons.ReadMessage(ctx)
+	if err != nil {
+		return fmt.Errorf("read message: %v", err)
+	}
 
-// 		ticker := time.NewTicker(time.Duration(pd.cfg.intervalDays) * 24 * time.Hour)
-// 		defer ticker.Stop()
+	var msg T
+	if err := json.Unmarshal(mqMsg.Value(), &msg); err != nil {
+		return fmt.Errorf("unmarshal: %v", err)
+	}
 
-// 		for {
-// 			select {
-// 			case <-ticker.C:
-// 				if err := pd.Delete(ctx); err != nil {
-// 					lg.Error(fmt.Errorf("delete old avatars: %v", err))
-// 				}
-// 			case <-ctx.Done():
-// 				return
-// 			}
-// 		}
-// 	}()
+	prof, err := store.DeleteProfile(ctx, msg.GetSubjectID())
+	if err != nil {
+		return fmt.Errorf("delete profile: %v", err)
+	}
+	lg.With(loglables.Profile, *prof)
+	lg.Info("success deleted")
 
-// 	return nil
-// }
+	return nil
+}
+
+func (pd *ProfileDeleter) ClientDelete(ctx context.Context) error {
+	return ProfileDelete[*ClientProfileDeleteMessage](ctx, pd.ClientConsumer, pd.Profile)
+}
+
+func (pd *ProfileDeleter) AdminDelete(ctx context.Context) error {
+	return ProfileDelete[*AdminProfileDeleteMessage](ctx, pd.AdminConsumer, pd.Profile)
+}
+
+func (pd *ProfileDeleter) Start(ctx context.Context) error {
+	lg, err := ctxkey.ExtractLogger(ctx)
+	if err != nil {
+		return fmt.Errorf("extract logger: %v", err)
+	}
+
+	go func() {
+		for {
+			err := pd.ClientDelete(ctx)
+			if err == nil {
+				continue
+			}
+
+			lg.Error(fmt.Errorf("client delete: %v", err))
+
+			select {
+			case <-time.After(pd.CFG.Delay):
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			err := pd.AdminDelete(ctx)
+			if err == nil {
+				continue
+			}
+
+			lg.Error(fmt.Errorf("admin delete: %v", err))
+
+			select {
+			case <-time.After(pd.CFG.Delay):
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	return nil
+}

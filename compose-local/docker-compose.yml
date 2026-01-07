@@ -49,6 +49,11 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: kafka-topics --bootstrap-server kafka:29092 --list
+      interval: 30s
+      timeout: 10s
+      retries: 3
     
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -61,7 +66,7 @@ services:
       - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
 
   keycloak:
-    image: quay.io/keycloak/keycloak:21.1.1
+    image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
     environment:
       KEYCLOAK_ADMIN: admin
@@ -71,12 +76,20 @@ services:
       KC_DB_URL_DATABASE: keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
+      KAFKA_TOPIC: keycloak-events
+      KAFKA_ADMIN_TOPIC: keycloak-admin-events
+      KAFKA_CLIENT_ID: keycloak
+      KAFKA_EVENTS: DELETE_ACCOUNT
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     command: start-dev
     depends_on:
       - postgres
+      - kafka
     ports:
       - "7070:8080"
     restart: unless-stopped
+    volumes:
+    - ./keycloak/keycloak-kafka/target/keycloak-kafka-1.4.0-jar-with-dependencies.jar:/opt/keycloak/providers/kafka.jar
 
   tokenissuer-e2e:
     build:

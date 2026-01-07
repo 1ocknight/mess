@@ -16,8 +16,8 @@ import (
 )
 
 type AvatarUploaderConfig struct {
-	kafka kafka.ConsumerConfig `yaml:"kafka"`
-	delay time.Duration        `yaml:"delay"`
+	Kafka kafka.ConsumerConfig `yaml:"kafka"`
+	Delay time.Duration        `yaml:"delay"`
 }
 
 type AvatarUploaderMessage struct {
@@ -25,17 +25,17 @@ type AvatarUploaderMessage struct {
 }
 
 type AvatarUploader struct {
-	cfg      AvatarUploaderConfig
-	consumer messagequeue.Consumer
-	storage  storage.Service
+	CFG      AvatarUploaderConfig
+	Consumer messagequeue.Consumer
+	Storage  storage.Service
 }
 
 func NewAvatarUploader(cfg AvatarUploaderConfig, storage storage.Service) *AvatarUploader {
-	consumer := kafka.NewConsumer(cfg.kafka)
+	consumer := kafka.NewConsumer(cfg.Kafka)
 	return &AvatarUploader{
-		cfg:      cfg,
-		consumer: consumer,
-		storage:  storage,
+		CFG:      cfg,
+		Consumer: consumer,
+		Storage:  storage,
 	}
 }
 
@@ -45,7 +45,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 		return fmt.Errorf("extract logger: %v", err)
 	}
 
-	mqMsg, err := au.consumer.ReadMessage(ctx)
+	mqMsg, err := au.Consumer.ReadMessage(ctx)
 	if err != nil {
 		return fmt.Errorf("read message: %v", err)
 	}
@@ -60,7 +60,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 		return fmt.Errorf("parse avatar key token: %v", err)
 	}
 
-	profile, err := au.storage.Profile().GetProfileFromSubjectID(ctx, ind.SubjectID)
+	profile, err := au.Storage.Profile().GetProfileFromSubjectID(ctx, ind.SubjectID)
 	if err != nil {
 		return fmt.Errorf("profile get profile from subject id: %v", err)
 	}
@@ -70,7 +70,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 	}
 
 	if !utils.StringPtrEqual(ind.PreviousKey, profile.AvatarKey) {
-		outboxKey, err := au.storage.AvatarOutbox().AddKey(ctx, ind.SubjectID, msg.Key)
+		outboxKey, err := au.Storage.AvatarOutbox().AddKey(ctx, ind.SubjectID, msg.Key)
 		if err != nil {
 			return fmt.Errorf("avatar key outbox add key: %v", err)
 		}
@@ -79,7 +79,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 		return nil
 	}
 
-	tx, err := au.storage.WithTransaction(ctx)
+	tx, err := au.Storage.WithTransaction(ctx)
 	if err != nil {
 		return fmt.Errorf("with transaction: %v", err)
 	}
@@ -98,7 +98,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 		return nil
 	}
 
-	outbox, err := au.storage.AvatarOutbox().AddKey(ctx, ind.SubjectID, *profile.AvatarKey)
+	outbox, err := au.Storage.AvatarOutbox().AddKey(ctx, ind.SubjectID, *profile.AvatarKey)
 	if err != nil {
 		return fmt.Errorf("avatar key outbox add key: %v", err)
 	}
@@ -108,7 +108,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 		return fmt.Errorf("commit: %v", err)
 	}
 
-	if err = au.consumer.Commit(ctx, mqMsg); err != nil {
+	if err = au.Consumer.Commit(ctx, mqMsg); err != nil {
 		return fmt.Errorf("commit: %v", err)
 	}
 
@@ -133,7 +133,7 @@ func (au *AvatarUploader) Start(ctx context.Context) error {
 			lg.Error(fmt.Errorf("upload: %v", err))
 
 			select {
-			case <-time.After(au.cfg.delay):
+			case <-time.After(au.CFG.Delay):
 			case <-ctx.Done():
 				return
 			}

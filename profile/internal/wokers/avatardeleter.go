@@ -17,21 +17,21 @@ const (
 )
 
 type AvatarDeleterConfig struct {
-	runAt        time.Duration `yaml:"run_at"`
-	intervalDays int           `yaml:"interval_days"`
+	RunHourUTC int           `yaml:"run_hour_utc"`
+	Interval   time.Duration `yaml:"interval"`
 }
 
 type AvatarDeleter struct {
-	cfg    AvatarDeleterConfig
-	avatar avatar.Service
-	outbox storage.AvatarOutbox
+	CFG    AvatarDeleterConfig
+	Avatar avatar.Service
+	Outbox storage.AvatarOutbox
 }
 
 func NewAvatarDeleter(cfg AvatarDeleterConfig, avatar avatar.Service, outbox storage.AvatarOutbox) *AvatarDeleter {
 	return &AvatarDeleter{
-		cfg:    cfg,
-		avatar: avatar,
-		outbox: outbox,
+		CFG:    cfg,
+		Avatar: avatar,
+		Outbox: outbox,
 	}
 }
 
@@ -41,16 +41,16 @@ func (ad *AvatarDeleter) Delete(ctx context.Context) error {
 		return fmt.Errorf("extract logger: %v", err)
 	}
 
-	keys, err := ad.outbox.GetKeys(ctx, DeleteAvatarsLimit)
+	keys, err := ad.Outbox.GetKeys(ctx, DeleteAvatarsLimit)
 	if err != nil {
 		return fmt.Errorf("outbox get keys: %v", err)
 	}
 
-	if err = ad.avatar.DeleteObjects(ctx, model.GetOutboxKeys(keys)); err != nil {
+	if err = ad.Avatar.DeleteObjects(ctx, model.GetOutboxKeys(keys)); err != nil {
 		return fmt.Errorf("avatar delete objects: %v", err)
 	}
 
-	outboxes, err := ad.outbox.DeleteKeys(ctx, model.GetOutboxKeys(keys))
+	outboxes, err := ad.Outbox.DeleteKeys(ctx, model.GetOutboxKeys(keys))
 	if err != nil {
 		return fmt.Errorf("outbox delete keys: %v", err)
 	}
@@ -61,21 +61,28 @@ func (ad *AvatarDeleter) Delete(ctx context.Context) error {
 }
 
 func (ad *AvatarDeleter) delayUntilRunAt() time.Duration {
+	if ad.CFG.Interval == -1 {
+		return time.Duration(0)
+	}
+
 	now := time.Now().UTC()
 
-	runAtToday := time.Date(
+	runAt := time.Date(
 		now.Year(),
 		now.Month(),
 		now.Day(),
-		0, 0, 0, 0,
+		ad.CFG.RunHourUTC,
+		0,
+		0,
+		0,
 		time.UTC,
-	).Add(ad.cfg.runAt)
+	)
 
-	if now.Before(runAtToday) {
-		return runAtToday.Sub(now)
+	if !runAt.After(now) {
+		runAt = runAt.Add(24 * time.Hour)
 	}
 
-	return runAtToday.Add(24 * time.Hour).Sub(now)
+	return time.Until(runAt)
 }
 
 func (ad *AvatarDeleter) Start(ctx context.Context) error {
@@ -99,7 +106,7 @@ func (ad *AvatarDeleter) Start(ctx context.Context) error {
 			return
 		}
 
-		ticker := time.NewTicker(time.Duration(ad.cfg.intervalDays) * 24 * time.Hour)
+		ticker := time.NewTicker(ad.CFG.Interval)
 		defer ticker.Stop()
 
 		for {
