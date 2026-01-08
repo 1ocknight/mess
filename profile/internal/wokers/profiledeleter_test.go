@@ -57,7 +57,7 @@ func TestProfileDeleter_AdminDelete_Success(t *testing.T) {
 	lg := loggermocks.NewMockLogger(ctrl)
 	ctx := ctxkey.WithLogger(context.Background(), lg)
 
-	msg := &workers.AdminProfileDeleteMessage{AuthDetails: &workers.ClientProfileDeleteMessage{SubjectID: "user123"}}
+	msg := &workers.AdminProfileDeleteMessage{SubjectID: "user123"}
 	raw, _ := json.Marshal(msg)
 
 	mqMsg := mq.NewMockMessage(ctrl)
@@ -65,6 +65,7 @@ func TestProfileDeleter_AdminDelete_Success(t *testing.T) {
 
 	consumer.EXPECT().ReadMessage(ctx).Return(mqMsg, nil)
 	store.EXPECT().DeleteProfile(ctx, "user123").Return(&model.Profile{SubjectID: "user123"}, nil)
+	lg.EXPECT().With(loglables.SubjectID, gomock.Any()).Return(lg)
 	lg.EXPECT().With(loglables.Profile, gomock.Any()).Return(lg)
 	lg.EXPECT().Info("success deleted")
 

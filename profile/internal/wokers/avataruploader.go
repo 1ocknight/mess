@@ -66,7 +66,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 	}
 
 	if utils.StringPtrEqual(prevProfile.AvatarKey, &msg.Key) {
-		lg.With(loglables.AvatarKey, msg.Key)
+		lg = lg.With(loglables.AvatarKey, msg.Key)
 		lg.Info("skip duplicate")
 		return nil
 	}
@@ -76,7 +76,7 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("avatar key outbox add key: %v", err)
 		}
-		lg.With(loglables.AvatarOutbox, *outboxKey)
+		lg = lg.With(loglables.AvatarOutbox, *outboxKey)
 		lg.Info("add avatar outbox, skip old message")
 		return nil
 	}
@@ -91,13 +91,13 @@ func (au *AvatarUploader) Upload(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("profile update avatar key: %v", err)
 	}
-	lg.With(loglables.Profile, *profile)
+	lg = lg.With(loglables.Profile, *profile)
 
 	outbox, err := au.Storage.AvatarOutbox().AddKey(ctx, ind.SubjectID, *prevProfile.AvatarKey)
 	if err != nil {
 		return fmt.Errorf("avatar key outbox add key: %v", err)
 	}
-	lg.With(loglables.AvatarOutbox, *outbox)
+	lg = lg.With(loglables.AvatarOutbox, *outbox)
 
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("commit: %v", err)

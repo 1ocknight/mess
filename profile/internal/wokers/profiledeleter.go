@@ -3,6 +3,7 @@ package workers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -32,11 +33,11 @@ func (cpdm *ClientProfileDeleteMessage) GetSubjectID() string {
 }
 
 type AdminProfileDeleteMessage struct {
-	AuthDetails *ClientProfileDeleteMessage `json:"authDetails"`
+	SubjectID string `json:"resourceId"`
 }
 
 func (apdm *AdminProfileDeleteMessage) GetSubjectID() string {
-	return apdm.AuthDetails.GetSubjectID()
+	return apdm.SubjectID
 }
 
 type ProfileDeleter struct {
@@ -73,12 +74,18 @@ func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeu
 	if err := json.Unmarshal(mqMsg.Value(), &msg); err != nil {
 		return fmt.Errorf("unmarshal: %v", err)
 	}
+	lg = lg.With(loglables.SubjectID, msg.GetSubjectID())
 
 	prof, err := store.DeleteProfile(ctx, msg.GetSubjectID())
-	if err != nil {
+	if err != nil && !errors.Is(err, storage.ErrNoRows) {
 		return fmt.Errorf("delete profile: %v", err)
 	}
-	lg.With(loglables.Profile, *prof)
+	if errors.Is(err, storage.ErrNoRows) {
+		lg.Info("profile not found, nothing to delete")
+		return nil
+	}
+
+	lg = lg.With(loglables.Profile, *prof)
 	lg.Info("success deleted")
 
 	return nil

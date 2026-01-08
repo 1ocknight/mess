@@ -3,10 +3,17 @@ package loglables
 const (
 	AvatarOutbox      = "avatar_outbox"
 	DeletedAvatarKeys = "deleted_avatar_keys"
-	Profile           = "profile"
-	AvatarKey         = "avatar_key"
-	RequestMetadata   = "request_metadata"
-	Response          = "response"
-	RequestID         = "request_id"
-	StatusResponse    = "status"
+
+	Profile   = "profile"
+	AvatarKey = "avatar_key"
+
+	RequestMetadata = "request_metadata"
+	Response        = "response"
+	RequestID       = "request_id"
+	StatusResponse  = "status"
+
+	ServiceName = "service_name"
+
+	MessageLabel = "message"
+	SubjectID    = "subject_id"
 )

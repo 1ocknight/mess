@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/TATAROmangol/mess/shared v0.0.0-20260107093909-314358b75ec0
+	github.com/TATAROmangol/mess/shared v0.0.0-20260108041802-dc506829b996
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.95.0
 	github.com/gin-gonic/gin v1.11.0
@@ -19,6 +19,7 @@ require (
 require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
+	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.4 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.32.6 // indirect
@@ -63,6 +64,7 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect

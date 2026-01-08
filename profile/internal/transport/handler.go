@@ -155,6 +155,5 @@ func (h *Handler) sendError(c *gin.Context, err error) {
 		code = http.StatusInternalServerError
 	}
 
-	c.Error(err)
-	c.AbortWithStatus(code)
+	c.AbortWithError(code, err)
 }

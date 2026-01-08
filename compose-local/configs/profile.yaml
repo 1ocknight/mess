@@ -1,0 +1,50 @@
+postgres:
+  host: postgres
+  port: 5432
+  user: profile
+  password: profile
+  db_name: profile
+  ssl_mode: disable
+
+s3:
+  client:
+    region: us-east-1
+    endpoint: http://minio:9000
+    access_key_id: avatar-backend
+    secret_access_key: avatar-backend
+    path_style: true
+  bucket: avatar-test1
+  presign_duration: 1m
+
+http: 
+  host: 0.0.0.0 
+  port: 8080
+  debug_mode: true
+
+keycloak:
+  jwks_endpoint: http://keycloak:8080/realms/main-realm/protocol/openid-connect/certs
+
+avatar_deleter:
+  run_hour_utc: -1
+  interval: 1m
+
+avatar_uploader:
+  kafka:
+    brokers: 
+    - kafka:29092
+    topic: avatar-events
+    group_id: 1
+  delay: 10s
+
+profile_deleter:
+  client_kafka: 
+    brokers: 
+    - kafka:29092
+    topic: keycloak-events
+    group_id: 1
+  admin_kafka: 
+    brokers: 
+    - kafka:29092
+    topic: keycloak-admin-events
+    group_id: 1
+  delay: 10s

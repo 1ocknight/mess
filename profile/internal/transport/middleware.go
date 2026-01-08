@@ -6,6 +6,7 @@ import (
 
 	"github.com/TATAROmangol/mess/profile/internal/ctxkey"
 	"github.com/TATAROmangol/mess/profile/internal/loglables"
+	"github.com/TATAROmangol/mess/shared/auth"
 	"github.com/TATAROmangol/mess/shared/logger"
 	"github.com/TATAROmangol/mess/shared/requestmeta"
 	"github.com/gin-gonic/gin"
@@ -68,8 +69,24 @@ func LogResponseMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		lg.With(loglables.StatusResponse, c.Writer.Status())
-		lg.With(loglables.Response, string(bw.body))
+		lg = lg.With(loglables.StatusResponse, c.Writer.Status())
+		lg = lg.With(loglables.Response, string(bw.body))
 		lg.Info("request completed")
+	}
+}
+
+func InitSubjectMiddleware(auth auth.Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.GetHeader("Authorization")
+
+		sub, err := auth.Verify(token)
+		if err != nil {
+			c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("verify token: %v", err))
+			return
+		}
+
+		ctx := ctxkey.WithSubject(c.Request.Context(), sub)
+		c.Request = c.Request.WithContext(ctx)
+		c.Next()
 	}
 }

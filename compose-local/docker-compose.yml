@@ -40,14 +40,18 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - 29092:29092
+      - "29092:29092"   # Внутренний listener для Docker
+      - "9092:9092"     # Внешний listener для хоста
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      # Listener’ы
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     healthcheck:
       test: kafka-topics --bootstrap-server kafka:29092 --list
@@ -91,6 +95,21 @@ services:
     volumes:
     - ./keycloak/keycloak-kafka/target/keycloak-kafka-1.4.0-jar-with-dependencies.jar:/opt/keycloak/providers/kafka.jar
   
+  profile:
+    build:
+      context: ../profile/
+      dockerfile: dockerfile
+    container_name: profile
+    environment:
+      CONFIG: /root/profile.yaml
+    volumes:
+      - ./configs/profile.yaml:/root/profile.yaml
+    depends_on:
+      - keycloak
+      - postgres 
+      - minio 
+      - kafka
+
   # e2e:
   #   build:
   #     context: ../e2e/

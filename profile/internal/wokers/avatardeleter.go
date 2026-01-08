@@ -41,21 +41,27 @@ func (ad *AvatarDeleter) Delete(ctx context.Context) error {
 		return fmt.Errorf("extract logger: %v", err)
 	}
 
-	keys, err := ad.Outbox.GetKeys(ctx, DeleteAvatarsLimit)
-	if err != nil {
-		return fmt.Errorf("outbox get keys: %v", err)
-	}
+	for {
+		keys, err := ad.Outbox.GetKeys(ctx, DeleteAvatarsLimit)
+		if err != nil {
+			return fmt.Errorf("outbox get keys: %v", err)
+		}
+		if len(keys) == 0 {
+			lg.Info("no more avatars to delete")
+			break
+		}
 
-	if err = ad.Avatar.DeleteObjects(ctx, model.GetOutboxKeys(keys)); err != nil {
-		return fmt.Errorf("avatar delete objects: %v", err)
-	}
+		if err = ad.Avatar.DeleteObjects(ctx, model.GetOutboxKeys(keys)); err != nil {
+			return fmt.Errorf("avatar delete objects: %v", err)
+		}
 
-	outboxes, err := ad.Outbox.DeleteKeys(ctx, model.GetOutboxKeys(keys))
-	if err != nil {
-		return fmt.Errorf("outbox delete keys: %v", err)
+		outboxes, err := ad.Outbox.DeleteKeys(ctx, model.GetOutboxKeys(keys))
+		if err != nil {
+			return fmt.Errorf("outbox delete keys: %v", err)
+		}
+		lg = lg.With(loglables.DeletedAvatarKeys, model.GetOutboxKeys(outboxes))
+		lg.Info("success delete")
 	}
-	lg.With(loglables.DeletedAvatarKeys, model.GetOutboxKeys(outboxes))
-	lg.Info("success delete")
 
 	return nil
 }

@@ -14,7 +14,7 @@ import (
 
 type Config struct {
 	Client          s3client.Config `yaml:"client"`
-	Bucket          string          `yaml:"public_bucket"`
+	Bucket          string          `yaml:"bucket"`
 	PresignDuration time.Duration   `yaml:"presign_duration"`
 }
 
