@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TATAROmangol/mess/e2e/tokenissuer"
 	"go.yaml.in/yaml/v3"
 )
 
 type Config struct {
-	TokenIssuer tokenissuer.Config `yaml:"token_issuer"`
 }
 
 func LoadConfig() (*Config, error) {

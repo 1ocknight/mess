@@ -90,47 +90,19 @@ services:
     restart: unless-stopped
     volumes:
     - ./keycloak/keycloak-kafka/target/keycloak-kafka-1.4.0-jar-with-dependencies.jar:/opt/keycloak/providers/kafka.jar
-
-  tokenissuer-e2e:
-    build:
-      context: ../tokenissuer/
-      dockerfile: dockerfile
-    container_name: tokenissuer-e2e
-    environment:
-      CONFIG_PATH: /root/tokenissuer.yaml
-    volumes:
-      - ./configs/tokenissuer-e2e.yaml:/root/tokenissuer.yaml
-    depends_on:
-      - keycloak
-    ports:
-      - "50052:50052"
-
-  tokenissuer-local:
-    build:
-      context: ../tokenissuer/
-      dockerfile: dockerfile
-    container_name: tokenissuer-local
-    environment:
-      CONFIG_PATH: /root/tokenissuer.yaml
-    volumes:
-      - ./configs/tokenissuer-local.yaml:/root/tokenissuer.yaml
-    depends_on:
-      - keycloak
-    ports:
-      - "50051:50051"
   
-  e2e:
-    build:
-      context: ../e2e/
-      dockerfile: dockerfile
-    container_name: e2e
-    environment:
-      CONFIG_PATH: /root/e2e.yaml
-    volumes:
-      - ./configs/e2e.yaml:/root/e2e.yaml
-    depends_on:
-      - keycloak
-      - tokenissuer-e2e
+  # e2e:
+  #   build:
+  #     context: ../e2e/
+  #     dockerfile: dockerfile
+  #   container_name: e2e
+  #   environment:
+  #     CONFIG_PATH: /root/e2e.yaml
+  #   volumes:
+  #     - ./configs/e2e.yaml:/root/e2e.yaml
+  #   depends_on:
+  #     - keycloak
+  #     - tokenissuer-e2e
 
 volumes:
   miniodata:
