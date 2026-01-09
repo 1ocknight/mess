@@ -45,7 +45,7 @@ func New(cfg Config, lg logger.Logger) (*Keycloak, error) {
 func (k *Keycloak) Verify(src string) (model.Subject, error) {
 	parts := strings.Split(src, " ")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid token len: %w", src)
+		return nil, fmt.Errorf("invalid token len: %s", src)
 	}
 	tokenStr := parts[1]
 
