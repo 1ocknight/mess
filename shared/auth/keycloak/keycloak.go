@@ -30,11 +30,11 @@ func New(cfg Config, lg logger.Logger) (*Keycloak, error) {
 		RefreshInterval: time.Minute * 10,
 		RefreshTimeout:  time.Second * 10,
 		RefreshErrorHandler: func(err error) {
-			lg.Error(fmt.Errorf("refresh: %v", err))
+			lg.Error(fmt.Errorf("refresh: %w", err))
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("get: %v", err)
+		return nil, fmt.Errorf("get: %w", err)
 	}
 
 	return &Keycloak{
@@ -45,13 +45,13 @@ func New(cfg Config, lg logger.Logger) (*Keycloak, error) {
 func (k *Keycloak) Verify(src string) (model.Subject, error) {
 	parts := strings.Split(src, " ")
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid token len: %v", src)
+		return nil, fmt.Errorf("invalid token len: %w", src)
 	}
 	tokenStr := parts[1]
 
 	token, err := jwt.Parse(tokenStr, k.jwks.Keyfunc)
 	if err != nil {
-		return nil, fmt.Errorf("parse: %v", err)
+		return nil, fmt.Errorf("parse: %w", err)
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
