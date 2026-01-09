@@ -65,7 +65,11 @@ func LogResponseMiddleware() gin.HandlerFunc {
 		}
 
 		if len(c.Errors) > 0 {
-			lg.Error(err)
+			for _, e := range c.Errors {
+				if e.Err != nil {
+					lg.Error(e.Err)
+				}
+			}
 			return
 		}
 
