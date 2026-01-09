@@ -1,0 +1,41 @@
+DO $$
+BEGIN
+   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'keycloak') THEN
+      CREATE ROLE keycloak LOGIN PASSWORD 'keycloak';
+   END IF;
+
+   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'profile') THEN
+      CREATE ROLE profile LOGIN PASSWORD 'profile';
+   END IF;
+END
+$$;
+
+CREATE DATABASE keycloak OWNER keycloak;
+CREATE DATABASE profile OWNER profile;
+
+GRANT CONNECT ON DATABASE keycloak TO keycloak;
+GRANT CONNECT ON DATABASE profile TO profile;
+
+\c keycloak
+ALTER SCHEMA public OWNER TO keycloak;
+GRANT USAGE, CREATE ON SCHEMA public TO keycloak;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE keycloak
+IN SCHEMA public
+GRANT ALL ON TABLES TO keycloak;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE keycloak
+IN SCHEMA public
+GRANT ALL ON SEQUENCES TO keycloak;
+
+\c profile
+ALTER SCHEMA public OWNER TO profile;
+GRANT USAGE, CREATE ON SCHEMA public TO profile;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE profile
+IN SCHEMA public
+GRANT ALL ON TABLES TO profile;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE profile
+IN SCHEMA public
+GRANT ALL ON SEQUENCES TO profile;

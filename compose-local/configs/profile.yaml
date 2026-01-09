@@ -10,10 +10,10 @@ s3:
   client:
     region: us-east-1
     endpoint: http://minio:9000
-    access_key_id: avatar-backend
-    secret_access_key: avatar-backend
+    access_key_id: profile
+    secret_access_key: profile-secret
     path_style: true
-  bucket: avatar-test1
+  bucket: avatar
   presign_duration: 1m
 
 http: 
@@ -22,7 +22,7 @@ http:
   debug_mode: true
 
 keycloak:
-  jwks_endpoint: http://keycloak:8080/realms/main-realm/protocol/openid-connect/certs
+  jwks_endpoint: http://keycloak:8080/realms/main/protocol/openid-connect/certs
 
 avatar_deleter:
   run_hour_utc: -1
@@ -48,3 +48,5 @@ profile_deleter:
     topic: keycloak-admin-events
     group_id: 1
   delay: 10s
+
+migrations_path: file://migrations
