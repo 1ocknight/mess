@@ -3,6 +3,7 @@ package keycloak_test
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"testing"
 	"time"
 
@@ -27,14 +28,19 @@ var CFG *TestConfig
 
 func TestMain(m *testing.M) {
 	CFG = &TestConfig{
-		AuthURL:      "http://localhost:7070/realms/e2e-realm/protocol/openid-connect/token",
-		ClientID:     "e2e",
-		ClientSecret: "e2e",
-		Login:        "e2e",
-		Password:     "e2e",
-		SubjectID:    "8f446bd3-7c32-4bbe-aa0d-516d621cf208",
-		JWKSEndpoint: "http://localhost:7070/realms/e2e-realm/protocol/openid-connect/certs",
+		AuthURL:      "http://localhost:7070/realms/main/protocol/openid-connect/token",
+		ClientID:     "main",
+		ClientSecret: "main",
+		Login:        "main",
+		Password:     "main",
+		SubjectID:    "571e37b5-fdee-4aca-b941-5a26b5b0fb7e",
+		JWKSEndpoint: "http://localhost:7070/realms/main/protocol/openid-connect/certs",
 	}
+}
+
+type TokenResponse struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
 }
 
 func getToken(t *testing.T) string {
@@ -63,13 +69,12 @@ func getToken(t *testing.T) string {
 		t.Fatalf("unexpected status code: %d, body: %s", resp.StatusCode(), resp.Body())
 	}
 
-	var res string
-
+	var res TokenResponse
 	if err := json.Unmarshal(resp.Body(), &res); err != nil {
 		t.Fatalf("failed to unmarshal token response: %v", err)
 	}
 
-	return res
+	return fmt.Sprintf("%v %v", res.TokenType, res.AccessToken)
 }
 
 func TestKeycloak_Verify(t *testing.T) {
