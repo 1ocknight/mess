@@ -108,6 +108,21 @@ services:
       - postgres 
       - minio 
       - kafka
+    ports:
+      - 8080:8080
+
+  e2e:
+    build:
+      context: ../e2e/
+      dockerfile: Dockerfile
+    container_name: e2e
+    environment:
+      CONFIG: /root/e2e.yaml
+    volumes:
+      - ./configs/e2e.yaml:/root/e2e.yaml
+    depends_on:
+      - profile
+    
 
 volumes:
   miniodata:
