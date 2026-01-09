@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/TATAROmangol/mess/e2e/config"
+	"github.com/TATAROmangol/mess/e2e/profile"
 )
 
 var CFG *config.Config
@@ -22,5 +23,6 @@ func TestMain(m *testing.M) {
 }
 
 func TestRun(t *testing.T) {
-
+	prof := profile.New(&CFG.Profile)
+	prof.Run(t)
 }

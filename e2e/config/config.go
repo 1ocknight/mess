@@ -5,19 +5,21 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/TATAROmangol/mess/e2e/profile"
 	"go.yaml.in/yaml/v3"
 )
 
 type Config struct {
+	Profile profile.Config `yaml:"profile"`
 }
 
 func LoadConfig() (*Config, error) {
-	var configPath = flag.String("config-path", "", "path to config")
+	var configPath = flag.String("config", "", "path to config")
 	flag.Parse()
 
 	path := *configPath
 	if path == "" {
-		path = os.Getenv("CONFIG_PATH")
+		path = os.Getenv("CONFIG")
 	}
 
 	if path == "" {
