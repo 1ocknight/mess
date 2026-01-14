@@ -20,7 +20,7 @@ func New(cfg *Config) *Tests {
 }
 
 func (ts *Tests) cleanup(t *testing.T) {
-	utils.GenericRequestWithAuth[*struct{}, dto.ProfileResponse](t, "DELETE", ts.cfg.DeleteProfileUrl, nil, utils.GetToken(t, ts.cfg.Auth), false)
+	utils.GenericRequestWithAuth[*struct{}, dto.ProfileResponse](t, "DELETE", ts.cfg.DeleteProfileUrl, nil, utils.GetToken(t, ts.cfg.Auth))
 }
 
 func (ts *Tests) TestAddProfileWithUploadAvatar(t *testing.T) {
@@ -31,20 +31,20 @@ func (ts *Tests) TestAddProfileWithUploadAvatar(t *testing.T) {
 	addReq := dto.AddProfileRequest{
 		Alias: alias,
 	}
-	addResp := utils.GenericRequestWithAuth[dto.AddProfileRequest, dto.ProfileResponse](t, "POST", ts.cfg.AddProfileURL, &addReq, utils.GetToken(t, ts.cfg.Auth), false)
-	if addResp.Alias != alias || addResp.Version != 1 || addResp.AvatarURL != "" {
+	addResp := utils.GenericRequestWithAuth[dto.AddProfileRequest, dto.ProfileResponse](t, "POST", ts.cfg.AddProfileURL, &addReq, utils.GetToken(t, ts.cfg.Auth))
+	if addResp == nil ||addResp.Alias != alias || addResp.Version != 1 || addResp.AvatarURL != "" {
 		t.Fatalf("unexpected add profile response: %+v", addResp)
 	}
 
 	var content = []byte("test file content")
 
 	file := bytes.NewReader(content)
-	uploadUrlResp := utils.GenericRequestWithAuth[*struct{}, dto.UploadAvatarResponse](t, "PUT", ts.cfg.UploadAvatarURL, nil, utils.GetToken(t, ts.cfg.Auth), false)
+	uploadUrlResp := utils.GenericRequestWithAuth[*struct{}, dto.UploadAvatarResponse](t, "PUT", ts.cfg.UploadAvatarURL, nil, utils.GetToken(t, ts.cfg.Auth))
 	utils.SendFilePut(t, uploadUrlResp.UploadURL, file)
 
-	time.Sleep(20 * time.Second)
-	getResp := utils.GenericRequestWithAuth[*struct{}, dto.ProfileResponse](t, "GET", ts.cfg.GetProfileURL, nil, utils.GetToken(t, ts.cfg.Auth), false)
-	if getResp.Alias != alias || getResp.Version != 1 || getResp.AvatarURL == "" {
+	time.Sleep(ts.cfg.WorkerDelay)
+	getResp := utils.GenericRequestWithAuth[*struct{}, dto.ProfileResponse](t, "GET", ts.cfg.GetProfileURL, nil, utils.GetToken(t, ts.cfg.Auth))
+	if getResp == nil ||getResp.Alias != alias || getResp.Version != 1 || getResp.AvatarURL == "" {
 		t.Fatalf("unexpected get profile response: %+v", getResp)
 	}
 

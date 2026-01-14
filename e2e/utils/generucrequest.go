@@ -3,13 +3,14 @@ package utils
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"testing"
 	"time"
 
 	"github.com/go-resty/resty/v2"
 )
 
-func GenericRequestWithAuth[T any, R any](t *testing.T, method string, url string, reqData *T, token string, wantErr bool) R {
+func GenericRequestWithAuth[T any, R any](t *testing.T, method string, url string, reqData *T, token string) *R {
 	var result R
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
@@ -41,12 +42,12 @@ func GenericRequestWithAuth[T any, R any](t *testing.T, method string, url strin
 		t.Fatalf("unsupported method: %s", method)
 	}
 
-	if wantErr && err != nil {
-		return result
-	}
-
 	if err != nil {
 		t.Fatalf("failed to request: %v", err)
+	}
+
+	if resp.StatusCode() == http.StatusNoContent {
+		return nil
 	}
 
 	if resp.StatusCode() < 200 || resp.StatusCode() >= 300 {
@@ -57,5 +58,5 @@ func GenericRequestWithAuth[T any, R any](t *testing.T, method string, url strin
 		t.Fatalf("failed to unmarshal response: %v", err)
 	}
 
-	return result
+	return &result
 }
