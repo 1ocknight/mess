@@ -86,4 +86,12 @@ func TestStorage_DeleteKeys(t *testing.T) {
 			t.Fatalf("unexpected deleted key: %v", k)
 		}
 	}
+
+	nKeys, err := s.AvatarOutbox().GetKeys(t.Context(), len(InitAvatarKeys))
+	if err != nil {
+		t.Fatalf("get keys: %v", err)
+	}
+	if len(nKeys) != 0 {
+		t.Fatalf("expected no keys after deletion, but got %d", len(nKeys))
+	}
 }
