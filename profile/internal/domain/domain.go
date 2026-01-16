@@ -54,13 +54,13 @@ func (d *Domain) GetProfilesFromAlias(ctx context.Context, alias string, filter 
 	}
 
 	switch filter.Direction {
-	case DirectionAfter:
-		storeFiler.Asc = true
 	case DirectionBefore:
 		storeFiler.Asc = false
 	default:
-		return nil, nil, fmt.Errorf("unknown direction")
+		storeFiler.Asc = true
 	}
+
+	storeFiler.LastID = filter.LastSubjectID
 
 	profiles, err := d.Storage.Profile().GetProfilesFromAlias(ctx, alias, &storeFiler)
 	if err != nil {

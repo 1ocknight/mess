@@ -2,7 +2,9 @@ package transport
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/TATAROmangol/mess/profile/internal/domain"
 	"github.com/TATAROmangol/mess/profile/internal/model"
@@ -52,21 +54,50 @@ func (h *Handler) GetProfile(c *gin.Context) {
 }
 
 func (h *Handler) GetProfiles(c *gin.Context) {
-	alias := c.Param("alias")
+	alias := c.Query("alias")
+	sLimit := c.Query("limit")
+	before := c.Query("before")
+	after := c.Query("after")
 
-	var req *dto.GetProfilesRequest
-	if err := c.BindJSON(&req); err != nil {
-		h.sendError(c, err)
-		return
+	if after != "" && before != "" {
+		h.sendError(c, fmt.Errorf("%w, wait after or before null", InvalidRequestError))
 	}
 
-	next, profiles, urls, err := h.domain.GetProfilesFromAlias(c.Request.Context(), alias, req.Size, req.Page)
+	var limit int
+	var err error
+	if sLimit != "" {
+		limit, err = strconv.Atoi(sLimit)
+		if err != nil {
+			h.sendError(c, fmt.Errorf("%w, atoi: %w", InvalidRequestError, err))
+		}
+	}
+
+	filter := domain.ProfilePaginationFilter{
+		Limit: limit,
+	}
+
+	if after != "" {
+		filter.Direction = domain.DirectionAfter
+		filter.LastSubjectID = &after
+	}
+
+	if before != "" {
+		filter.Direction = domain.DirectionBefore
+		filter.LastSubjectID = &before
+	}
+
+	profiles, urls, err := h.domain.GetProfilesFromAlias(c.Request.Context(), alias, &filter)
 	if err != nil {
 		h.sendError(c, err)
 		return
 	}
 
-	res := make([]*dto.ProfileResponse, len(profiles))
+	if len(profiles) == 0 {
+		c.Status(http.StatusNoContent)
+		return
+	}
+
+	res := make([]*dto.ProfileResponse, 0, len(profiles))
 	for _, profile := range profiles {
 		res = append(res, &dto.ProfileResponse{
 			SubjectID: profile.SubjectID,
@@ -76,8 +107,8 @@ func (h *Handler) GetProfiles(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, dto.GetProfilesResponse{
-		NextPage: next,
+	c.JSON(http.StatusOK, dto.ProfilesResponse{
+		Profiles: res,
 	})
 }
 
@@ -167,6 +198,10 @@ func (h *Handler) DeleteProfile(c *gin.Context) {
 
 func (h *Handler) sendError(c *gin.Context, err error) {
 	var code int
+
+	if errors.Is(err, InvalidRequestError) {
+		code = http.StatusBadRequest
+	}
 
 	if errors.Is(err, domain.ErrNotFound) {
 		code = http.StatusNoContent

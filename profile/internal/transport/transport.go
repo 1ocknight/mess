@@ -39,7 +39,8 @@ func NewServer(cfg Config, lg logger.Logger, domain domain.Service, auth auth.Se
 
 	r.GET("/profile", h.GetProfile)
 	r.GET("/profile/:id", h.GetProfile)
-	r.GET("/profiles/:alias", h.GetProfiles)
+
+	r.GET("/profiles", h.GetProfiles)
 
 	r.POST("/profile", h.AddProfile)
 

@@ -14,6 +14,16 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/TATAROmangol/mess/shared v0.0.0-20260108041802-dc506829b996 h1:11VymRF/SCLkL7v7ZJD5QPVasoN7aBSCQt3+jpnuv2U=
 github.com/TATAROmangol/mess/shared v0.0.0-20260108041802-dc506829b996/go.mod h1:CgI/YqTDG4CmfqCyqOAolgPFM3QXqXPCZJB4CllvSMo=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116084612-37d7b37599b2 h1:b2ZbghbGRDnTyiw5GXxWpP8IQPDhIQNJBGtPhi0Db6Y=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116084612-37d7b37599b2/go.mod h1:CgI/YqTDG4CmfqCyqOAolgPFM3QXqXPCZJB4CllvSMo=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116103436-e83f23552074 h1:XFKrxKzMcJ+ZYKPm/0tCKn1Q9vDSR6mWDM7HzfHuaA0=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116103436-e83f23552074/go.mod h1:CgI/YqTDG4CmfqCyqOAolgPFM3QXqXPCZJB4CllvSMo=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116103804-79a795312002 h1:7vyIw2kijlebtibloD4Ylg6o0qkCLqq9A8L17H0YnGE=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116103804-79a795312002/go.mod h1:CgI/YqTDG4CmfqCyqOAolgPFM3QXqXPCZJB4CllvSMo=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116115506-f6350473e5da h1:RlI87tKWjTw6KO1OgYgDb2Zln+ODSBZFVmg41tPP3Go=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116115506-f6350473e5da/go.mod h1:CgI/YqTDG4CmfqCyqOAolgPFM3QXqXPCZJB4CllvSMo=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116133506-20324af5ce5f h1:C9VGlVKRZlDtxxY3hlPvOPj7E4h2zxwg6a3U4xBwpok=
+github.com/TATAROmangol/mess/shared v0.0.0-20260116133506-20324af5ce5f/go.mod h1:CgI/YqTDG4CmfqCyqOAolgPFM3QXqXPCZJB4CllvSMo=
 github.com/aws/aws-sdk-go-v2 v1.41.0 h1:tNvqh1s+v0vFYdA1xq0aOJH+Y5cRyZ5upu6roPgPKd4=
 github.com/aws/aws-sdk-go-v2 v1.41.0/go.mod h1:MayyLB8y+buD9hZqkCW3kX1AKq07Y5pXxtgB+rRFhz0=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.4 h1:489krEF9xIGkOaaX3CE/Be2uWjiXrkCH6gUX+bZA/BU=

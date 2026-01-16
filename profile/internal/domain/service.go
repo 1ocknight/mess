@@ -19,7 +19,7 @@ const (
 
 type ProfilePaginationFilter struct {
 	Limit         int
-	LastSubjectID string
+	LastSubjectID *string
 	Direction     Direction
 }
 

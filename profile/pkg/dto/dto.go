@@ -7,14 +7,8 @@ type ProfileResponse struct {
 	Version   int    `json:"version"`
 }
 
-type GetProfilesRequest struct {
-	Size int    `json:"size"`
-	Page string `json:"token"`
-}
-
-type GetProfilesResponse struct {
+type ProfilesResponse struct {
 	Profiles []*ProfileResponse `json:"profiles"`
-	NextPage string             `json:"next_page"`
 }
 
 type AddProfileRequest struct {
