@@ -64,7 +64,7 @@ func main() {
 
 	dom := domain.New(storage, avatar)
 
-	ad := workers.NewAvatarDeleter(cfg.AvatarDeleter, avatar, storage.AvatarOutbox())
+	ad := workers.NewAvatarDeleter(cfg.AvatarDeleter, avatar, storage)
 	avdelLog := lg.With(loglables.Layer, "worker_avatar_deleter")
 	err = ad.Start(ctxkey.WithLogger(ctx, avdelLog))
 	if err != nil {

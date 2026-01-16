@@ -2,6 +2,7 @@ package workers_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	avatarmocks "github.com/TATAROmangol/mess/profile/internal/adapter/avatar/mocks"
@@ -18,7 +19,19 @@ func TestAvatarDeleter_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	storage := storagemocks.NewMockService(ctrl)
+	profile := storagemocks.NewMockProfile(ctrl)
 	outbox := storagemocks.NewMockAvatarOutbox(ctrl)
+	tx := storagemocks.NewMockServiceTransaction(ctrl)
+
+	storage.EXPECT().Profile().Return(profile).AnyTimes()
+	storage.EXPECT().AvatarOutbox().Return(outbox).AnyTimes()
+	storage.EXPECT().WithTransaction(gomock.Any()).Return(tx, nil).AnyTimes()
+	tx.EXPECT().Profile().Return(profile).AnyTimes()
+	tx.EXPECT().AvatarOutbox().Return(outbox).AnyTimes()
+	tx.EXPECT().Commit().Return(nil).AnyTimes()
+	tx.EXPECT().Rollback().Return(fmt.Errorf("test")).AnyTimes()
+
 	avatar := avatarmocks.NewMockService(ctrl)
 
 	lg := loggermocks.NewMockLogger(ctrl)
@@ -40,8 +53,8 @@ func TestAvatarDeleter_Delete(t *testing.T) {
 	lg.EXPECT().Info(gomock.Any())
 
 	svc := workers.AvatarDeleter{
-		Avatar: avatar,
-		Outbox: outbox,
+		Avatar:  avatar,
+		Storage: storage,
 	}
 
 	err := svc.Delete(ctx)

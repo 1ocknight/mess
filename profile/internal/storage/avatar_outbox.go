@@ -22,6 +22,7 @@ func (s *Storage) GetKeys(ctx context.Context, limit int) ([]*model.AvatarOutbox
 		From(AvatarKeyOutboxTable).
 		Where(sq.Expr(deletedATIsNullAvatarKeyFilter)).
 		Limit(uint64(limit)).
+		Suffix(SkipLocked).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 

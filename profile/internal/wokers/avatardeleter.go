@@ -22,16 +22,16 @@ type AvatarDeleterConfig struct {
 }
 
 type AvatarDeleter struct {
-	CFG    AvatarDeleterConfig
-	Avatar avatar.Service
-	Outbox storage.AvatarOutbox
+	CFG     AvatarDeleterConfig
+	Avatar  avatar.Service
+	Storage storage.Service
 }
 
-func NewAvatarDeleter(cfg AvatarDeleterConfig, avatar avatar.Service, outbox storage.AvatarOutbox) *AvatarDeleter {
+func NewAvatarDeleter(cfg AvatarDeleterConfig, avatar avatar.Service, storage storage.Service) *AvatarDeleter {
 	return &AvatarDeleter{
-		CFG:    cfg,
-		Avatar: avatar,
-		Outbox: outbox,
+		CFG:     cfg,
+		Avatar:  avatar,
+		Storage: storage,
 	}
 }
 
@@ -42,7 +42,13 @@ func (ad *AvatarDeleter) Delete(ctx context.Context) error {
 	}
 
 	for {
-		keys, err := ad.Outbox.GetKeys(ctx, DeleteAvatarsLimit)
+		tx, err := ad.Storage.WithTransaction(ctx)
+		if err != nil {
+			return fmt.Errorf("with transaction: %w", err)
+		}
+		defer tx.Rollback()
+
+		keys, err := tx.AvatarOutbox().GetKeys(ctx, DeleteAvatarsLimit)
 		if err != nil {
 			return fmt.Errorf("outbox get keys: %w", err)
 		}
@@ -55,9 +61,13 @@ func (ad *AvatarDeleter) Delete(ctx context.Context) error {
 			return fmt.Errorf("avatar delete objects: %w", err)
 		}
 
-		outboxes, err := ad.Outbox.DeleteKeys(ctx, model.GetOutboxKeys(keys))
+		outboxes, err := tx.AvatarOutbox().DeleteKeys(ctx, model.GetOutboxKeys(keys))
 		if err != nil {
 			return fmt.Errorf("outbox delete keys: %w", err)
+		}
+
+		if err := tx.Commit(); err != nil {
+			return fmt.Errorf("commit: %w", err)
 		}
 		lg = lg.With(loglables.DeletedAvatarKeys, model.GetOutboxKeys(outboxes))
 		lg.Info("success delete")

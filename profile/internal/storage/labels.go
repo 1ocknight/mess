@@ -3,6 +3,7 @@ package storage
 const (
 	AllLabelsSelect = "*"
 	ReturningSuffix = "RETURNING *"
+	SkipLocked      = "FOR UPDATE SKIP LOCKED"
 	IsNullLabel     = "IS NULL"
 	AscSortLabel    = "ASC"
 	DescSortLabel   = "DESC"
