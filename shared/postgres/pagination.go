@@ -8,6 +8,7 @@ import (
 )
 
 type GetFilter struct {
+	Limit     int
 	Asc       bool
 	SortLabel string
 	IDLabel   string
@@ -39,6 +40,7 @@ func MakeQueryWithGetFilter(ctx context.Context, b sq.SelectBuilder, filter *Get
 	}
 
 	query, args, err := b.
+		Limit(uint64(filter.Limit)).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
