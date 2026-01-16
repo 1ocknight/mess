@@ -33,6 +33,7 @@ func TestProfileDeleter_ClientDelete_Success(t *testing.T) {
 
 	consumer.EXPECT().ReadMessage(ctx).Return(mqMsg, nil)
 	store.EXPECT().DeleteProfile(ctx, "user123").Return(&model.Profile{SubjectID: "user123"}, nil)
+	consumer.EXPECT().Commit(ctx, mqMsg).Return(nil)
 	lg.EXPECT().With(loglables.Profile, gomock.Any()).Return(lg)
 	lg.EXPECT().Info("success deleted")
 
@@ -65,6 +66,7 @@ func TestProfileDeleter_AdminDelete_Success(t *testing.T) {
 
 	consumer.EXPECT().ReadMessage(ctx).Return(mqMsg, nil)
 	store.EXPECT().DeleteProfile(ctx, "user123").Return(&model.Profile{SubjectID: "user123"}, nil)
+	consumer.EXPECT().Commit(ctx, mqMsg).Return(nil)
 	lg.EXPECT().With(loglables.Profile, gomock.Any()).Return(lg)
 	lg.EXPECT().Info("success deleted")
 
