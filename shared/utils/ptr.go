@@ -13,3 +13,7 @@ func StringPtrEqual(a, b *string) bool {
 	}
 	return *a == *b
 }
+
+func IntPtr(i int) *int {
+	return &i
+}
