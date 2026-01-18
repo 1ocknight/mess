@@ -182,7 +182,7 @@ func (d *Domain) DeleteAvatar(ctx context.Context) (*model.Profile, string, erro
 		return nil, "", fmt.Errorf("commit: %w", err)
 	}
 
-	lg.Info("add avatar outbox")
+	lg.Debug("add avatar outbox")
 
 	return prof, "", nil
 }
@@ -231,7 +231,7 @@ func (d *Domain) DeleteProfile(ctx context.Context) (*model.Profile, string, err
 		return nil, "", fmt.Errorf("commit: %w", err)
 	}
 
-	lg.Info("add avatar outbox")
+	lg.Debug("add avatar outbox")
 
 	return prof, "", nil
 }

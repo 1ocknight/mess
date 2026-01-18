@@ -14,6 +14,8 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/TATAROmangol/mess/shared v0.0.0-20260117151950-f59dd9f69766 h1:/sYUlhDPJk4yIE/Wq13UbFvO3CcyNwq5Kog1HLOCJcs=
 github.com/TATAROmangol/mess/shared v0.0.0-20260117151950-f59dd9f69766/go.mod h1:CgI/YqTDG4CmfqCyqOAolgPFM3QXqXPCZJB4CllvSMo=
+github.com/TATAROmangol/mess/shared v0.0.0-20260118150721-2cde9a53fe70 h1:ySJ/rwZzplrTs7NKaprgWuLErb5xZKa3mHHaVwOH9qY=
+github.com/TATAROmangol/mess/shared v0.0.0-20260118150721-2cde9a53fe70/go.mod h1:CgI/YqTDG4CmfqCyqOAolgPFM3QXqXPCZJB4CllvSMo=
 github.com/aws/aws-sdk-go-v2 v1.41.0 h1:tNvqh1s+v0vFYdA1xq0aOJH+Y5cRyZ5upu6roPgPKd4=
 github.com/aws/aws-sdk-go-v2 v1.41.0/go.mod h1:MayyLB8y+buD9hZqkCW3kX1AKq07Y5pXxtgB+rRFhz0=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.4 h1:489krEF9xIGkOaaX3CE/Be2uWjiXrkCH6gUX+bZA/BU=
