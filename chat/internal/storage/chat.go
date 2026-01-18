@@ -53,7 +53,7 @@ func (s *Storage) CreateChat(ctx context.Context, firstSubjectID, secondSubjectI
 	return s.doAndReturnChat(ctx, query, args)
 }
 
-func (s *Storage) GetChatByID(ctx context.Context, chatID string) (*model.Chat, error) {
+func (s *Storage) GetChatByID(ctx context.Context, chatID int) (*model.Chat, error) {
 	query, args, err := sq.
 		Select(AllLabelsSelect).
 		From(ChatTable).
@@ -85,7 +85,7 @@ func (s *Storage) GetChatIDBySubjects(ctx context.Context, firstSubjectID string
 	return s.doAndReturnChat(ctx, query, args)
 }
 
-func (s *Storage) GetChatsBySubjectID(ctx context.Context, subjectID string, filter *postgres.PaginationFilter) ([]*model.Chat, error) {
+func (s *Storage) GetChatsBySubjectID(ctx context.Context, subjectID string, filter *PaginationFilterIntLastID) ([]*model.Chat, error) {
 	b := sq.
 		Select(AllLabelsSelect).
 		From(ChatTable).
@@ -95,7 +95,14 @@ func (s *Storage) GetChatsBySubjectID(ctx context.Context, subjectID string, fil
 		}).
 		Where(sq.Expr(deletedATIsNullChatFilter))
 
-	query, args, err := postgres.MakeQueryWithPagination(ctx, b, filter)
+	storageFilter := &postgres.PaginationFilter[int]{
+		Limit:     filter.Limit,
+		Asc:       filter.Asc,
+		SortLabel: filter.SortLabel,
+		IDLabel:   ChatIDLabel,
+		LastID:    filter.LastID,
+	}
+	query, args, err := postgres.MakeQueryWithPagination(ctx, b, storageFilter)
 	if err != nil {
 		return nil, fmt.Errorf("build sql: %w", err)
 	}
@@ -103,7 +110,7 @@ func (s *Storage) GetChatsBySubjectID(ctx context.Context, subjectID string, fil
 	return s.doAndReturnChats(ctx, query, args)
 }
 
-func (s *Storage) IncrementChatMessageNumber(ctx context.Context, chatID string) (*model.Chat, error) {
+func (s *Storage) IncrementChatMessageNumber(ctx context.Context, chatID int) (*model.Chat, error) {
 	query, args, err := sq.
 		Update(ChatTable).
 		Set(ChatMessagesCount, sq.Expr(fmt.Sprintf("%s + 1", ChatMessagesCount))).
@@ -121,7 +128,7 @@ func (s *Storage) IncrementChatMessageNumber(ctx context.Context, chatID string)
 	return s.doAndReturnChat(ctx, query, args)
 }
 
-func (s *Storage) DeleteChat(ctx context.Context, chatID string) (*model.Chat, error) {
+func (s *Storage) DeleteChat(ctx context.Context, chatID int) (*model.Chat, error) {
 	query, args, err := sq.
 		Update(ChatTable).
 		Set(ChatDeletedAtLabel, time.Now().UTC()).

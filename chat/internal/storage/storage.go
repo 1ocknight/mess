@@ -13,34 +13,40 @@ import (
 type Chat interface {
 	CreateChat(ctx context.Context, firstSubjectID, secondSubjectID string) (*model.Chat, error)
 
-	GetChatByID(ctx context.Context, chatID string) (*model.Chat, error)
+	GetChatByID(ctx context.Context, chatID int) (*model.Chat, error)
 	GetChatIDBySubjects(ctx context.Context, firstSubjectID, secondSubjectID string) (*model.Chat, error)
-	GetChatsBySubjectID(ctx context.Context, subjectID string, filter *postgres.PaginationFilter) ([]*model.Chat, error)
+	GetChatsBySubjectID(ctx context.Context, subjectID string, filter *PaginationFilterIntLastID) ([]*model.Chat, error)
 
-	IncrementChatMessageNumber(ctx context.Context, chatID string) (*model.Chat, error)
+	IncrementChatMessageNumber(ctx context.Context, chatID int) (*model.Chat, error)
 
-	DeleteChat(ctx context.Context, chatID string) (*model.Chat, error)
+	DeleteChat(ctx context.Context, chatID int) (*model.Chat, error)
 }
 
 type LastRead interface {
-	CreateLastRead(ctx context.Context, subjectID string, chatID string) (*model.LastRead, error)
+	CreateLastRead(ctx context.Context, subjectID string, chatID int) (*model.LastRead, error)
 
-	GetLastReadByChatIDs(ctx context.Context, subjectID string, chatIDs []string) ([]*model.LastRead, error)
+	GetLastReadByChatIDs(ctx context.Context, subjectID string, chatIDs []int) ([]*model.LastRead, error)
 
-	UpdateLastRead(ctx context.Context, subjectID string, chatID string, messageNumber int) (*model.LastRead, error)
+	UpdateLastRead(ctx context.Context, subjectID string, chatID int, messageNumber int) (*model.LastRead, error)
 
-	DeleteLastRead(ctx context.Context, subjectID string, chatID string) (*model.LastRead, error)
+	DeleteLastRead(ctx context.Context, subjectID string, chatID int) (*model.LastRead, error)
 }
 
 type Message interface {
-	CreateMessage(ctx context.Context, chatID string, senderSubjectID string, content string, number int) (*model.Message, error)
+	CreateMessage(ctx context.Context, chatID int, senderSubjectID string, content string, number int) (*model.Message, error)
 
-	GetLastMessagesByChatsID(ctx context.Context, chatsID []string) ([]*model.Message, error)
-	GetMessagesByChatID(ctx context.Context, chatID string, filter *postgres.PaginationFilter) ([]*model.Message, error)
+	GetLastMessagesByChatsID(ctx context.Context, chatsID []int) ([]*model.Message, error)
+	GetMessagesByChatID(ctx context.Context, chatID int, filter *PaginationFilterIntLastID) ([]*model.Message, error)
 
-	UpdateMessageContent(ctx context.Context, messageID string, content string, version int) (*model.Message, error)
+	UpdateMessageContent(ctx context.Context, messageID int, content string, version int) (*model.Message, error)
 
-	DeleteMessagesChatID(ctx context.Context, chatID string) (*model.Message, error)
+	DeleteMessagesChatID(ctx context.Context, chatID int) ([]*model.Message, error)
+}
+
+type MessageOutbox interface {
+	AddMessageOutbox(ctx context.Context, chatID int, messageID int, operation *model.Operation) (*model.MessageOutbox, error)
+	GetMessageOutbox(ctx context.Context, limit int) ([]*model.MessageOutbox, error)
+	DeleteMessageOutbox(ctx context.Context, ids []int) ([]*model.MessageOutbox, error)
 }
 
 type Service interface {
@@ -48,14 +54,23 @@ type Service interface {
 	Chat() Chat
 	LastRead() LastRead
 	Message() Message
+	MessageOutbox() MessageOutbox
 }
 
 type ServiceTransaction interface {
 	Chat() Chat
 	LastRead() LastRead
 	Message() Message
+	MessageOutbox() MessageOutbox
 	Commit() error
 	Rollback() error
+}
+
+type PaginationFilterIntLastID struct {
+	LastID    *int
+	Limit     int
+	Asc       bool
+	SortLabel string
 }
 
 var (
@@ -110,6 +125,13 @@ func (s *Storage) LastRead() LastRead {
 }
 
 func (s *Storage) Message() Message {
+	return &Storage{
+		db:   s.db,
+		exec: s.exec,
+	}
+}
+
+func (s *Storage) MessageOutbox() MessageOutbox {
 	return &Storage{
 		db:   s.db,
 		exec: s.exec,

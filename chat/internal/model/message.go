@@ -3,8 +3,8 @@ package model
 import "time"
 
 type Message struct {
-	ID              string
-	ChatID          string
+	ID              int
+	ChatID          int
 	SenderSubjectID string
 	Content         string
 	Number          int

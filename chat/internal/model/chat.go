@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Chat struct {
-	ID              string
+	ID              int
 	FirstSubjectID  string
 	SecondSubjectID string
 	MessagesCount   int

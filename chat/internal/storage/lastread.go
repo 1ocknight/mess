@@ -34,7 +34,7 @@ func (s *Storage) doAndReturnLastReads(ctx context.Context, query string, args [
 	return LastReadEntitiesToModels(entities), nil
 }
 
-func (s *Storage) CreateLastRead(ctx context.Context, subjectID string, chatID string) (*model.LastRead, error) {
+func (s *Storage) CreateLastRead(ctx context.Context, subjectID string, chatID int) (*model.LastRead, error) {
 	query, args, err := sq.
 		Insert(LastReadTable).
 		Columns(
@@ -52,7 +52,7 @@ func (s *Storage) CreateLastRead(ctx context.Context, subjectID string, chatID s
 	return s.doAndReturnLastRead(ctx, query, args)
 }
 
-func (s *Storage) GetLastReadByChatIDs(ctx context.Context, subjectID string, chatIDs []string) ([]*model.LastRead, error) {
+func (s *Storage) GetLastReadByChatIDs(ctx context.Context, subjectID string, chatIDs []int) ([]*model.LastRead, error) {
 	query, args, err := sq.
 		Select(AllLabelsSelect).
 		From(LastReadTable).
@@ -68,7 +68,7 @@ func (s *Storage) GetLastReadByChatIDs(ctx context.Context, subjectID string, ch
 	return s.doAndReturnLastReads(ctx, query, args)
 }
 
-func (s *Storage) UpdateLastRead(ctx context.Context, subjectID string, chatID string, messageNumber int) (*model.LastRead, error) {
+func (s *Storage) UpdateLastRead(ctx context.Context, subjectID string, chatID int, messageNumber int) (*model.LastRead, error) {
 	query, args, err := sq.
 		Update(LastReadTable).
 		Set(LastReadMessageNumberLabel, messageNumber).
@@ -88,7 +88,7 @@ func (s *Storage) UpdateLastRead(ctx context.Context, subjectID string, chatID s
 	return s.doAndReturnLastRead(ctx, query, args)
 }
 
-func (s *Storage) DeleteLastRead(ctx context.Context, subjectID string, chatID string) (*model.LastRead, error) {
+func (s *Storage) DeleteLastRead(ctx context.Context, subjectID string, chatID int) (*model.LastRead, error) {
 	query, args, err := sq.
 		Update(LastReadTable).
 		Set(LastReadDeletedAtLabel, time.Now().UTC()).

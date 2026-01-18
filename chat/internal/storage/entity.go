@@ -6,7 +6,7 @@ import (
 )
 
 type ChatEntity struct {
-	ID              string     `db:"id"`
+	ID              int        `db:"id"`
 	FirstSubjectID  string     `db:"first_subject_id"`
 	SecondSubjectID string     `db:"second_subject_id"`
 	MessagesCount   int        `db:"messages_count"`
@@ -37,7 +37,8 @@ func ChatEntitiesToModels(entities []*ChatEntity) []*model.Chat {
 
 type LastReadEntity struct {
 	SubjectID     string     `db:"subject_id"`
-	ChatID        string     `db:"chat_id"`
+	ChatID        int        `db:"chat_id"`
+	MessageID     int        `db:"message_id"`
 	MessageNumber int        `db:"message_number"`
 	UpdatedAt     time.Time  `db:"updated_at"`
 	DeletedAt     *time.Time `db:"deleted_at"`
@@ -62,8 +63,8 @@ func LastReadEntitiesToModels(entities []*LastReadEntity) []*model.LastRead {
 }
 
 type MessageEntity struct {
-	ID              string     `db:"id"`
-	ChatID          string     `db:"chat_id"`
+	ID              int        `db:"id"`
+	ChatID          int        `db:"chat_id"`
 	SenderSubjectID string     `db:"sender_subject_id"`
 	Content         string     `db:"content"`
 	Number          int        `db:"number"`
@@ -89,6 +90,32 @@ func (e *MessageEntity) ToModel() *model.Message {
 
 func MessageEntitiesToModels(entities []*MessageEntity) []*model.Message {
 	models := make([]*model.Message, 0, len(entities))
+	for _, entity := range entities {
+		models = append(models, entity.ToModel())
+	}
+	return models
+}
+
+type MessageOutboxEntity struct {
+	ID        int        `db:"id"`
+	ChatID    int        `db:"chat_id"`
+	MessageID int        `db:"message_id"`
+	Operation int        `db:"operation"`
+	DeletedAt *time.Time `db:"deleted_at"`
+}
+
+func (e *MessageOutboxEntity) ToModel() *model.MessageOutbox {
+	return &model.MessageOutbox{
+		ID:        e.ID,
+		ChatID:    e.ChatID,
+		MessageID: e.MessageID,
+		Operation: model.Operation(e.Operation),
+		DeletedAt: e.DeletedAt,
+	}
+}
+
+func MessageOutboxEntitiesToModels(entities []*MessageOutboxEntity) []*model.MessageOutbox {
+	models := make([]*model.MessageOutbox, 0, len(entities))
 	for _, entity := range entities {
 		models = append(models, entity.ToModel())
 	}
