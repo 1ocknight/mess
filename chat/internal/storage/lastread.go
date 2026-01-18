@@ -52,7 +52,7 @@ func (s *Storage) CreateLastRead(ctx context.Context, subjectID string, chatID i
 	return s.doAndReturnLastRead(ctx, query, args)
 }
 
-func (s *Storage) GetLastReadByChatIDs(ctx context.Context, chatIDs []int) ([]*model.LastRead, error) {
+func (s *Storage) GetLastReadsByChatIDs(ctx context.Context, chatIDs []int) ([]*model.LastRead, error) {
 	query, args, err := sq.
 		Select(AllLabelsSelect).
 		From(LastReadTable).
@@ -67,7 +67,7 @@ func (s *Storage) GetLastReadByChatIDs(ctx context.Context, chatIDs []int) ([]*m
 	return s.doAndReturnLastReads(ctx, query, args)
 }
 
-func (s *Storage) GetLastReadByChatID(ctx context.Context, chatID int) ([]*model.LastRead, error) {
+func (s *Storage) GetLastReadsByChatID(ctx context.Context, chatID int) ([]*model.LastRead, error) {
 	query, args, err := sq.
 		Select(AllLabelsSelect).
 		From(LastReadTable).

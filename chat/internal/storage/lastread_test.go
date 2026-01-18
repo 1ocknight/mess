@@ -61,7 +61,7 @@ func TestStorage_GetLastReadByChatIDs(t *testing.T) {
 	initData(t)
 	defer cleanupDB(t)
 
-	lastReads, err := s.LastRead().GetLastReadByChatIDs(t.Context(), []int{1, 2})
+	lastReads, err := s.LastRead().GetLastReadsByChatIDs(t.Context(), []int{1, 2})
 	if err != nil {
 		t.Fatalf("get last read by chat ids: %v", err)
 	}
@@ -80,7 +80,7 @@ func TestStorage_GetLastReadByChatID(t *testing.T) {
 	initData(t)
 	defer cleanupDB(t)
 
-	lastReads, err := s.LastRead().GetLastReadByChatID(t.Context(), InitLastReads[0].ChatID)
+	lastReads, err := s.LastRead().GetLastReadsByChatID(t.Context(), InitLastReads[0].ChatID)
 	if err != nil {
 		t.Fatalf("get last read by chat id: %v", err)
 	}
