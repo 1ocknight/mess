@@ -5,11 +5,11 @@ import (
 
 	"github.com/TATAROmangol/mess/chat/internal/domain"
 	"github.com/TATAROmangol/mess/chat/internal/model"
-	"github.com/TATAROmangol/mess/chat/pkg/dto"
+	"github.com/TATAROmangol/mess/chat/pkg/httpdto"
 )
 
-func MessageModelToMessageDTO(mess *model.Message) *dto.MessageResponse {
-	return &dto.MessageResponse{
+func MessageModelToMessageDTO(mess *model.Message) *httpdto.MessageResponse {
+	return &httpdto.MessageResponse{
 		ID:        mess.ID,
 		Version:   mess.Version,
 		Content:   mess.Content,
@@ -18,8 +18,8 @@ func MessageModelToMessageDTO(mess *model.Message) *dto.MessageResponse {
 	}
 }
 
-func MessagesModelToMessageDTO(messages []*model.Message) []*dto.MessageResponse {
-	resMessages := make([]*dto.MessageResponse, 0, len(messages))
+func MessagesModelToMessageDTO(messages []*model.Message) []*httpdto.MessageResponse {
+	resMessages := make([]*httpdto.MessageResponse, 0, len(messages))
 	for _, mess := range messages {
 		resMessages = append(resMessages, MessageModelToMessageDTO(mess))
 	}
@@ -27,14 +27,14 @@ func MessagesModelToMessageDTO(messages []*model.Message) []*dto.MessageResponse
 	return resMessages
 }
 
-func ChatsMetadataModelToDTO(chatsMetadata []*model.ChatMetadata) []*dto.ChatsMetadataResponse {
-	resChats := make([]*dto.ChatsMetadataResponse, 0, len(chatsMetadata))
+func ChatsMetadataModelToDTO(chatsMetadata []*model.ChatMetadata) []*httpdto.ChatsMetadataResponse {
+	resChats := make([]*httpdto.ChatsMetadataResponse, 0, len(chatsMetadata))
 	for _, cm := range chatsMetadata {
-		resChats = append(resChats, &dto.ChatsMetadataResponse{
+		resChats = append(resChats, &httpdto.ChatsMetadataResponse{
 			ChatID:          cm.ChatID,
 			SecondSubjectID: cm.SecondSubjectID,
 			UpdatedAt:       cm.UpdatedAt,
-			LastMessage: &dto.MessageResponse{
+			LastMessage: &httpdto.MessageResponse{
 				ID:       cm.LastMessage.MessageID,
 				Content:  cm.LastMessage.Content,
 				SenderID: cm.LastMessage.SenderID,

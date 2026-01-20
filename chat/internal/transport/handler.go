@@ -8,7 +8,7 @@ import (
 
 	"github.com/TATAROmangol/mess/chat/internal/ctxkey"
 	"github.com/TATAROmangol/mess/chat/internal/domain"
-	"github.com/TATAROmangol/mess/chat/pkg/dto"
+	"github.com/TATAROmangol/mess/chat/pkg/httpdto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,11 +45,11 @@ func (h *Handler) AddChat(c *gin.Context) {
 		lastReadsMap[lr.SubjectID] = lr.MessageID
 	}
 
-	c.JSON(http.StatusCreated, dto.ChatResponse{
+	c.JSON(http.StatusCreated, httpdto.ChatResponse{
 		ChatID:          chat.ID,
 		SecondSubjectID: secondSubjID,
 		LastReads:       lastReadsMap,
-		Messages:        []*dto.MessageResponse{},
+		Messages:        []*httpdto.MessageResponse{},
 	})
 }
 
@@ -143,7 +143,7 @@ func (h *Handler) returnChatResponse(c *gin.Context, chatID int, limit int) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.ChatResponse{
+	c.JSON(http.StatusOK, httpdto.ChatResponse{
 		ChatID:          chatID,
 		SecondSubjectID: secondID,
 		LastReads:       lastReadsMap,
@@ -200,7 +200,7 @@ func (h *Handler) GetMessages(c *gin.Context) {
 }
 
 func (h *Handler) AddMessage(c *gin.Context) {
-	var req *dto.AddMessageRequest
+	var req *httpdto.AddMessageRequest
 	if err := c.BindJSON(&req); err != nil {
 		h.sendError(c, err)
 		return
@@ -216,7 +216,7 @@ func (h *Handler) AddMessage(c *gin.Context) {
 }
 
 func (h *Handler) UpdateMessage(c *gin.Context) {
-	var req *dto.UpdateMessageRequest
+	var req *httpdto.UpdateMessageRequest
 	if err := c.BindJSON(&req); err != nil {
 		h.sendError(c, err)
 		return
@@ -232,7 +232,7 @@ func (h *Handler) UpdateMessage(c *gin.Context) {
 }
 
 func (h *Handler) UpdateLastRead(c *gin.Context) {
-	var req *dto.UpdateLastReadRequest
+	var req *httpdto.UpdateLastReadRequest
 	if err := c.BindJSON(&req); err != nil {
 		h.sendError(c, err)
 		return
