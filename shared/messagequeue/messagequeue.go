@@ -13,3 +13,7 @@ type Consumer interface {
 	Commit(ctx context.Context, msg Message) error
 	Close() error
 }
+
+type Producer interface {
+	Publish(ctx context.Context, key []byte, val []byte) error
+}

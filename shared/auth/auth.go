@@ -5,3 +5,7 @@ import "github.com/TATAROmangol/mess/shared/model"
 type Service interface {
 	Verify(src string) (model.Subject, error)
 }
+
+type DeleteSubjectEvent interface {
+	GetSubjectID() string
+}

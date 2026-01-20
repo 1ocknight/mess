@@ -3,24 +3,10 @@ package kafka
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/TATAROmangol/mess/shared/messagequeue"
 	"github.com/segmentio/kafka-go"
 )
-
-type Message struct {
-	Key       []byte
-	Val       []byte
-	Topic     string
-	Partition int
-	Offset    int64
-	Time      time.Time
-}
-
-func (m *Message) Value() []byte {
-	return m.Val
-}
 
 type ConsumerConfig struct {
 	Brokers []string `yaml:"brokers"`

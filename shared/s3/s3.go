@@ -1,4 +1,4 @@
-package s3client
+package s3
 
 import (
 	"context"
@@ -9,6 +9,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
+
+type UploadEvent interface {
+	GetKey() string
+}
 
 type Config struct {
 	Region          string `yaml:"region"`
