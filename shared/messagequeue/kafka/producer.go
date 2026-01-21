@@ -23,7 +23,7 @@ func NewProducer(cfg ProducerConfig) messagequeue.Producer {
 			Addr:         kafka.TCP(cfg.Brokers...),
 			Topic:        cfg.Topic,
 			Balancer:     &kafka.Hash{},
-			RequiredAcks: kafka.RequireAll,
+			AllowAutoTopicCreation: true,
 		},
 	}
 }
