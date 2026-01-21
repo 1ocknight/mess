@@ -9,9 +9,8 @@ import (
 )
 
 type ProducerConfig struct {
-	Brokers         []string `yaml:"brokers"`
-	Topic           string   `yaml:"topic"`
-	TopicAutoCreate bool     `yaml:"topic_auto_create"`
+	Brokers []string `yaml:"brokers"`
+	Topic   string   `yaml:"topic"`
 }
 
 type Producer struct {
@@ -20,13 +19,11 @@ type Producer struct {
 
 func NewProducer(cfg ProducerConfig) messagequeue.Producer {
 	return &Producer{
-		writer: &kafka.Writer{
-			Addr:                   kafka.TCP(cfg.Brokers...),
-			Topic:                  cfg.Topic,
-			Balancer:               &kafka.Hash{},
-			RequiredAcks:           kafka.RequireAll,
-			AllowAutoTopicCreation: cfg.TopicAutoCreate,
-		},
+		writer: kafka.NewWriter(kafka.WriterConfig{
+			Brokers:  cfg.Brokers,
+			Topic:    cfg.Topic,
+			Balancer: &kafka.Hash{},
+		}),
 	}
 }
 
