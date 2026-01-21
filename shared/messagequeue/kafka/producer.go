@@ -28,14 +28,28 @@ func NewProducer(cfg ProducerConfig) messagequeue.Producer {
 	}
 }
 
-func (p *Producer) Publish(ctx context.Context, key []byte, val []byte) error {
+func (p *Producer) Publish(ctx context.Context, pair *messagequeue.KeyValPair) error {
 	kMsg := kafka.Message{
-		Key:   key,
-		Value: val,
+		Key:   pair.Key,
+		Value: pair.Val,
 		Time:  time.Now(),
 	}
 
 	return p.writer.WriteMessages(ctx, kMsg)
+}
+
+func (p *Producer) BatchPublish(ctx context.Context, pairs []*messagequeue.KeyValPair) error {
+	msgs := make([]kafka.Message, 0, len(pairs))
+
+	for _, pair := range pairs {
+		msgs = append(msgs, kafka.Message{
+			Key:   pair.Key,
+			Value: pair.Val,
+			Time:  time.Now(),
+		})
+	}
+
+	return p.writer.WriteMessages(ctx, msgs...)
 }
 
 func (p *Producer) Close() error {
