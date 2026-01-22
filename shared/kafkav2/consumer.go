@@ -1,52 +1,105 @@
 package kafkav2
 
 import (
+	"context"
 	"fmt"
+	"sync"
 
 	"github.com/IBM/sarama"
 )
 
-type consumerGroupHandler struct{}
-
-func (consumerGroupHandler) Setup(sarama.ConsumerGroupSession) error   { return nil }
-func (consumerGroupHandler) Cleanup(sarama.ConsumerGroupSession) error { return nil }
-func (h consumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	for message := range claim.Messages() {
-		fmt.Printf("Message topic:%s partition:%d offset:%d value:%s\n",
-			message.Topic, message.Partition, message.Offset, string(message.Value))
-
-		session.MarkMessage(message, "")
-	}
-	return nil
-}
-
 type ConsumerConfig struct {
 	Brokers       []string `yaml:"brokers"`
-	Topic         string   `yaml:"topic"`
-	GroupID       string   `yaml:"group_id"`
+	Topics        []string `yaml:"topics"`
 	MessagesLimit int      `yaml:"messages_limit"`
 }
 
-type Consumer struct {
-	client sarama.ConsumerGroup
+type PartitionMessage struct {
+	Value     []byte
+	partition int32
+	offset    int64
 }
 
-func NewConsumer(cfg ConsumerConfig) (*Consumer, error) {
-	saramaCfg := sarama.NewConfig()
-	saramaCfg.Consumer.Offsets.Initial = sarama.OffsetNewest
+type PartitionConsumer struct {
+	brokers []string
+	topic   string
 
-	client, err := sarama.NewConsumerGroup(cfg.Brokers, cfg.GroupID, saramaCfg)
+	client   sarama.Client
+	consumer sarama.Consumer
+
+	msgCh chan *PartitionMessage
+	wg    sync.WaitGroup
+}
+
+func NewPartitionConsumer(brokers []string, topic string) (*PartitionConsumer, error) {
+	config := sarama.NewConfig()
+	config.Consumer.Offsets.Initial = sarama.OffsetNewest
+
+	client, err := sarama.NewClient(brokers, config)
 	if err != nil {
-		return nil, fmt.Errorf("new consumer group: %w", err)
+		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
 
-	
+	consumer, err := sarama.NewConsumerFromClient(client)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create consumer: %w", err)
+	}
 
-	return &Consumer{
-		client: client,
+	return &PartitionConsumer{
+		brokers:  brokers,
+		topic:    topic,
+		client:   client,
+		consumer: consumer,
+		msgCh:    make(chan *PartitionMessage),
 	}, nil
 }
 
-func (c *Consumer) Close() error {
+func (c *PartitionConsumer) Run(ctx context.Context) error {
+	partitions, err := c.consumer.Partitions(c.topic)
+	if err != nil {
+		return fmt.Errorf("failed to get partitions: %w", err)
+	}
+
+	for _, partition := range partitions {
+		pc, err := c.consumer.ConsumePartition(c.topic, partition, sarama.OffsetNewest)
+		if err != nil {
+			return fmt.Errorf("failed to consume partition %d: %w", partition, err)
+		}
+
+		c.wg.Add(1)
+		go func(pc sarama.PartitionConsumer, partition int32) {
+			defer c.wg.Done()
+			for {
+				select {
+				case msg := <-pc.Messages():
+					c.msgCh <- &PartitionMessage{
+						Value:     msg.Value,
+						partition: msg.Partition,
+						offset:    msg.Offset,
+					}
+				case <-ctx.Done():
+					pc.Close()
+					return
+				}
+			}
+		}(pc, partition)
+	}
+
+	go func() {
+		c.wg.Wait()
+		close(c.msgCh)
+	}()
+
+	return nil
+}
+
+func (c *PartitionConsumer) GetMessagesChan() chan *PartitionMessage {
+	return c.msgCh
+}
+
+func (c *PartitionConsumer) Close() error {
+	if err := c.consumer.Close(); err != nil {
+		return err
+	}
 	return c.client.Close()
 }
