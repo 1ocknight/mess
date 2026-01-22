@@ -53,7 +53,7 @@ type GroupConsumer struct {
 	done      chan struct{}
 }
 
-func NewConsumer(cfg GroupConsumerConfig) (*GroupConsumer, error) {
+func NewGroupConsumer(cfg GroupConsumerConfig) (*GroupConsumer, error) {
 	saramaCfg := sarama.NewConfig()
 	saramaCfg.Consumer.Offsets.Initial = sarama.OffsetNewest
 

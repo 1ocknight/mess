@@ -14,24 +14,24 @@ type ConsumerConfig struct {
 	MessagesLimit int      `yaml:"messages_limit"`
 }
 
-type PartitionMessage struct {
+type ConsumerMessage struct {
 	Value     []byte
 	partition int32
 	offset    int64
 }
 
-type PartitionConsumer struct {
+type Consumer struct {
 	brokers []string
 	topic   string
 
 	client   sarama.Client
 	consumer sarama.Consumer
 
-	msgCh chan *PartitionMessage
+	msgCh chan *ConsumerMessage
 	wg    sync.WaitGroup
 }
 
-func NewPartitionConsumer(brokers []string, topic string) (*PartitionConsumer, error) {
+func NewConsumer(brokers []string, topic string) (*Consumer, error) {
 	config := sarama.NewConfig()
 	config.Consumer.Offsets.Initial = sarama.OffsetNewest
 
@@ -45,16 +45,16 @@ func NewPartitionConsumer(brokers []string, topic string) (*PartitionConsumer, e
 		return nil, fmt.Errorf("failed to create consumer: %w", err)
 	}
 
-	return &PartitionConsumer{
+	return &Consumer{
 		brokers:  brokers,
 		topic:    topic,
 		client:   client,
 		consumer: consumer,
-		msgCh:    make(chan *PartitionMessage),
+		msgCh:    make(chan *ConsumerMessage),
 	}, nil
 }
 
-func (c *PartitionConsumer) Start(ctx context.Context) error {
+func (c *Consumer) Start(ctx context.Context) error {
 	partitions, err := c.consumer.Partitions(c.topic)
 	if err != nil {
 		return fmt.Errorf("failed to get partitions: %w", err)
@@ -72,7 +72,7 @@ func (c *PartitionConsumer) Start(ctx context.Context) error {
 			for {
 				select {
 				case msg := <-pc.Messages():
-					c.msgCh <- &PartitionMessage{
+					c.msgCh <- &ConsumerMessage{
 						Value:     msg.Value,
 						partition: msg.Partition,
 						offset:    msg.Offset,
@@ -93,11 +93,11 @@ func (c *PartitionConsumer) Start(ctx context.Context) error {
 	return nil
 }
 
-func (c *PartitionConsumer) GetMessagesChan() chan *PartitionMessage {
+func (c *Consumer) GetMessagesChan() chan *ConsumerMessage {
 	return c.msgCh
 }
 
-func (c *PartitionConsumer) Close() error {
+func (c *Consumer) Close() error {
 	if err := c.consumer.Close(); err != nil {
 		return err
 	}
