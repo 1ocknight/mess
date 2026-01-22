@@ -68,6 +68,7 @@ func (c *Consumer) Start(ctx context.Context) error {
 			for {
 				select {
 				case msg := <-pc.Messages():
+					slog.Info("halo")
 					c.msgCh <- &ConsumerMessage{
 						Value: msg.Value,
 					}
