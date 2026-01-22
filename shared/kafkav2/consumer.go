@@ -55,6 +55,9 @@ func (c *Consumer) Start(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to get partitions: %w", err)
 	}
+	if len(partitions) == 0 {
+		return fmt.Errorf("no partitions found for topic %s", c.cfg.Topic)
+	}
 
 	for _, partition := range partitions {
 		pc, err := c.consumer.ConsumePartition(c.cfg.Topic, partition, sarama.OffsetNewest)
