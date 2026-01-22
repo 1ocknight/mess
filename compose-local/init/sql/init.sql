@@ -46,7 +46,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE profile
 IN SCHEMA public
 GRANT ALL ON SEQUENCES TO profile;
 
-\c profile
+\c chat
 ALTER SCHEMA public OWNER TO chat;
 GRANT USAGE, CREATE ON SCHEMA public TO chat;
 

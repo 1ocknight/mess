@@ -15,3 +15,14 @@ http:
   debug_mode: true
 
 migrations_path: file://migrations
+
+message_worker:
+  kafka: 
+    brokers: 
+    - kafka:29092 
+    topic: message-event 
+    retry: 1
+    timeout: 5s
+  delay: 10s
+  messages_limit: 100
+  users_limit: 10
