@@ -55,7 +55,7 @@ func (c *Consumer) Start(ctx context.Context) error {
 	}
 
 	for _, partition := range partitions {
-		pc, err := c.consumer.ConsumePartition(c.cfg.Topic, partition, sarama.OffsetNewest)
+		pc, err := c.consumer.ConsumePartition(c.cfg.Topic, partition, sarama.OffsetOldest)
 		if err != nil {
 			return fmt.Errorf("failed to consume partition %d: %w", partition, err)
 		}
