@@ -332,7 +332,14 @@ func (d *Domain) SendMessage(ctx context.Context, chatID int, content string) (*
 	}
 	lg = lg.With(loglables.LastRead, *lastRead)
 
-	outbox, err := tx.MessageOutbox().AddMessageOutbox(ctx, chatID, message.ID, model.AddOperation)
+	var recipient string
+	if chat.FirstSubjectID != subj.GetSubjectId() {
+		recipient = chat.FirstSubjectID
+	} else {
+		recipient = chat.SecondSubjectID
+	}
+
+	outbox, err := tx.MessageOutbox().AddMessageOutbox(ctx, recipient, message.ID, model.AddOperation)
 	if err != nil {
 		return nil, fmt.Errorf("add message outbox: %w", err)
 	}
@@ -382,7 +389,14 @@ func (d *Domain) UpdateMessage(ctx context.Context, messageID int, content strin
 	}
 	lg = lg.With(loglables.Chat, *chat)
 
-	outbox, err := tx.MessageOutbox().AddMessageOutbox(ctx, chat.ID, message.ID, model.UpdateOperation)
+	var recipient string
+	if chat.FirstSubjectID != subj.GetSubjectId() {
+		recipient = chat.FirstSubjectID
+	} else {
+		recipient = chat.SecondSubjectID
+	}
+
+	outbox, err := tx.MessageOutbox().AddMessageOutbox(ctx, recipient, message.ID, model.UpdateOperation)
 	if err != nil {
 		return nil, fmt.Errorf("add message outbox: %w", err)
 	}

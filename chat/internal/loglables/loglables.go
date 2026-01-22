@@ -19,4 +19,6 @@ const (
 	StatusResponse  = "status"
 
 	Service = "service"
+
+	IDs = "ids"
 )

@@ -1,8 +1,9 @@
 package storage_test
 
 import (
-	"github.com/TATAROmangol/mess/chat/internal/storage"
 	"testing"
+
+	"github.com/TATAROmangol/mess/chat/internal/storage"
 )
 
 func TestStorage_GetMessageOutbox(t *testing.T) {
@@ -14,7 +15,7 @@ func TestStorage_GetMessageOutbox(t *testing.T) {
 	initData(t)
 	defer cleanupDB(t)
 
-	outbox, err := s.MessageOutbox().GetMessageOutbox(t.Context(), 2)
+	outbox, err := s.MessageOutbox().GetMessageOutbox(t.Context(), 2, 2)
 	if err != nil {
 		t.Fatalf("get message outbox: %v", err)
 	}

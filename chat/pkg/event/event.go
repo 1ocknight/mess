@@ -21,6 +21,6 @@ type Message struct {
 type SendMessage struct {
 	ChatID      int       `json:"chat_id"`
 	RecipientID string    `json:"recipient_id"`
-	Message     Message   `json:"message"`
+	Message     *Message  `json:"message"`
 	Operation   Operation `json:"operation"`
 }

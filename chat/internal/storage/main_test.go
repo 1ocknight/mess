@@ -1,12 +1,13 @@
 package storage_test
 
 import (
-	"github.com/TATAROmangol/mess/chat/internal/model"
-	"github.com/TATAROmangol/mess/chat/internal/storage"
 	"context"
 	"fmt"
 	"os"
 	"testing"
+
+	"github.com/TATAROmangol/mess/chat/internal/model"
+	"github.com/TATAROmangol/mess/chat/internal/storage"
 
 	pq "github.com/TATAROmangol/mess/shared/postgres"
 	pgcontainer "github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -80,16 +81,16 @@ var InitMessages = []*model.Message{
 
 var InitMessageOutboxes = []*model.MessageOutbox{
 	{
-		ID:        1,
-		ChatID:    1,
-		MessageID: 1,
-		Operation: model.AddOperation,
+		ID:          1,
+		RecipientID: "subj-2",
+		MessageID:   1,
+		Operation:   model.AddOperation,
 	},
 	{
-		ID:        2,
-		ChatID:    1,
-		MessageID: 2,
-		Operation: model.AddOperation,
+		ID:          2,
+		RecipientID: "subj-1",
+		MessageID:   2,
+		Operation:   model.AddOperation,
 	},
 }
 
@@ -205,7 +206,7 @@ func initData(t *testing.T) {
 	}
 
 	for _, ms := range InitMessageOutboxes {
-		_, err = s.MessageOutbox().AddMessageOutbox(t.Context(), ms.ChatID, ms.MessageID, ms.Operation)
+		_, err = s.MessageOutbox().AddMessageOutbox(t.Context(), ms.RecipientID, ms.MessageID, ms.Operation)
 		if err != nil {
 			t.Fatalf("create message outbox: %v", err)
 		}

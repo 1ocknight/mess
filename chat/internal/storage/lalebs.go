@@ -57,7 +57,7 @@ const (
 // MessageOutboxTable
 const (
 	MessageOutboxIDLabel        Label = "id"
-	MessageOutboxChatIDLabel    Label = "chat_id"
+	MessageOutboxRecipientID    Label = "recipient_id"
 	MessageOutboxMessageIDLabel Label = "message_id"
 	MessageOutboxOperationLabel Label = "operation"
 	MessageOutboxDeletedAtLabel Label = "deleted_at"

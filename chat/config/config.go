@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/TATAROmangol/mess/chat/internal/transport"
+	"github.com/TATAROmangol/mess/chat/internal/worker"
 	"github.com/TATAROmangol/mess/shared/auth/keycloak"
 	"github.com/TATAROmangol/mess/shared/postgres"
 	"github.com/goccy/go-yaml"
@@ -15,7 +16,10 @@ type Config struct {
 	MigrationsPath string           `yaml:"migrations_path"`
 	Postgres       postgres.Config  `yaml:"postgres"`
 	HTTP           transport.Config `yaml:"http"`
-	Keycloak       keycloak.Config  `yaml:"keycloak"`
+
+	MessageWorker worker.MessageWorkerConfig `json:"message_worker"`
+
+	Keycloak keycloak.Config `yaml:"keycloak"`
 }
 
 func LoadConfig() (*Config, error) {

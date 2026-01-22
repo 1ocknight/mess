@@ -16,6 +16,7 @@ import (
 	"github.com/TATAROmangol/mess/chat/internal/loglables"
 	"github.com/TATAROmangol/mess/chat/internal/storage"
 	"github.com/TATAROmangol/mess/chat/internal/transport"
+	"github.com/TATAROmangol/mess/chat/internal/worker"
 	"github.com/TATAROmangol/mess/shared/auth/keycloak"
 	"github.com/TATAROmangol/mess/shared/logger"
 	"github.com/TATAROmangol/mess/shared/postgres"
@@ -55,6 +56,7 @@ func main() {
 		lg.Error(fmt.Errorf("migrator up: %w", err))
 		return
 	}
+	lg.Info("up migrations")
 
 	dom := domain.New(storage)
 
@@ -63,6 +65,14 @@ func main() {
 		lg.Error(fmt.Errorf("keycloak new: %w", err))
 		return
 	}
+
+	messageWorkerLg := lg.With(loglables.Service, "message worker")
+	messageWorker, err := worker.NewMessageWorker(storage, messageWorkerLg, &cfg.MessageWorker)
+	if err != nil {
+		lg.Error(fmt.Errorf("new message worker: %w", err))
+		return
+	}
+	go messageWorker.Run(ctx)
 
 	server := transport.NewServer(cfg.HTTP, lg, dom, keycloak)
 	go func() {

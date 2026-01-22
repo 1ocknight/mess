@@ -99,20 +99,20 @@ func MessageEntitiesToModels(entities []*MessageEntity) []*model.Message {
 }
 
 type MessageOutboxEntity struct {
-	ID        int        `db:"id"`
-	ChatID    int        `db:"chat_id"`
-	MessageID int        `db:"message_id"`
-	Operation int        `db:"operation"`
-	DeletedAt *time.Time `db:"deleted_at"`
+	ID          int        `db:"id"`
+	RecipientID string     `db:"recipient_id"`
+	MessageID   int        `db:"message_id"`
+	Operation   int        `db:"operation"`
+	DeletedAt   *time.Time `db:"deleted_at"`
 }
 
 func (e *MessageOutboxEntity) ToModel() *model.MessageOutbox {
 	return &model.MessageOutbox{
-		ID:        e.ID,
-		ChatID:    e.ChatID,
-		MessageID: e.MessageID,
-		Operation: model.Operation(e.Operation),
-		DeletedAt: e.DeletedAt,
+		ID:          e.ID,
+		RecipientID: e.RecipientID,
+		MessageID:   e.MessageID,
+		Operation:   model.Operation(e.Operation),
+		DeletedAt:   e.DeletedAt,
 	}
 }
 
