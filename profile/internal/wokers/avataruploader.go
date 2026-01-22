@@ -35,7 +35,7 @@ func (aum *AvatarUploaderMessage) Key() string {
 }
 
 type AvatarUploader struct {
-	CFG      AvatarUploaderConfig
+	cfg      AvatarUploaderConfig
 	Consumer messagequeue.Consumer
 	Storage  storage.Service
 }
@@ -43,7 +43,7 @@ type AvatarUploader struct {
 func NewAvatarUploader(cfg AvatarUploaderConfig, storage storage.Service) *AvatarUploader {
 	consumer := kafka.NewConsumer(cfg.Kafka)
 	return &AvatarUploader{
-		CFG:      cfg,
+		cfg:      cfg,
 		Consumer: consumer,
 		Storage:  storage,
 	}
@@ -145,6 +145,9 @@ func (au *AvatarUploader) Start(ctx context.Context) error {
 	}
 
 	go func() {
+		ticker := time.NewTicker(au.cfg.Delay)
+		defer ticker.Stop()
+
 		for {
 			err := au.Upload(ctx)
 			if err == nil {
@@ -154,7 +157,8 @@ func (au *AvatarUploader) Start(ctx context.Context) error {
 			lg.Error(fmt.Errorf("upload: %w", err))
 
 			select {
-			case <-time.After(au.CFG.Delay):
+			case <-ticker.C:
+				lg.Info("delay after error")
 			case <-ctx.Done():
 				return
 			}
