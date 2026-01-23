@@ -22,7 +22,6 @@ type Label = string
 const (
 	ProfileSubjectIDLabel Label = "subject_id"
 	ProfileAliasLabel     Label = "alias"
-	ProfileAvatarKeyLabel Label = "avatar_key"
 	ProfileVersionLabel   Label = "version"
 	ProfileUpdatedAtLabel Label = "updated_at"
 	ProfileCreatedAtLabel Label = "created_at"
@@ -31,7 +30,6 @@ const (
 
 // AvatarKeyOutbox
 const (
-	AvatarKeyOutboxKeyLabel       Label = "key"
 	AvatarKeyOutboxSubjectIDLabel Label = "subject_id"
 	AvatarKeyOutboxDeletedAtLabel Label = "deleted_at"
 	AvatarKeyOutboxCreatedAtLabel Label = "created_at"

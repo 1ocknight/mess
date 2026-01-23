@@ -42,16 +42,15 @@ func (s *Storage) GetKeys(ctx context.Context, limit int) ([]*model.AvatarOutbox
 	return AvatarOutboxEntitiesToModels(entities), nil
 }
 
-func (s *Storage) AddKey(ctx context.Context, subjectID string, key string) (*model.AvatarOutbox, error) {
+func (s *Storage) AddKey(ctx context.Context, subjectID string) (*model.AvatarOutbox, error) {
 	query, args, err := sq.
 		Insert(AvatarKeyOutboxTable).
 		Columns(
-			AvatarKeyOutboxKeyLabel,
 			AvatarKeyOutboxSubjectIDLabel,
 			AvatarKeyOutboxCreatedAtLabel,
 			AvatarKeyOutboxDeletedAtLabel,
 		).
-		Values(key, subjectID, time.Now().UTC(), nil).
+		Values(subjectID, time.Now().UTC(), nil).
 		Suffix(ReturningSuffix).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -69,15 +68,15 @@ func (s *Storage) AddKey(ctx context.Context, subjectID string, key string) (*mo
 	return entity.ToModel(), nil
 }
 
-func (s *Storage) DeleteKeys(ctx context.Context, keys []string) ([]*model.AvatarOutbox, error) {
-	if len(keys) == 0 {
+func (s *Storage) DeleteKeys(ctx context.Context, ids []string) ([]*model.AvatarOutbox, error) {
+	if len(ids) == 0 {
 		return []*model.AvatarOutbox{}, nil
 	}
 
 	query, args, err := sq.
 		Update(AvatarKeyOutboxTable).
 		Set(AvatarKeyOutboxDeletedAtLabel, time.Now().UTC()).
-		Where(sq.Eq{AvatarKeyOutboxKeyLabel: keys}).
+		Where(sq.Eq{AvatarKeyOutboxSubjectIDLabel: ids}).
 		Where(sq.Expr(deletedATIsNullAvatarKeyFilter)).
 		Suffix(ReturningSuffix).
 		PlaceholderFormat(sq.Dollar).

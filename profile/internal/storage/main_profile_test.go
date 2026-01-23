@@ -11,7 +11,6 @@ import (
 	"github.com/TATAROmangol/mess/profile/internal/model"
 	p "github.com/TATAROmangol/mess/profile/internal/storage"
 	pq "github.com/TATAROmangol/mess/shared/postgres"
-	"github.com/TATAROmangol/mess/shared/utils"
 	"github.com/stretchr/testify/assert"
 	pgcontainer "github.com/testcontainers/testcontainers-go/modules/postgres"
 )
@@ -26,19 +25,16 @@ var InitProfiles = []*model.Profile{
 	{
 		SubjectID: "subject_id1",
 		Alias:     "al",
-		AvatarKey: utils.StringPtr("url"),
 		Version:   1,
 	},
 	{
 		SubjectID: "subject_id2",
 		Alias:     "alias",
-		AvatarKey: utils.StringPtr("url"),
 		Version:   1,
 	},
 	{
 		SubjectID: "subject_id3",
 		Alias:     "alias pro",
-		AvatarKey: utils.StringPtr("url"),
 		Version:   1,
 	},
 }
@@ -46,15 +42,12 @@ var InitProfiles = []*model.Profile{
 var InitAvatarKeys = []*model.AvatarOutbox{
 	{
 		SubjectID: "subject_id1",
-		Key:       "key1",
 	},
 	{
 		SubjectID: "subject_id2",
-		Key:       "key2",
 	},
 	{
 		SubjectID: "subject_id3",
-		Key:       "key3",
 	},
 }
 
@@ -146,7 +139,7 @@ func initData(t *testing.T) {
 	}
 
 	for _, k := range InitAvatarKeys {
-		_, err = s.AvatarOutbox().AddKey(t.Context(), k.SubjectID, k.Key)
+		_, err = s.AvatarOutbox().AddKey(t.Context(), k.SubjectID)
 		if err != nil {
 			t.Fatalf("init add: %v", err)
 		}
@@ -171,7 +164,7 @@ func TestStorage_Transaction_Commit(t *testing.T) {
 		t.Fatalf("delete avatar key: %v", err)
 	}
 
-	key, err := s.AvatarOutbox().AddKey(t.Context(), InitProfiles[0].SubjectID, "test")
+	key, err := s.AvatarOutbox().AddKey(t.Context(), InitProfiles[0].SubjectID)
 	if err != nil {
 		t.Fatalf("add key: %v", err)
 	}
@@ -220,7 +213,7 @@ func TestStorage_Transaction_Rollback(t *testing.T) {
 		t.Fatalf("delete avatar key: %v", err)
 	}
 
-	_, err = s.AvatarOutbox().AddKey(t.Context(), InitProfiles[0].SubjectID, "test")
+	_, err = s.AvatarOutbox().AddKey(t.Context(), InitProfiles[0].SubjectID)
 	if err != nil {
 		t.Fatalf("add key: %v", err)
 	}

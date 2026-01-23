@@ -167,18 +167,13 @@ func (h *Handler) UploadAvatar(c *gin.Context) {
 }
 
 func (h *Handler) DeleteAvatar(c *gin.Context) {
-	profile, url, err := h.domain.DeleteAvatar(c.Request.Context())
+	err := h.domain.DeleteAvatar(c.Request.Context())
 	if err != nil {
 		h.sendError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.ProfileResponse{
-		SubjectID: profile.SubjectID,
-		Alias:     profile.Alias,
-		AvatarURL: url,
-		Version:   profile.Version,
-	})
+	c.Status(http.StatusOK)
 }
 
 func (h *Handler) DeleteProfile(c *gin.Context) {

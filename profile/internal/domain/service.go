@@ -39,7 +39,7 @@ type Service interface {
 
 	UploadAvatar(ctx context.Context) (string, error)
 
-	DeleteAvatar(ctx context.Context) (*model.Profile, string, error)
+	DeleteAvatar(ctx context.Context) error
 	DeleteProfile(ctx context.Context) (*model.Profile, string, error)
 }
 

@@ -12,7 +12,6 @@ import (
 	"github.com/TATAROmangol/mess/profile/internal/model"
 	logmocks "github.com/TATAROmangol/mess/shared/logger/mocks"
 	subjmocks "github.com/TATAROmangol/mess/shared/model/mocks"
-	"github.com/TATAROmangol/mess/shared/utils"
 	"github.com/golang/mock/gomock"
 )
 
@@ -44,7 +43,6 @@ func TestDomain_GetAvatarsURL(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		profiles = append(profiles, &model.Profile{
 			SubjectID: fmt.Sprintf("%v", i),
-			AvatarKey: utils.StringPtr(fmt.Sprintf("%v", i)),
 		})
 	}
 

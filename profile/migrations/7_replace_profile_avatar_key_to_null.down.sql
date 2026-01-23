@@ -1,2 +1,0 @@
-ALTER TABLE profile
-ALTER COLUMN avatar_key SET NOT NULL;

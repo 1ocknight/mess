@@ -20,7 +20,6 @@ type Config struct {
 	HTTP           transport.Config             `yaml:"http"`
 	Keycloak       keycloak.Config              `yaml:"keycloak"`
 	AvatarDeleter  workers.AvatarDeleterConfig  `yaml:"avatar_deleter"`
-	AvatarUploader workers.AvatarUploaderConfig `yaml:"avatar_uploader"`
 	ProfileDeleter workers.ProfileDeleterConfig `yaml:"profile_deleter"`
 }
 

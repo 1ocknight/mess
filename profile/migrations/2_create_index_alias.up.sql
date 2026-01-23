@@ -1,1 +1,0 @@
-CREATE INDEX idx_profile_alias ON profile(alias);

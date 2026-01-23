@@ -30,8 +30,7 @@ func TestStorage_GetKeys(t *testing.T) {
 	})
 
 	for i, k := range keys {
-		if k.Key != InitAvatarKeys[i].Key ||
-			k.SubjectID != InitAvatarKeys[i].SubjectID ||
+		if k.SubjectID != InitAvatarKeys[i].SubjectID ||
 			k.DeletedAt != nil {
 			t.Fatalf("not currently add, wait: %v, have: %v", InitAvatarKeys[i], k)
 		}
@@ -45,12 +44,11 @@ func TestStorage_AddKey(t *testing.T) {
 	}
 	defer cleanupDB(t)
 
-	key, err := s.AvatarOutbox().AddKey(t.Context(), InitAvatarKeys[0].SubjectID, InitAvatarKeys[0].Key)
+	key, err := s.AvatarOutbox().AddKey(t.Context(), InitAvatarKeys[0].SubjectID)
 	if err != nil {
 		t.Fatalf("add keyL %v", err)
 	}
 	if key.SubjectID != InitAvatarKeys[0].SubjectID ||
-		key.Key != InitAvatarKeys[0].Key ||
 		key.DeletedAt != nil {
 		t.Fatalf("not currently add, wait: %v, have: %v", InitAvatarKeys[0], key)
 	}
@@ -65,7 +63,7 @@ func TestStorage_DeleteKeys(t *testing.T) {
 	initData(t)
 	defer cleanupDB(t)
 
-	keys := model.GetOutboxKeys(InitAvatarKeys)
+	keys := model.GetOutboxIDs(InitAvatarKeys)
 
 	modelKeys, err := s.AvatarOutbox().DeleteKeys(t.Context(), keys)
 	if err != nil {
@@ -82,7 +80,7 @@ func TestStorage_DeleteKeys(t *testing.T) {
 	}
 
 	for _, k := range modelKeys {
-		if _, ok := want[k.Key]; !ok {
+		if _, ok := want[k.SubjectID]; !ok {
 			t.Fatalf("unexpected deleted key: %v", k)
 		}
 	}

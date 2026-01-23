@@ -73,15 +73,6 @@ func main() {
 	}
 	lg.Info("avatar deleter started")
 
-	au := workers.NewAvatarUploader(cfg.AvatarUploader, storage)
-	upLog := lg.With(loglables.Layer, "worker_avatar_uploader")
-	err = au.Start(ctxkey.WithLogger(ctx, upLog))
-	if err != nil {
-		lg.Error(fmt.Errorf("avatar uploader start: %w", err))
-		return
-	}
-	lg.Info("avatar uploader started")
-
 	pd := workers.NewProfileDeleter(cfg.ProfileDeleter, storage.Profile())
 	pdelLog := lg.With(loglables.Layer, "worker_profile_deleter")
 	err = pd.Start(ctxkey.WithLogger(ctx, pdelLog))

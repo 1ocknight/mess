@@ -57,11 +57,11 @@ func (ad *AvatarDeleter) Delete(ctx context.Context) error {
 			break
 		}
 
-		if err = ad.Avatar.DeleteObjects(ctx, model.GetOutboxKeys(keys)); err != nil {
+		if err = ad.Avatar.DeleteObjects(ctx, model.GetOutboxIDs(keys)); err != nil {
 			return fmt.Errorf("avatar delete objects: %w", err)
 		}
 
-		outboxes, err := tx.AvatarOutbox().DeleteKeys(ctx, model.GetOutboxKeys(keys))
+		outboxes, err := tx.AvatarOutbox().DeleteKeys(ctx, model.GetOutboxIDs(keys))
 		if err != nil {
 			return fmt.Errorf("outbox delete keys: %w", err)
 		}
@@ -69,7 +69,7 @@ func (ad *AvatarDeleter) Delete(ctx context.Context) error {
 		if err := tx.Commit(); err != nil {
 			return fmt.Errorf("commit: %w", err)
 		}
-		lg = lg.With(loglables.DeletedAvatarKeys, model.GetOutboxKeys(outboxes))
+		lg = lg.With(loglables.DeletedAvatarKeys, model.GetOutboxIDs(outboxes))
 		lg.Info("success delete")
 	}
 

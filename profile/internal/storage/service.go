@@ -24,16 +24,14 @@ type Profile interface {
 	GetProfilesFromAlias(ctx context.Context, alias string, filter *ProfilePaginationFilter) ([]*model.Profile, error)
 
 	UpdateProfileMetadata(ctx context.Context, subjectID string, prevVersion int, alias string) (*model.Profile, error)
-	UpdateAvatarKey(ctx context.Context, subjID string, avatarKey string) (*model.Profile, error)
 
 	DeleteProfile(ctx context.Context, subjID string) (*model.Profile, error)
-	DeleteAvatarKey(ctx context.Context, subjID string) (*model.Profile, error)
 }
 
 type AvatarOutbox interface {
 	GetKeys(ctx context.Context, limit int) ([]*model.AvatarOutbox, error)
-	AddKey(ctx context.Context, subjectID string, key string) (*model.AvatarOutbox, error)
-	DeleteKeys(ctx context.Context, keys []string) ([]*model.AvatarOutbox, error)
+	AddKey(ctx context.Context, subjectID string) (*model.AvatarOutbox, error)
+	DeleteKeys(ctx context.Context, ids []string) ([]*model.AvatarOutbox, error)
 }
 
 type Service interface {

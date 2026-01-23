@@ -115,46 +115,10 @@ func (s *Storage) UpdateProfileMetadata(ctx context.Context, subjectID string, p
 	return s.doAndReturnProfile(ctx, query, args)
 }
 
-func (s *Storage) UpdateAvatarKey(ctx context.Context, subjID string, avatarKey string) (*model.Profile, error) {
-	query, args, err := sq.
-		Update(ProfileTable).
-		Set(ProfileAvatarKeyLabel, avatarKey).
-		Set(ProfileUpdatedAtLabel, time.Now().UTC()).
-		Where(sq.Eq{ProfileSubjectIDLabel: subjID}).
-		Where(sq.Expr(deletedATIsNullProfileFilter)).
-		Suffix(ReturningSuffix).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
-
-	if err != nil {
-		return nil, fmt.Errorf("build sql: %w", err)
-	}
-
-	return s.doAndReturnProfile(ctx, query, args)
-}
-
 func (s *Storage) DeleteProfile(ctx context.Context, subjID string) (*model.Profile, error) {
 	query, args, err := sq.
 		Update(ProfileTable).
 		Set(ProfileDeletedAtLabel, time.Now().UTC()).
-		Set(ProfileUpdatedAtLabel, time.Now().UTC()).
-		Where(sq.Eq{ProfileSubjectIDLabel: subjID}).
-		Where(sq.Expr(deletedATIsNullProfileFilter)).
-		Suffix(ReturningSuffix).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
-
-	if err != nil {
-		return nil, fmt.Errorf("build sql: %w", err)
-	}
-
-	return s.doAndReturnProfile(ctx, query, args)
-}
-
-func (s *Storage) DeleteAvatarKey(ctx context.Context, subjID string) (*model.Profile, error) {
-	query, args, err := sq.
-		Update(ProfileTable).
-		Set(ProfileAvatarKeyLabel, nil).
 		Set(ProfileUpdatedAtLabel, time.Now().UTC()).
 		Where(sq.Eq{ProfileSubjectIDLabel: subjID}).
 		Where(sq.Expr(deletedATIsNullProfileFilter)).

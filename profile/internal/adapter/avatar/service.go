@@ -3,7 +3,7 @@ package avatar
 import "context"
 
 type Service interface {
-	GetUploadURL(ctx context.Context, key string) (string, error)
-	GetAvatarURL(ctx context.Context, key string) (string, error)
-	DeleteObjects(ctx context.Context, keys []string) error
+	GetUploadURL(ctx context.Context, subjID string) (string, error)
+	GetAvatarURL(ctx context.Context, subjID string) (string, error)
+	DeleteObjects(ctx context.Context, subjIDs []string) error
 }

@@ -8,12 +8,8 @@ import (
 	"github.com/TATAROmangol/mess/profile/internal/model"
 )
 
-func (d *Domain) GetAvatarURL(ctx context.Context, key *string) (string, error) {
-	if key == nil {
-		return "", nil
-	}
-
-	avatarURL, err := d.Avatar.GetAvatarURL(ctx, *key)
+func (d *Domain) GetAvatarURL(ctx context.Context, key string) (string, error) {
+	avatarURL, err := d.Avatar.GetAvatarURL(ctx, key)
 	if err != nil {
 		return "", fmt.Errorf("get avatar url: %w", err)
 	}
@@ -35,7 +31,7 @@ func (d *Domain) GetAvatarsURL(ctx context.Context, profiles []*model.Profile) (
 		go func() {
 			defer wg.Done()
 
-			url, err := d.GetAvatarURL(ctx, profile.AvatarKey)
+			url, err := d.GetAvatarURL(ctx, profile.SubjectID)
 			if err != nil {
 				ch <- err
 				return

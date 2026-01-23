@@ -33,7 +33,6 @@ func TestStorage_AddProfile(t *testing.T) {
 
 	if profileFromDB.SubjectID != profileToAdd.SubjectID ||
 		profileFromDB.Alias != profileToAdd.Alias ||
-		profileFromDB.AvatarKey != profileToAdd.AvatarKey ||
 		profileFromDB.Version != profileToAdd.Version ||
 		profileFromDB.DeletedAt != nil {
 		t.Fatalf("retrieved profile does not match added profile")
@@ -111,26 +110,6 @@ func TestStorage_UpdateProfileMetadata(t *testing.T) {
 				t.Errorf("Profile not updated correctly new: %v, prev: %v", updatedProfile, tt.profile)
 			}
 		})
-	}
-}
-
-func TestStorage_UpdateAvatarKey(t *testing.T) {
-	s, err := p.New(CFG)
-	if err != nil {
-		t.Fatalf("could not construct receiver type: %v", err)
-	}
-
-	initData(t)
-	defer cleanupDB(t)
-
-	key := "test-key"
-	prof, err := s.Profile().UpdateAvatarKey(t.Context(), InitProfiles[0].SubjectID, key)
-	if err != nil {
-		t.Fatalf("update avatar key: %v", err)
-	}
-
-	if *prof.AvatarKey != key {
-		t.Fatalf("avatar keys not equals, new: %v, cur %v", *prof.AvatarKey, key)
 	}
 }
 
@@ -253,24 +232,5 @@ func TestStorage_DeleteProfile(t *testing.T) {
 	_, err = s.Profile().DeleteProfile(t.Context(), "not")
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("delete profile subject id: %v", err)
-	}
-}
-
-func TestStorage_DeleteAvatarKey(t *testing.T) {
-	s, err := p.New(CFG)
-	if err != nil {
-		t.Fatalf("could not construct receiver type: %v", err)
-	}
-
-	initData(t)
-	defer cleanupDB(t)
-
-	prof, err := s.Profile().DeleteAvatarKey(t.Context(), InitProfiles[0].SubjectID)
-	if err != nil {
-		t.Fatalf("delete avatar key: %v", err)
-	}
-
-	if prof.AvatarKey != nil {
-		t.Fatalf("avatar key not nil")
 	}
 }

@@ -39,11 +39,11 @@ func New(ctx context.Context, cfg Config) (Service, error) {
 	}, nil
 }
 
-func (s *S3) GetUploadURL(ctx context.Context, key string) (string, error) {
+func (s *S3) GetUploadURL(ctx context.Context, subjID string) (string, error) {
 	req, err := s.p.PresignPutObject(ctx,
 		&s3.PutObjectInput{
 			Bucket: &s.cfg.Bucket,
-			Key:    &key,
+			Key:    &subjID,
 		},
 		s3.WithPresignExpires(s.cfg.PresignDuration),
 	)
@@ -54,11 +54,11 @@ func (s *S3) GetUploadURL(ctx context.Context, key string) (string, error) {
 	return req.URL, nil
 }
 
-func (s *S3) GetAvatarURL(ctx context.Context, key string) (string, error) {
+func (s *S3) GetAvatarURL(ctx context.Context, subjID string) (string, error) {
 	req, err := s.p.PresignGetObject(ctx,
 		&s3.GetObjectInput{
 			Bucket: &s.cfg.Bucket,
-			Key:    &key,
+			Key:    &subjID,
 		},
 		s3.WithPresignExpires(s.cfg.PresignDuration),
 	)
@@ -70,9 +70,9 @@ func (s *S3) GetAvatarURL(ctx context.Context, key string) (string, error) {
 	return req.URL, nil
 }
 
-func (s *S3) DeleteObjects(ctx context.Context, keys []string) error {
-	objects := make([]types.ObjectIdentifier, len(keys))
-	for i, key := range keys {
+func (s *S3) DeleteObjects(ctx context.Context, subjIDs []string) error {
+	objects := make([]types.ObjectIdentifier, len(subjIDs))
+	for i, key := range subjIDs {
 		objects[i] = types.ObjectIdentifier{Key: aws.String(key)}
 	}
 
