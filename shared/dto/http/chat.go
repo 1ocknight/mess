@@ -46,3 +46,7 @@ type UpdateLastReadRequest struct {
 	ChatID    int `json:"chat_id"`
 	MessageID int `json:"message_id"`
 }
+
+type UpdateLastReadResponse struct {
+	MessageID int `json:"message_id"`
+}
