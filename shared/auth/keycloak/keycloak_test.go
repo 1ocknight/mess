@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/TATAROmangol/mess/shared/auth/keycloak"
-	loggermocks "github.com/TATAROmangol/mess/shared/logger/mocks"
+	"github.com/1ocknight/mess/shared/auth/keycloak"
+	loggermocks "github.com/1ocknight/mess/shared/logger/mocks"
 	"github.com/go-resty/resty/v2"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"

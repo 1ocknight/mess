@@ -1,8 +1,9 @@
 package auth
 
-import "github.com/TATAROmangol/mess/shared/model"
+import "github.com/1ocknight/mess/shared/model"
 
 type Service interface {
+	SubjectExists(id string) (bool, error)
 	Verify(src string) (model.Subject, error)
 }
 
