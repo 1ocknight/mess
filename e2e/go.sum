@@ -1,11 +1,11 @@
-github.com/TATAROmangol/mess/profile v0.0.0-20260108164926-52921d1ee887 h1:yw5dvpdlVx5//VePGJsSCeiJuexuVt14Zn8b2PyhQ68=
-github.com/TATAROmangol/mess/profile v0.0.0-20260108164926-52921d1ee887/go.mod h1:sd7JGRM9q2Z+p0ZxeWEMi5oqvVI16ZL9/0L39iNmIrY=
+github.com/1ocknight/mess/profile v0.0.0-20260126215503-b70699ba92ff h1:JkahZL5BL8A2PMVDMKCtrIkHk0TrR3d0oI2DS6gVLo8=
+github.com/1ocknight/mess/profile v0.0.0-20260126215503-b70699ba92ff/go.mod h1:W4a7+PRdLuPp4StxNeNJH211ZRaRlpa+YWzgAyWJuvM=
 github.com/go-resty/resty/v2 v2.17.1 h1:x3aMpHK1YM9e4va/TMDRlusDDoZiQ+ViDu/WpA6xTM4=
 github.com/go-resty/resty/v2 v2.17.1/go.mod h1:kCKZ3wWmwJaNc7S29BRtUhJwy7iqmn+2mLtQrOyQlVA=
 go.yaml.in/yaml/v3 v3.0.4 h1:tfq32ie2Jv2UxXFdLJdh3jXuOzWiL1fo0bu/FbuKpbc=
 go.yaml.in/yaml/v3 v3.0.4/go.mod h1:DhzuOOF2ATzADvBadXxruRBLzYTpT36CKvDb3+aBEFg=
-golang.org/x/net v0.47.0 h1:Mx+4dIFzqraBXUugkia1OOvlD6LemFo1ALMHjrXDOhY=
-golang.org/x/net v0.47.0/go.mod h1:/jNxtkgq5yWUGYkaZGqo27cfGZ1c5Nen03aYrrKpVRU=
+golang.org/x/net v0.48.0 h1:zyQRTTrjc33Lhh0fBgT/H3oZq9WuvRR5gPC70xpDiQU=
+golang.org/x/net v0.48.0/go.mod h1:+ndRgGjkh8FGtu1w1FGbEC31if4VrNVMuKTgcAAnQRY=
 golang.org/x/time v0.12.0 h1:ScB/8o8olJvc+CQPWrK3fPZNfh7qgwCrY0zJmoEQLSE=
 golang.org/x/time v0.12.0/go.mod h1:CDIdPxbZBQxdj6cxyCIdrNogrJKMJ7pr37NYpMcMDSg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
