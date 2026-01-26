@@ -1,12 +1,13 @@
-module github.com/TATAROmangol/mess/websocket
+module github.com/1ocknight/mess/websocket
 
-go 1.25.5
+go 1.25.6
 
 require (
-	github.com/TATAROmangol/mess/shared v0.0.0-20260123022406-515cf3847cf6
+	github.com/1ocknight/mess/shared v0.0.0-20260126214321-0feb7a38dc6b
 	github.com/goccy/go-yaml v1.19.2
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
+	github.com/rs/cors v1.11.1
 )
 
 require (
@@ -29,5 +30,4 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
 )
