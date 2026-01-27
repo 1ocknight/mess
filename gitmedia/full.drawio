@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0" version="29.3.4">
   <diagram name="Page-1" id="30GmiH0Jsc-retzrainW">
-    <mxGraphModel dx="2207" dy="754" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="3164" dy="1287" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -22,7 +22,7 @@
         <mxCell id="GW1IHbhgP_mKhtfM4VpY-46" edge="1" parent="1" source="GW1IHbhgP_mKhtfM4VpY-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="GW1IHbhgP_mKhtfM4VpY-3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="GW1IHbhgP_mKhtfM4VpY-55" edge="1" parent="1" source="GW1IHbhgP_mKhtfM4VpY-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="GW1IHbhgP_mKhtfM4VpY-6">
+        <mxCell id="GW1IHbhgP_mKhtfM4VpY-55" edge="1" parent="1" source="GW1IHbhgP_mKhtfM4VpY-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="GW1IHbhgP_mKhtfM4VpY-6" value="h">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="-20" y="245" />
@@ -91,7 +91,7 @@
         <mxCell id="GW1IHbhgP_mKhtfM4VpY-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;keycloak&lt;/div&gt;&lt;div&gt;(авторизация)&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="120" x="50" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="GW1IHbhgP_mKhtfM4VpY-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;s3&lt;/div&gt;&lt;div&gt;аватары&lt;/div&gt;" vertex="1">
+        <mxCell id="GW1IHbhgP_mKhtfM4VpY-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;s3&lt;/div&gt;&lt;div&gt;генерация presigned аватаров&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="120" x="610" y="280" as="geometry" />
         </mxCell>
         <mxCell id="GW1IHbhgP_mKhtfM4VpY-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;postgres&lt;/div&gt;&lt;div&gt;профили&lt;/div&gt;" vertex="1">
@@ -109,17 +109,23 @@
         <mxCell id="GW1IHbhgP_mKhtfM4VpY-50" edge="1" parent="1" source="GW1IHbhgP_mKhtfM4VpY-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="GW1IHbhgP_mKhtfM4VpY-6">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="GW1IHbhgP_mKhtfM4VpY-57" edge="1" parent="1" source="GW1IHbhgP_mKhtfM4VpY-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="GW1IHbhgP_mKhtfM4VpY-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="GW1IHbhgP_mKhtfM4VpY-11" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="client" vertex="1">
           <mxGeometry height="80" width="80" x="-310" y="210" as="geometry" />
         </mxCell>
         <mxCell id="GW1IHbhgP_mKhtfM4VpY-27" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;postgres&lt;/div&gt;&lt;div&gt;сообщения/чаты&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="120" x="610" y="400" as="geometry" />
         </mxCell>
-        <mxCell id="GW1IHbhgP_mKhtfM4VpY-29" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;s3&lt;/div&gt;&lt;div&gt;медиа юзеров&lt;/div&gt;" vertex="1">
+        <mxCell id="GW1IHbhgP_mKhtfM4VpY-29" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;s3&lt;/div&gt;&lt;div&gt;генерация presigned&amp;nbsp;медиа юзеров&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="120" x="610" y="470" as="geometry" />
         </mxCell>
         <mxCell id="GW1IHbhgP_mKhtfM4VpY-42" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;postgres&lt;/div&gt;&lt;div&gt;данные пользователей&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="120" x="610" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="GW1IHbhgP_mKhtfM4VpY-56" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;s3&lt;/div&gt;&lt;div&gt;получение по url&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="50" y="510" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
