@@ -4,8 +4,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/TATAROmangol/mess/profile/internal/model"
-	p "github.com/TATAROmangol/mess/profile/internal/storage"
+	"github.com/1ocknight/mess/profile/internal/model"
+	p "github.com/1ocknight/mess/profile/internal/storage"
 )
 
 func TestStorage_GetKeys(t *testing.T) {

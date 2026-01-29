@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/TATAROmangol/mess/profile/internal/model"
+	"github.com/1ocknight/mess/profile/internal/model"
 )
 
 func (d *Domain) GetAvatarURL(ctx context.Context, key string) (string, error) {

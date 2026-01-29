@@ -3,9 +3,9 @@ package domain
 import (
 	"context"
 
-	"github.com/TATAROmangol/mess/profile/internal/adapter/avatar"
-	"github.com/TATAROmangol/mess/profile/internal/model"
-	"github.com/TATAROmangol/mess/profile/internal/storage"
+	"github.com/1ocknight/mess/profile/internal/adapter/avatar"
+	"github.com/1ocknight/mess/profile/internal/model"
+	"github.com/1ocknight/mess/profile/internal/storage"
 )
 
 type Direction int

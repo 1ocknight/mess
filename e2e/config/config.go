@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TATAROmangol/mess/e2e/profile"
+	"github.com/1ocknight/mess/e2e/profile"
 	"go.yaml.in/yaml/v3"
 )
 

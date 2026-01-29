@@ -3,7 +3,7 @@ package storage
 import (
 	"time"
 
-	"github.com/TATAROmangol/mess/profile/internal/model"
+	"github.com/1ocknight/mess/profile/internal/model"
 )
 
 type ProfileEntity struct {

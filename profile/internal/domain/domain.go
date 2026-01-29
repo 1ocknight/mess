@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/TATAROmangol/mess/profile/internal/ctxkey"
-	"github.com/TATAROmangol/mess/profile/internal/loglables"
-	"github.com/TATAROmangol/mess/profile/internal/model"
+	"github.com/1ocknight/mess/profile/internal/ctxkey"
+	"github.com/1ocknight/mess/profile/internal/loglables"
+	"github.com/1ocknight/mess/profile/internal/model"
 )
 
 func (d *Domain) GetCurrentProfile(ctx context.Context) (*model.Profile, string, error) {

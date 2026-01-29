@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/TATAROmangol/mess/profile/internal/domain"
-	"github.com/TATAROmangol/mess/profile/internal/model"
-	"github.com/TATAROmangol/mess/profile/pkg/dto"
+	"github.com/1ocknight/mess/profile/internal/domain"
+	"github.com/1ocknight/mess/profile/internal/model"
+	httpdto "github.com/1ocknight/mess/shared/dto/http"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,7 +45,7 @@ func (h *Handler) GetProfile(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, dto.ProfileResponse{
+	c.JSON(http.StatusOK, httpdto.ProfileResponse{
 		SubjectID: profile.SubjectID,
 		Alias:     profile.Alias,
 		AvatarURL: url,
@@ -97,9 +97,9 @@ func (h *Handler) GetProfiles(c *gin.Context) {
 		return
 	}
 
-	res := make([]*dto.ProfileResponse, 0, len(profiles))
+	res := make([]*httpdto.ProfileResponse, 0, len(profiles))
 	for _, profile := range profiles {
-		res = append(res, &dto.ProfileResponse{
+		res = append(res, &httpdto.ProfileResponse{
 			SubjectID: profile.SubjectID,
 			Alias:     profile.Alias,
 			AvatarURL: urls[profile.SubjectID],
@@ -107,13 +107,13 @@ func (h *Handler) GetProfiles(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, dto.ProfilesResponse{
+	c.JSON(http.StatusOK, httpdto.ProfilesResponse{
 		Profiles: res,
 	})
 }
 
 func (h *Handler) AddProfile(c *gin.Context) {
-	var req *dto.AddProfileRequest
+	var req *httpdto.AddProfileRequest
 	if err := c.BindJSON(&req); err != nil {
 		h.sendError(c, err)
 		return
@@ -125,7 +125,7 @@ func (h *Handler) AddProfile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.ProfileResponse{
+	c.JSON(http.StatusCreated, httpdto.ProfileResponse{
 		SubjectID: profile.SubjectID,
 		Alias:     profile.Alias,
 		AvatarURL: url,
@@ -134,7 +134,7 @@ func (h *Handler) AddProfile(c *gin.Context) {
 }
 
 func (h *Handler) UpdateProfileMetadata(c *gin.Context) {
-	var req *dto.UpdateProfileMetadataRequest
+	var req *httpdto.UpdateProfileMetadataRequest
 	if err := c.BindJSON(&req); err != nil {
 		h.sendError(c, err)
 		return
@@ -146,7 +146,7 @@ func (h *Handler) UpdateProfileMetadata(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.ProfileResponse{
+	c.JSON(http.StatusOK, httpdto.ProfileResponse{
 		SubjectID: profile.SubjectID,
 		Alias:     profile.Alias,
 		AvatarURL: url,
@@ -161,7 +161,7 @@ func (h *Handler) UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.UploadAvatarResponse{
+	c.JSON(http.StatusOK, httpdto.UploadAvatarResponse{
 		UploadURL: url,
 	})
 }
@@ -183,7 +183,7 @@ func (h *Handler) DeleteProfile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.ProfileResponse{
+	c.JSON(http.StatusOK, httpdto.ProfileResponse{
 		SubjectID: profile.SubjectID,
 		Alias:     profile.Alias,
 		AvatarURL: url,

@@ -10,16 +10,16 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/TATAROmangol/mess/chat/config"
-	"github.com/TATAROmangol/mess/chat/internal/ctxkey"
-	"github.com/TATAROmangol/mess/chat/internal/domain"
-	"github.com/TATAROmangol/mess/chat/internal/loglables"
-	"github.com/TATAROmangol/mess/chat/internal/storage"
-	"github.com/TATAROmangol/mess/chat/internal/transport"
-	"github.com/TATAROmangol/mess/chat/internal/worker"
-	"github.com/TATAROmangol/mess/shared/auth/keycloak"
-	"github.com/TATAROmangol/mess/shared/logger"
-	"github.com/TATAROmangol/mess/shared/postgres"
+	"github.com/1ocknight/mess/chat/config"
+	"github.com/1ocknight/mess/chat/internal/ctxkey"
+	"github.com/1ocknight/mess/chat/internal/domain"
+	"github.com/1ocknight/mess/chat/internal/loglables"
+	"github.com/1ocknight/mess/chat/internal/storage"
+	"github.com/1ocknight/mess/chat/internal/transport"
+	"github.com/1ocknight/mess/chat/internal/worker"
+	"github.com/1ocknight/mess/shared/auth/keycloak"
+	"github.com/1ocknight/mess/shared/logger"
+	"github.com/1ocknight/mess/shared/postgres"
 )
 
 func main() {

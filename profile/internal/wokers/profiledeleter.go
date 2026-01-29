@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/TATAROmangol/mess/profile/internal/ctxkey"
-	"github.com/TATAROmangol/mess/profile/internal/loglables"
-	"github.com/TATAROmangol/mess/profile/internal/storage"
-	"github.com/TATAROmangol/mess/shared/messagequeue"
-	"github.com/TATAROmangol/mess/shared/messagequeue/kafka"
+	"github.com/1ocknight/mess/profile/internal/ctxkey"
+	"github.com/1ocknight/mess/profile/internal/loglables"
+	"github.com/1ocknight/mess/profile/internal/storage"
+	"github.com/1ocknight/mess/shared/messagequeue"
+	"github.com/1ocknight/mess/shared/messagequeue/kafka"
 )
 
 type ProfileDeleterConfig struct {
@@ -44,10 +44,10 @@ type ProfileDeleter struct {
 	CFG            ProfileDeleterConfig
 	ClientConsumer messagequeue.Consumer
 	AdminConsumer  messagequeue.Consumer
-	Profile        storage.Profile
+	Storage        storage.Service
 }
 
-func NewProfileDeleter(cfg ProfileDeleterConfig, profile storage.Profile) *ProfileDeleter {
+func NewProfileDeleter(cfg ProfileDeleterConfig, s storage.Service) *ProfileDeleter {
 	clientConsumer := kafka.NewConsumer(cfg.ClientKafka)
 	adminConsumer := kafka.NewConsumer(cfg.AdminKafka)
 
@@ -55,11 +55,11 @@ func NewProfileDeleter(cfg ProfileDeleterConfig, profile storage.Profile) *Profi
 		CFG:            cfg,
 		ClientConsumer: clientConsumer,
 		AdminConsumer:  adminConsumer,
-		Profile:        profile,
+		Storage:        s,
 	}
 }
 
-func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeue.Consumer, store storage.Profile) error {
+func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeue.Consumer, store storage.Service) error {
 	lg, err := ctxkey.ExtractLogger(ctx)
 	if err != nil {
 		return fmt.Errorf("extract logger: %w", err)
@@ -75,7 +75,12 @@ func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeu
 		return fmt.Errorf("unmarshal: %w", err)
 	}
 
-	prof, err := store.DeleteProfile(ctx, msg.GetSubjectID())
+	tx, err := store.WithTransaction(ctx)
+	if err != nil {
+		return fmt.Errorf("with transaction: %w", err)
+	}
+
+	prof, err := tx.Profile().DeleteProfile(ctx, msg.GetSubjectID())
 	if err != nil && errors.Is(err, storage.ErrNoRows) {
 		if err := cons.Commit(ctx, mqMsg); err != nil {
 			return fmt.Errorf("commit message: %w", err)
@@ -85,6 +90,17 @@ func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeu
 	}
 	if err != nil {
 		return fmt.Errorf("delete profile: %w", err)
+	}
+
+	out, err := tx.AvatarOutbox().AddKey(ctx, prof.SubjectID)
+	if err != nil {
+		return fmt.Errorf("add key: %w", err)
+	}
+
+	lg = lg.With(loglables.AvatarOutbox, *out)
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit: %w", err)
 	}
 
 	if err := cons.Commit(ctx, mqMsg); err != nil {
@@ -98,11 +114,11 @@ func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeu
 }
 
 func (pd *ProfileDeleter) ClientDelete(ctx context.Context) error {
-	return ProfileDelete[*ClientProfileDeleteMessage](ctx, pd.ClientConsumer, pd.Profile)
+	return ProfileDelete[*ClientProfileDeleteMessage](ctx, pd.ClientConsumer, pd.Storage)
 }
 
 func (pd *ProfileDeleter) AdminDelete(ctx context.Context) error {
-	return ProfileDelete[*AdminProfileDeleteMessage](ctx, pd.AdminConsumer, pd.Profile)
+	return ProfileDelete[*AdminProfileDeleteMessage](ctx, pd.AdminConsumer, pd.Storage)
 }
 
 func (pd *ProfileDeleter) Start(ctx context.Context) error {

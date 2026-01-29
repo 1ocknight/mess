@@ -3,9 +3,9 @@ package transport
 import (
 	"strconv"
 
-	"github.com/TATAROmangol/mess/chat/internal/domain"
-	"github.com/TATAROmangol/mess/chat/internal/model"
-	httpdto "github.com/TATAROmangol/mess/shared/dto/http"
+	"github.com/1ocknight/mess/chat/internal/domain"
+	"github.com/1ocknight/mess/chat/internal/model"
+	httpdto "github.com/1ocknight/mess/shared/dto/http"
 )
 
 func MessageModelToMessageDTO(mess *model.Message) *httpdto.MessageResponse {
@@ -34,7 +34,7 @@ func ChatsMetadataModelToDTO(chatsMetadata []*model.ChatMetadata) []*httpdto.Cha
 			ChatID:          cm.ChatID,
 			SecondSubjectID: cm.SecondSubjectID,
 			UpdatedAt:       cm.UpdatedAt,
-			LastMessage: &httpdto.MessageResponse{
+			LastMessage: httpdto.MessageResponse{
 				ID:       cm.LastMessage.MessageID,
 				Content:  cm.LastMessage.Content,
 				SenderID: cm.LastMessage.SenderID,

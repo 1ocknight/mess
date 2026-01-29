@@ -10,14 +10,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/TATAROmangol/mess/shared/auth/keycloak"
-	"github.com/TATAROmangol/mess/shared/logger"
-	"github.com/TATAROmangol/mess/websocket/config"
-	"github.com/TATAROmangol/mess/websocket/internal/ctxkey"
-	"github.com/TATAROmangol/mess/websocket/internal/loglables"
-	"github.com/TATAROmangol/mess/websocket/internal/model"
-	"github.com/TATAROmangol/mess/websocket/internal/transport"
-	"github.com/TATAROmangol/mess/websocket/internal/worker"
+	"github.com/1ocknight/mess/shared/auth/keycloak"
+	"github.com/1ocknight/mess/shared/logger"
+	"github.com/1ocknight/mess/websocket/config"
+	"github.com/1ocknight/mess/websocket/internal/ctxkey"
+	"github.com/1ocknight/mess/websocket/internal/loglables"
+	"github.com/1ocknight/mess/websocket/internal/model"
+	"github.com/1ocknight/mess/websocket/internal/transport"
+	"github.com/1ocknight/mess/websocket/internal/worker"
 )
 
 func main() {
@@ -66,7 +66,9 @@ func main() {
 	go hub.Run()
 
 	handler := transport.NewHandler(cfg.WSConfig, hub)
-	server := transport.NewServer(cfg.HTTP, keycloak, handler)
+
+	serverLg := lg.With(loglables.Layer, "server")
+	server := transport.NewServer(cfg.HTTP, keycloak, handler, serverLg)
 	go func() {
 		if err := server.Run(); err != nil && !errors.Is(http.ErrServerClosed, err) {
 			lg.Error(fmt.Errorf("server run: %w", err))

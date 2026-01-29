@@ -10,17 +10,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/TATAROmangol/mess/profile/config"
-	"github.com/TATAROmangol/mess/profile/internal/adapter/avatar"
-	"github.com/TATAROmangol/mess/profile/internal/ctxkey"
-	"github.com/TATAROmangol/mess/profile/internal/domain"
-	"github.com/TATAROmangol/mess/profile/internal/loglables"
-	"github.com/TATAROmangol/mess/profile/internal/storage"
-	"github.com/TATAROmangol/mess/profile/internal/transport"
-	workers "github.com/TATAROmangol/mess/profile/internal/wokers"
-	"github.com/TATAROmangol/mess/shared/auth/keycloak"
-	"github.com/TATAROmangol/mess/shared/logger"
-	"github.com/TATAROmangol/mess/shared/postgres"
+	"github.com/1ocknight/mess/profile/config"
+	"github.com/1ocknight/mess/profile/internal/adapter/avatar"
+	"github.com/1ocknight/mess/profile/internal/ctxkey"
+	"github.com/1ocknight/mess/profile/internal/domain"
+	"github.com/1ocknight/mess/profile/internal/loglables"
+	"github.com/1ocknight/mess/profile/internal/storage"
+	"github.com/1ocknight/mess/profile/internal/transport"
+	workers "github.com/1ocknight/mess/profile/internal/wokers"
+	"github.com/1ocknight/mess/shared/auth/keycloak"
+	"github.com/1ocknight/mess/shared/logger"
+	"github.com/1ocknight/mess/shared/postgres"
 )
 
 func main() {
@@ -73,7 +73,7 @@ func main() {
 	}
 	lg.Info("avatar deleter started")
 
-	pd := workers.NewProfileDeleter(cfg.ProfileDeleter, storage.Profile())
+	pd := workers.NewProfileDeleter(cfg.ProfileDeleter, storage)
 	pdelLog := lg.With(loglables.Layer, "worker_profile_deleter")
 	err = pd.Start(ctxkey.WithLogger(ctx, pdelLog))
 	if err != nil {

@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/TATAROmangol/mess/profile/internal/model"
-	p "github.com/TATAROmangol/mess/profile/internal/storage"
-	pq "github.com/TATAROmangol/mess/shared/postgres"
+	"github.com/1ocknight/mess/profile/internal/model"
+	p "github.com/1ocknight/mess/profile/internal/storage"
+	pq "github.com/1ocknight/mess/shared/postgres"
 	"github.com/stretchr/testify/assert"
 	pgcontainer "github.com/testcontainers/testcontainers-go/modules/postgres"
 )

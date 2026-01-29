@@ -3,7 +3,7 @@ package storage_test
 import (
 	"testing"
 
-	"github.com/TATAROmangol/mess/chat/internal/storage"
+	"github.com/1ocknight/mess/chat/internal/storage"
 )
 
 func TestStorage_GetLastReadOutbox(t *testing.T) {

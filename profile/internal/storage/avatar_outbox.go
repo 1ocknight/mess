@@ -8,7 +8,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/TATAROmangol/mess/profile/internal/model"
+	"github.com/1ocknight/mess/profile/internal/model"
 	"github.com/jmoiron/sqlx"
 )
 

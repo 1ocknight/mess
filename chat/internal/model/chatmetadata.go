@@ -13,7 +13,7 @@ type ChatMetadata struct {
 	SecondSubjectID string
 	UpdatedAt       time.Time
 
-	LastMessage *LastMessage
+	LastMessage LastMessage
 
 	UnreadCount       int
 	IsLastMessageRead bool

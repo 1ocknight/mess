@@ -3,7 +3,7 @@ package storage
 import (
 	"time"
 
-	"github.com/TATAROmangol/mess/chat/internal/model"
+	"github.com/1ocknight/mess/chat/internal/model"
 )
 
 type ChatEntity struct {

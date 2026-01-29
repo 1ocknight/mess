@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/TATAROmangol/mess/e2e/utils"
-	"github.com/TATAROmangol/mess/profile/pkg/dto"
+	"github.com/1ocknight/mess/e2e/utils"
+	"github.com/1ocknight/mess/profile/pkg/dto"
 )
 
 type Tests struct {

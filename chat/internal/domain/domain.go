@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/TATAROmangol/mess/chat/internal/ctxkey"
-	loglables "github.com/TATAROmangol/mess/chat/internal/loglables"
-	"github.com/TATAROmangol/mess/chat/internal/model"
-	"github.com/TATAROmangol/mess/chat/internal/storage"
+	"github.com/1ocknight/mess/chat/internal/ctxkey"
+	loglables "github.com/1ocknight/mess/chat/internal/loglables"
+	"github.com/1ocknight/mess/chat/internal/model"
+	"github.com/1ocknight/mess/chat/internal/storage"
 
-	"github.com/TATAROmangol/mess/shared/utils"
+	"github.com/1ocknight/mess/shared/utils"
 )
 
 func (d *Domain) AddChat(ctx context.Context, secondSubjectID string) (*model.Chat, error) {
@@ -115,22 +115,20 @@ func (d *Domain) GetChatsMetadata(ctx context.Context, filter *ChatPaginationFil
 		lastMessagesMap[mes.ChatID] = mes
 	}
 
-	res := make([]*model.ChatMetadata, 0, len(chats))
+	res := make([]*model.ChatMetadata, 0, len(lastMessages))
 	for _, chat := range chats {
-		meta := &model.ChatMetadata{
-			ChatID: chat.ID,
-		}
-
 		lastMessage, ok := lastMessagesMap[chat.ID]
 		if !ok {
-			res = append(res, meta)
 			continue
 		}
 
-		meta.LastMessage = &model.LastMessage{
-			MessageID: lastMessage.ID,
-			Content:   lastMessage.Content,
-			SenderID:  lastMessage.SenderSubjectID,
+		meta := &model.ChatMetadata{
+			ChatID: chat.ID,
+			LastMessage: model.LastMessage{
+				MessageID: lastMessage.ID,
+				Content:   lastMessage.Content,
+				SenderID:  lastMessage.SenderSubjectID,
+			},
 		}
 
 		lastReadsPair := lastReadsMap[chat.ID]
@@ -284,13 +282,13 @@ func (d *Domain) GetMessagesToLastRead(ctx context.Context, chatID int, limit in
 	lg = lg.With(loglables.LastRead, *lastRead)
 
 	filter := DefaultPaginationMessage
+	if limit != 0 {
+		filter.Limit = limit
+	}
+
 	if chat.MessagesCount-lastRead.MessageNumber > filter.Limit {
 		filter.LastID = &lastRead.MessageID
 		filter.Asc = true
-	}
-
-	if limit != 0 {
-		filter.Limit = limit
 	}
 
 	messages, err := d.Storage.Message().GetMessagesByChatID(ctx, chatID, &filter)

@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/TATAROmangol/mess/chat/internal/ctxkey"
-	"github.com/TATAROmangol/mess/chat/internal/domain"
-	httpdto "github.com/TATAROmangol/mess/shared/dto/http"
+	"github.com/1ocknight/mess/chat/internal/ctxkey"
+	"github.com/1ocknight/mess/chat/internal/domain"
+	httpdto "github.com/1ocknight/mess/shared/dto/http"
 	"github.com/gin-gonic/gin"
 )
 
@@ -116,13 +116,6 @@ func (h *Handler) returnChatResponse(c *gin.Context, chatID int, limit int) {
 		return
 	}
 
-	messages, err := h.domain.GetMessagesToLastRead(c.Request.Context(), chatID, limit)
-	if err != nil {
-		h.sendError(c, err)
-		return
-	}
-	resMessages := MessagesModelToMessageDTO(messages)
-
 	lastReads, err := h.domain.GetLastReads(c.Request.Context(), chatID)
 	if err != nil {
 		h.sendError(c, err)
@@ -147,7 +140,6 @@ func (h *Handler) returnChatResponse(c *gin.Context, chatID int, limit int) {
 		ChatID:          chatID,
 		SecondSubjectID: secondID,
 		LastReads:       lastReadsMap,
-		Messages:        resMessages,
 	})
 }
 
@@ -173,13 +165,14 @@ func (h *Handler) GetChats(c *gin.Context) {
 }
 
 func (h *Handler) GetMessages(c *gin.Context) {
-	sChat := c.Query("chat")
+	sChat := c.Query("chat_id")
 	sLimit := c.Query("limit")
 	sBefore := c.Query("before")
 	sAfter := c.Query("after")
 
 	chatID, err := strconv.Atoi(sChat)
 	if err != nil {
+		h.sendError(c, err)
 		return
 	}
 

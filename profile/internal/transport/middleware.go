@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/TATAROmangol/mess/profile/internal/ctxkey"
-	"github.com/TATAROmangol/mess/profile/internal/loglables"
-	"github.com/TATAROmangol/mess/shared/auth"
-	"github.com/TATAROmangol/mess/shared/logger"
-	"github.com/TATAROmangol/mess/shared/requestmeta"
+	"github.com/1ocknight/mess/profile/internal/ctxkey"
+	"github.com/1ocknight/mess/profile/internal/loglables"
+	"github.com/1ocknight/mess/shared/auth"
+	"github.com/1ocknight/mess/shared/logger"
+	"github.com/1ocknight/mess/shared/requestmeta"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

@@ -16,8 +16,6 @@ type ChatResponse struct {
 
 	// map subject_id -> message_id
 	LastReads map[string]int `json:"last_reads"`
-
-	Messages []*MessageResponse `json:"messages"`
 }
 
 type ChatsMetadataResponse struct {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TATAROmangol/mess/shared/auth/keycloak"
-	"github.com/TATAROmangol/mess/websocket/internal/transport"
-	"github.com/TATAROmangol/mess/websocket/internal/worker"
+	"github.com/1ocknight/mess/shared/auth/keycloak"
+	"github.com/1ocknight/mess/websocket/internal/transport"
+	"github.com/1ocknight/mess/websocket/internal/worker"
 	"github.com/goccy/go-yaml"
 )
 

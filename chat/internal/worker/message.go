@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/TATAROmangol/mess/chat/internal/loglables"
-	"github.com/TATAROmangol/mess/chat/internal/model"
-	"github.com/TATAROmangol/mess/chat/internal/storage"
-	mqdto "github.com/TATAROmangol/mess/shared/dto/mq"
-	"github.com/TATAROmangol/mess/shared/kafkav2"
-	"github.com/TATAROmangol/mess/shared/logger"
+	"github.com/1ocknight/mess/chat/internal/loglables"
+	"github.com/1ocknight/mess/chat/internal/model"
+	"github.com/1ocknight/mess/chat/internal/storage"
+	mqdto "github.com/1ocknight/mess/shared/dto/mq"
+	"github.com/1ocknight/mess/shared/kafkav2"
+	"github.com/1ocknight/mess/shared/logger"
 )
 
 type MessageWorkerConfig struct {
@@ -83,8 +83,7 @@ func (mw *MessageWorker) Send(ctx context.Context) ([]int, error) {
 		ids = append(ids, out.ID)
 
 		sendMessage := mqdto.SendMessage{
-			ChatID:      mess.ChatID,
-			RecipientID: out.RecipientID,
+			ChatID: mess.ChatID,
 			Message: &mqdto.Message{
 				ID:        mess.ID,
 				SenderID:  mess.SenderSubjectID,
@@ -100,17 +99,26 @@ func (mw *MessageWorker) Send(ctx context.Context) ([]int, error) {
 			sendMessage.Operation = mqdto.UpdateOperation
 		}
 
-		val, err := json.Marshal(sendMessage)
+		second := sendMessage
+		second.RecipientID = out.RecipientID
+
+		rec := sendMessage
+		rec.RecipientID = mess.SenderSubjectID
+
+		secondVal, err := json.Marshal(second)
 		if err != nil {
 			return nil, fmt.Errorf("marshal: %w", err)
 		}
 
-		pair := kafkav2.KeyValPair{
-			Key: []byte(out.RecipientID),
-			Val: val,
+		recVal, err := json.Marshal(rec)
+		if err != nil {
+			return nil, fmt.Errorf("marshal: %w", err)
 		}
 
-		pairs = append(pairs, &pair)
+		pairs = append(pairs,
+			&kafkav2.KeyValPair{Key: []byte(second.RecipientID), Val: secondVal},
+			&kafkav2.KeyValPair{Key: []byte(rec.RecipientID), Val: recVal},
+		)
 	}
 
 	if err := mw.Producer.Publish(pairs); err != nil {

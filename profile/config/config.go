@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TATAROmangol/mess/profile/internal/adapter/avatar"
-	"github.com/TATAROmangol/mess/profile/internal/transport"
-	workers "github.com/TATAROmangol/mess/profile/internal/wokers"
-	"github.com/TATAROmangol/mess/shared/auth/keycloak"
-	"github.com/TATAROmangol/mess/shared/postgres"
+	"github.com/1ocknight/mess/profile/internal/adapter/avatar"
+	"github.com/1ocknight/mess/profile/internal/transport"
+	workers "github.com/1ocknight/mess/profile/internal/wokers"
+	"github.com/1ocknight/mess/shared/auth/keycloak"
+	"github.com/1ocknight/mess/shared/postgres"
 	"github.com/goccy/go-yaml"
 )
 

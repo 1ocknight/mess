@@ -6,10 +6,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/TATAROmangol/mess/chat/internal/model"
-	"github.com/TATAROmangol/mess/chat/internal/storage"
+	"github.com/1ocknight/mess/chat/internal/model"
+	"github.com/1ocknight/mess/chat/internal/storage"
 
-	pq "github.com/TATAROmangol/mess/shared/postgres"
+	pq "github.com/1ocknight/mess/shared/postgres"
 	pgcontainer "github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/TATAROmangol/mess/chat/internal/model"
+	"github.com/1ocknight/mess/chat/internal/model"
 	"github.com/jmoiron/sqlx"
 )
 

@@ -1,6 +1,6 @@
 postgres:
-  host: postgres
-  port: 5432
+  host: localhost
+  port: 5430
   user: profile
   password: profile
   db_name: profile
@@ -9,7 +9,7 @@ postgres:
 s3:
   client:
     region: us-east-1
-    endpoint: http://minio:9000
+    endpoint: http://localhost:9000
     access_key_id: profile
     secret_access_key: profile-secret
     path_style: true
@@ -22,29 +22,21 @@ http:
   debug_mode: true
 
 keycloak:
-  jwks_endpoint: http://keycloak:8080/realms/main/protocol/openid-connect/certs
+  jwks_endpoint: http://localhost:7070/realms/main/protocol/openid-connect/certs
 
 avatar_deleter:
   run_hour_utc: -1
   interval: 10m
 
-avatar_uploader:
-  kafka:
-    brokers: 
-    - kafka:29092
-    topic: avatar-events
-    group_id: 1
-  delay: 10s
-
 profile_deleter:
   client_kafka: 
     brokers: 
-    - kafka:29092
+    - localhost:9092
     topic: keycloak-events
     group_id: 1
   admin_kafka: 
     brokers: 
-    - kafka:29092
+    - localhost:9092
     topic: keycloak-admin-events
     group_id: 1
   delay: 10s

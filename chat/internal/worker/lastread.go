@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/TATAROmangol/mess/chat/internal/loglables"
-	"github.com/TATAROmangol/mess/chat/internal/storage"
-	mqdto "github.com/TATAROmangol/mess/shared/dto/mq"
-	"github.com/TATAROmangol/mess/shared/kafkav2"
-	"github.com/TATAROmangol/mess/shared/logger"
+	"github.com/1ocknight/mess/chat/internal/loglables"
+	"github.com/1ocknight/mess/chat/internal/storage"
+	mqdto "github.com/1ocknight/mess/shared/dto/mq"
+	"github.com/1ocknight/mess/shared/kafkav2"
+	"github.com/1ocknight/mess/shared/logger"
 )
 
 type LastReadConfig struct {

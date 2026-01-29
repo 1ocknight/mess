@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/TATAROmangol/mess/chat/internal/model"
+	"github.com/1ocknight/mess/chat/internal/model"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"

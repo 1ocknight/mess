@@ -3,7 +3,7 @@ package transport
 import (
 	"net/http"
 
-	"github.com/TATAROmangol/mess/websocket/internal/ctxkey"
+	"github.com/1ocknight/mess/websocket/internal/ctxkey"
 	"github.com/gorilla/websocket"
 )
 
@@ -17,6 +17,7 @@ func NewHandler(cfg WSHandlerConfig, hub *Hub) *Handler {
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  cfg.ReadBufferSizeBytes,
 		WriteBufferSize: cfg.WriteBufferSizeBytes,
+		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
 
 	return &Handler{

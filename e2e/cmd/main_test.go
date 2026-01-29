@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/TATAROmangol/mess/e2e/config"
-	"github.com/TATAROmangol/mess/e2e/profile"
+	"github.com/1ocknight/mess/e2e/config"
+	"github.com/1ocknight/mess/e2e/profile"
 )
 
 var CFG *config.Config

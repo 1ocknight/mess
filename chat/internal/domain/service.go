@@ -3,8 +3,8 @@ package domain
 import (
 	"context"
 
-	"github.com/TATAROmangol/mess/chat/internal/model"
-	"github.com/TATAROmangol/mess/chat/internal/storage"
+	"github.com/1ocknight/mess/chat/internal/model"
+	"github.com/1ocknight/mess/chat/internal/storage"
 )
 
 type Direction int

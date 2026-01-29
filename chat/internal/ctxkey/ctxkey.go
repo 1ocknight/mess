@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/TATAROmangol/mess/shared/logger"
-	"github.com/TATAROmangol/mess/shared/model"
+	"github.com/1ocknight/mess/shared/logger"
+	"github.com/1ocknight/mess/shared/model"
 )
 
 type loggerKeyStruct struct{}

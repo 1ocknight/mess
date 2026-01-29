@@ -3,7 +3,7 @@ package profile
 import (
 	"time"
 
-	"github.com/TATAROmangol/mess/e2e/utils"
+	"github.com/1ocknight/mess/e2e/utils"
 )
 
 type Config struct {

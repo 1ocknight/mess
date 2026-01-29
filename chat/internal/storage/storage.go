@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/TATAROmangol/mess/chat/internal/model"
+	"github.com/1ocknight/mess/chat/internal/model"
 
-	"github.com/TATAROmangol/mess/shared/postgres"
+	"github.com/1ocknight/mess/shared/postgres"
 	"github.com/jmoiron/sqlx"
 )
 

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TATAROmangol/mess/chat/internal/transport"
-	"github.com/TATAROmangol/mess/chat/internal/worker"
-	"github.com/TATAROmangol/mess/shared/auth/keycloak"
-	"github.com/TATAROmangol/mess/shared/postgres"
+	"github.com/1ocknight/mess/chat/internal/transport"
+	"github.com/1ocknight/mess/chat/internal/worker"
+	"github.com/1ocknight/mess/shared/auth/keycloak"
+	"github.com/1ocknight/mess/shared/postgres"
 	"github.com/goccy/go-yaml"
 )
 

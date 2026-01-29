@@ -4,18 +4,33 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/TATAROmangol/mess/shared/auth"
-	"github.com/TATAROmangol/mess/websocket/internal/ctxkey"
+	"github.com/1ocknight/mess/shared/auth"
+	"github.com/1ocknight/mess/shared/logger"
+	"github.com/1ocknight/mess/websocket/internal/ctxkey"
 )
 
-func SubjectMiddleware(auth auth.Service) func(http.Handler) http.Handler {
+const (
+	Bearer = "Bearer"
+)
+
+func SubjectMiddleware(auth auth.Service, lg logger.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			token := r.Header.Get("Authorization")
+			token := r.URL.Query().Get("token")
+			if token == "" {
+				err := fmt.Errorf("not found token")
+				lg.Error(err)
+				http.Error(w, err.Error(), http.StatusUnauthorized)
+				return
+			}
+
+			token = fmt.Sprintf("%v %v", Bearer, token)
 
 			sub, err := auth.Verify(token)
 			if err != nil {
-				http.Error(w, fmt.Sprintf("verify token: %v", err), http.StatusUnauthorized)
+				err = fmt.Errorf("verify token: %v", err)
+				lg.Error(err)
+				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
 			}
 

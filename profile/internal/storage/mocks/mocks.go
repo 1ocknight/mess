@@ -8,8 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	model "github.com/TATAROmangol/mess/profile/internal/model"
-	storage "github.com/TATAROmangol/mess/profile/internal/storage"
+	model "github.com/1ocknight/mess/profile/internal/model"
+	storage "github.com/1ocknight/mess/profile/internal/storage"
 	gomock "github.com/golang/mock/gomock"
 )
 

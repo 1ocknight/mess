@@ -8,8 +8,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/TATAROmangol/mess/profile/internal/adapter/avatar"
-	"github.com/TATAROmangol/mess/shared/s3client"
+	"github.com/1ocknight/mess/profile/internal/adapter/avatar"
+	"github.com/1ocknight/mess/shared/s3client"
 )
 
 var CFG avatar.Config

@@ -8,9 +8,9 @@ import (
 
 	"testing"
 
-	"github.com/TATAROmangol/mess/profile/internal/model"
-	"github.com/TATAROmangol/mess/profile/internal/storage"
-	p "github.com/TATAROmangol/mess/profile/internal/storage"
+	"github.com/1ocknight/mess/profile/internal/model"
+	"github.com/1ocknight/mess/profile/internal/storage"
+	p "github.com/1ocknight/mess/profile/internal/storage"
 )
 
 func TestStorage_AddProfile(t *testing.T) {

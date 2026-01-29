@@ -1,6 +1,6 @@
 package domain
 
-import "github.com/TATAROmangol/mess/profile/internal/storage"
+import "github.com/1ocknight/mess/profile/internal/storage"
 
 var (
 	ErrNotFound = storage.ErrNoRows

@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/TATAROmangol/mess/profile/internal/domain"
-	"github.com/TATAROmangol/mess/shared/auth"
-	"github.com/TATAROmangol/mess/shared/logger"
+	"github.com/1ocknight/mess/profile/internal/domain"
+	"github.com/1ocknight/mess/shared/auth"
+	"github.com/1ocknight/mess/shared/logger"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -35,7 +35,7 @@ func NewServer(cfg Config, lg logger.Logger, domain domain.Service, auth auth.Se
 	r := gin.New()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"}, // фронт
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:3000"}, // фронт
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},

@@ -7,12 +7,12 @@ import (
 
 	"github.com/golang/mock/gomock"
 
-	avatarmocks "github.com/TATAROmangol/mess/profile/internal/adapter/avatar/mocks"
-	"github.com/TATAROmangol/mess/profile/internal/ctxkey"
-	"github.com/TATAROmangol/mess/profile/internal/domain"
-	storagemocks "github.com/TATAROmangol/mess/profile/internal/storage/mocks"
-	logmocks "github.com/TATAROmangol/mess/shared/logger/mocks"
-	subjmocks "github.com/TATAROmangol/mess/shared/model/mocks"
+	avatarmocks "github.com/1ocknight/mess/profile/internal/adapter/avatar/mocks"
+	"github.com/1ocknight/mess/profile/internal/ctxkey"
+	"github.com/1ocknight/mess/profile/internal/domain"
+	storagemocks "github.com/1ocknight/mess/profile/internal/storage/mocks"
+	logmocks "github.com/1ocknight/mess/shared/logger/mocks"
+	subjmocks "github.com/1ocknight/mess/shared/model/mocks"
 )
 
 type TestEnv struct {

@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"testing"
 
-	avatarmocks "github.com/TATAROmangol/mess/profile/internal/adapter/avatar/mocks"
-	"github.com/TATAROmangol/mess/profile/internal/ctxkey"
-	"github.com/TATAROmangol/mess/profile/internal/domain"
-	"github.com/TATAROmangol/mess/profile/internal/model"
-	logmocks "github.com/TATAROmangol/mess/shared/logger/mocks"
-	subjmocks "github.com/TATAROmangol/mess/shared/model/mocks"
+	avatarmocks "github.com/1ocknight/mess/profile/internal/adapter/avatar/mocks"
+	"github.com/1ocknight/mess/profile/internal/ctxkey"
+	"github.com/1ocknight/mess/profile/internal/domain"
+	"github.com/1ocknight/mess/profile/internal/model"
+	logmocks "github.com/1ocknight/mess/shared/logger/mocks"
+	subjmocks "github.com/1ocknight/mess/shared/model/mocks"
 	"github.com/golang/mock/gomock"
 )
 

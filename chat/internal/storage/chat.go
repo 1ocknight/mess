@@ -1,13 +1,13 @@
 package storage
 
 import (
-	"github.com/TATAROmangol/mess/chat/internal/model"
+	"github.com/1ocknight/mess/chat/internal/model"
 	"context"
 	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/TATAROmangol/mess/shared/postgres"
+	"github.com/1ocknight/mess/shared/postgres"
 	"github.com/jmoiron/sqlx"
 )
 

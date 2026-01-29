@@ -24,6 +24,6 @@ ws_config:
   write_buffer_size_bytes: 1024
   client:
     message_buffer: 10
-    write_timeout: 30s
-    read_timeout: 30s
-    ping_timeout: 20s
+    write_timeout: 60s
+    read_timeout: 60s
+    ping_timeout: 50s

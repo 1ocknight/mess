@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	wsdto "github.com/TATAROmangol/mess/shared/dto/ws"
+	wsdto "github.com/1ocknight/mess/shared/dto/ws"
 	"github.com/gorilla/websocket"
 )
 

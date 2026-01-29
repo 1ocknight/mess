@@ -4,30 +4,42 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
-	"github.com/TATAROmangol/mess/shared/auth"
-	"github.com/TATAROmangol/mess/shared/logger"
+	"github.com/1ocknight/mess/shared/auth"
+	"github.com/1ocknight/mess/shared/logger"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 type Server struct {
 	cfg         HTTPConfig
 	Router      *mux.Router
 	AuthService auth.Service
-	Logger      logger.Logger
+	lg          logger.Logger
 	httpServer  *http.Server
 }
 
-func NewServer(cfg HTTPConfig, authService auth.Service, handler *Handler) *Server {
+func NewServer(cfg HTTPConfig, authService auth.Service, handler *Handler, lg logger.Logger) *Server {
 	r := mux.NewRouter()
 
 	s := &Server{
 		cfg:         cfg,
 		Router:      r,
 		AuthService: authService,
+		lg:          lg,
 	}
 
-	r.Use(SubjectMiddleware(authService))
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000 "}, // фронт
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Origin", "Content-Type", "Authorization"},
+		ExposedHeaders:   []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           int((12 * time.Hour).Seconds()), // rs/cors требует int секунд
+	})
+	r.Use(c.Handler)
+	r.Use(SubjectMiddleware(authService, lg))
 
 	// WS endpoint
 	r.HandleFunc("/ws", handler.WSHandler)

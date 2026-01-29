@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	mqdto "github.com/TATAROmangol/mess/shared/dto/mq"
-	wsdto "github.com/TATAROmangol/mess/shared/dto/ws"
-	"github.com/TATAROmangol/mess/shared/kafkav2"
-	"github.com/TATAROmangol/mess/shared/logger"
-	"github.com/TATAROmangol/mess/websocket/internal/model"
+	mqdto "github.com/1ocknight/mess/shared/dto/mq"
+	wsdto "github.com/1ocknight/mess/shared/dto/ws"
+	"github.com/1ocknight/mess/shared/kafkav2"
+	"github.com/1ocknight/mess/shared/logger"
+	"github.com/1ocknight/mess/websocket/internal/model"
 )
 
 type MessageWorkerConfig struct {
@@ -45,6 +45,7 @@ func (mw *MessageWorker) Send(kafkamessages chan *kafkav2.ConsumerMessage) {
 		}
 
 		wsdtoMsg := wsdto.Message{
+			ID:        mqdtoMsg.Message.ID,
 			ChatID:    mqdtoMsg.ChatID,
 			SenderID:  mqdtoMsg.Message.SenderID,
 			Content:   mqdtoMsg.Message.Content,

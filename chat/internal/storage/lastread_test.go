@@ -1,7 +1,7 @@
 package storage_test
 
 import (
-	"github.com/TATAROmangol/mess/chat/internal/storage"
+	"github.com/1ocknight/mess/chat/internal/storage"
 	"errors"
 	"testing"
 )
