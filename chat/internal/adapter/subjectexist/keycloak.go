@@ -23,7 +23,7 @@ type Keycloak struct {
 	oauth  *clientcredentials.Config
 }
 
-func New(cfg Config) (*Keycloak, error) {
+func New(cfg Config) (Service, error) {
 	tokenURL := fmt.Sprintf("%s/realms/%s/protocol/openid-connect/token",
 		cfg.KeycloakURL, cfg.Realm)
 
@@ -43,7 +43,7 @@ func New(cfg Config) (*Keycloak, error) {
 	}, nil
 }
 
-func (k *Keycloak) SubjectExists(ctx context.Context, subjectID string) (bool, error) {
+func (k *Keycloak) Exists(ctx context.Context, subjectID string) (bool, error) {
 	token, err := k.oauth.Token(ctx)
 	if err != nil {
 		return false, err

@@ -44,7 +44,7 @@ func TestKeycloak_SubjectExists(t *testing.T) {
 			if err != nil {
 				t.Fatalf("could not construct receiver type: %v", err)
 			}
-			got, gotErr := k.SubjectExists(t.Context(), tt.subjectID)
+			got, gotErr := k.Exists(t.Context(), tt.subjectID)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("SubjectExists() failed: %v", gotErr)
