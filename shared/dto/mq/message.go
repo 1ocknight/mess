@@ -1,6 +1,9 @@
 package mqdto
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Operation int
 
@@ -23,4 +26,16 @@ type SendMessage struct {
 	ChatID    int       `json:"chat_id"`
 	Message   *Message  `json:"message"`
 	Operation Operation `json:"operation"`
+}
+
+func (m *SendMessage) Marshal() ([]byte, error) {
+	return json.Marshal(m)
+}
+
+func UnmarshalSendMessage(data []byte) (*SendMessage, error) {
+	var sm SendMessage
+	if err := json.Unmarshal(data, &sm); err != nil {
+		return nil, err
+	}
+	return &sm, nil
 }
