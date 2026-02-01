@@ -4,29 +4,28 @@ import "time"
 
 type MessageResponse struct {
 	ID        int       `json:"id"`
+	Number    int       `json:"number"`
 	Version   int       `json:"version"`
 	Content   string    `json:"content"`
 	SenderID  string    `json:"sender_id"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type LastReadResponse struct {
+	MessageID     int `json:"message_id"`
+	MessageNumber int `json:"message_number"`
+}
+
 type ChatResponse struct {
 	ChatID          int    `json:"chat_id"`
 	SecondSubjectID string `json:"second_subject_id"`
 
-	// map subject_id -> message_id
-	LastReads map[string]int `json:"last_reads"`
-}
-
-type ChatsMetadataResponse struct {
-	ChatID          int       `json:"chat_id"`
-	SecondSubjectID string    `json:"second_subject_id"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	LastReads    map[string]LastReadResponse `json:"last_reads"`
+	MessageCount int                         `json:"message_count"`
 
 	LastMessage MessageResponse `json:"last_message"`
 
-	UnreadCount       int  `json:"unread_count"`
-	IsLastMessageRead bool `json:"is_last_message_read"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type AddMessageRequest struct {
@@ -42,9 +41,5 @@ type UpdateMessageRequest struct {
 
 type UpdateLastReadRequest struct {
 	ChatID    int `json:"chat_id"`
-	MessageID int `json:"message_id"`
-}
-
-type UpdateLastReadResponse struct {
 	MessageID int `json:"message_id"`
 }

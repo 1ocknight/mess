@@ -12,6 +12,7 @@ const (
 
 type Message struct {
 	ID        int       `json:"id"`
+	Number    int       `json:"number"`
 	SenderID  string    `json:"sender_id"`
 	Version   int       `json:"version"`
 	Content   string    `json:"content"`
@@ -19,8 +20,7 @@ type Message struct {
 }
 
 type SendMessage struct {
-	ChatID      int       `json:"chat_id"`
-	RecipientID string    `json:"recipient_id"`
-	Message     *Message  `json:"message"`
-	Operation   Operation `json:"operation"`
+	ChatID    int       `json:"chat_id"`
+	Message   *Message  `json:"message"`
+	Operation Operation `json:"operation"`
 }
