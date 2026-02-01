@@ -30,13 +30,18 @@ func (i *IMPL) BatchSend(ctx context.Context, recipients []string, messages []mo
 
 	sendDTO := make([][]byte, len(messages))
 	for idx, m := range messages {
+		messageModel, err := model.UnmarshalMessage(m.MessagePayload)
+		if err != nil {
+			return fmt.Errorf("unmarshal message payload: %w", err)
+		}
+
 		mess := mqdto.Message{
-			ID:        m.Message.ID,
-			Number:    m.Message.Number,
-			SenderID:  m.Message.SenderSubjectID,
-			Content:   m.Message.Content,
-			Version:   m.Message.Version,
-			CreatedAt: m.Message.CreatedAt,
+			ID:        messageModel.ID,
+			Number:    messageModel.Number,
+			SenderID:  messageModel.SenderSubjectID,
+			Content:   messageModel.Content,
+			Version:   messageModel.Version,
+			CreatedAt: messageModel.CreatedAt,
 		}
 
 		res := &mqdto.SendMessage{
