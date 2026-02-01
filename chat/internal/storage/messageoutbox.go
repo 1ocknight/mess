@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/1ocknight/mess/chat/internal/model"
+	"github.com/lib/pq"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -35,15 +36,16 @@ func (s *Storage) doAndReturnMessageOutboxes(ctx context.Context, query string, 
 	return MessageOutboxEntitiesToModels(entities), nil
 }
 
-func (s *Storage) AddMessageOutbox(ctx context.Context, recipientID string, messageID int, operation model.Operation) (*model.MessageOutbox, error) {
+func (s *Storage) AddMessageOutbox(ctx context.Context, chatID int, recipientsID []string, messagePayload string, operation model.Operation) (*model.MessageOutbox, error) {
 	query, args, err := sq.
 		Insert(MessageOutboxTable).
 		Columns(
-			MessageOutboxRecipientIDLabel,
-			MessageOutboxMessageIDLabel,
+			MessageOutboxChatIDLabel,
+			MessageOutboxRecipientsIDLabel,
+			MessageOutboxMessagePayloadLabel,
 			MessageOutboxOperationLabel,
 		).
-		Values(recipientID, messageID, operation).
+		Values(chatID, pq.StringArray(recipientsID), messagePayload, operation).
 		Suffix(ReturningSuffix).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -55,13 +57,13 @@ func (s *Storage) AddMessageOutbox(ctx context.Context, recipientID string, mess
 	return s.doAndReturnMessageOutbox(ctx, query, args)
 }
 
-func (s *Storage) GetMessageOutbox(ctx context.Context, limitUsers int, limitMessages int) ([]*model.MessageOutbox, error) {
+func (s *Storage) GetMessageOutbox(ctx context.Context, limit int) ([]*model.MessageOutbox, error) {
 	query1, args1, err := sq.
 		Select(AllLabelsSelect).
 		From(MessageOutboxTable).
 		Where(sq.Expr(deletedATIsNullMessageOutboxFilter)).
-		OrderBy(MessageOutboxRecipientIDLabel).
-		Limit(uint64(limitUsers)).
+		OrderBy(MessageOutboxCreatedAtLabel).
+		Limit(1).
 		Suffix(SkipLocked).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -74,21 +76,19 @@ func (s *Storage) GetMessageOutbox(ctx context.Context, limitUsers int, limitMes
 		return nil, fmt.Errorf("lock rows: %w", err)
 	}
 
-	recipientIDsMap := make(map[string]struct{})
-	for _, msg := range lockedRows {
-		recipientIDsMap[msg.RecipientID] = struct{}{}
-	}
-	recipientIDs := make([]interface{}, 0, len(recipientIDsMap))
-	for id := range recipientIDsMap {
-		recipientIDs = append(recipientIDs, id)
+	if len(lockedRows) == 0 {
+		return []*model.MessageOutbox{}, nil
 	}
 
+	chatID := lockedRows[0].ChatID
+
+	// Получение всех сообщений для заблокированного чата
 	query2, args2, err := sq.
 		Select(AllLabelsSelect).
 		From(MessageOutboxTable).
-		Where(sq.Eq{MessageOutboxRecipientIDLabel: recipientIDs}).
+		Where(sq.Eq{MessageOutboxChatIDLabel: chatID}).
 		Where(sq.Expr(deletedATIsNullMessageOutboxFilter)).
-		Limit(uint64(limitMessages)).
+		Limit(uint64(limit)).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {

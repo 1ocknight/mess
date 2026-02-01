@@ -12,11 +12,10 @@ const (
 type Table = string
 
 const (
-	ChatTable           Table = "chat"
-	LastReadTable       Table = "last_read"
-	MessageTable        Table = "message"
-	MessageOutboxTable  Table = "message_outbox"
-	LastReadOutboxTable Table = "last_read_outbox"
+	ChatTable          Table = "chat"
+	LastReadTable      Table = "last_read"
+	MessageTable       Table = "message"
+	MessageOutboxTable Table = "message_outbox"
 )
 
 type Label = string
@@ -57,19 +56,11 @@ const (
 
 // MessageOutboxTable
 const (
-	MessageOutboxIDLabel          Label = "id"
-	MessageOutboxRecipientIDLabel Label = "recipient_id"
-	MessageOutboxMessageIDLabel   Label = "message_id"
-	MessageOutboxOperationLabel   Label = "operation"
-	MessageOutboxDeletedAtLabel   Label = "deleted_at"
-)
-
-// LastReadOutboxTable
-const (
-	LastReadOutboxIDLabel          Label = "id"
-	LastReadOutboxRecipientIDLabel Label = "recipient_id"
-	LastReadOutboxChatIDLabel      Label = "chat_id"
-	LastReadOutboxSubjectIDLabel   Label = "subject_id"
-	LastReadOutboxMessageIDLabel   Label = "message_id"
-	LastReadOutboxDeletedAtLabel   Label = "deleted_at"
+	MessageOutboxIDLabel             Label = "id"
+	MessageOutboxChatIDLabel         Label = "chat_id"
+	MessageOutboxRecipientsIDLabel   Label = "recipients_id"
+	MessageOutboxMessagePayloadLabel Label = "message_payload"
+	MessageOutboxOperationLabel      Label = "operation"
+	MessageOutboxDeletedAtLabel      Label = "deleted_at"
+	MessageOutboxCreatedAtLabel      Label = "created_at"
 )

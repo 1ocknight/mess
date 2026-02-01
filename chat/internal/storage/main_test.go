@@ -81,33 +81,18 @@ var InitMessages = []*model.Message{
 
 var InitMessageOutboxes = []*model.MessageOutbox{
 	{
-		ID:          1,
-		RecipientID: "subj-2",
-		MessageID:   1,
-		Operation:   model.AddOperation,
+		ID:             1,
+		ChatID:         1,
+		RecipientsID:   []string{"subj-1", "subj-2"},
+		MessagePayload: `{"id":1,"chat_id":1,"sender_subject_id":"subj-1","content":"test-content-1","version":1}`,
+		Operation:      model.AddOperation,
 	},
 	{
-		ID:          2,
-		RecipientID: "subj-1",
-		MessageID:   2,
-		Operation:   model.AddOperation,
-	},
-}
-
-var InitLastReadOutboxes = []*model.LastReadOutbox{
-	{
-		ID:          1,
-		RecipientID: "subj-2",
-		SubjectID:   "subj-1",
-		ChatID:      1,
-		MessageID:   1,
-	},
-	{
-		ID:          2,
-		RecipientID: "subj-1",
-		SubjectID:   "subj-2",
-		ChatID:      1,
-		MessageID:   2,
+		ID:             2,
+		ChatID:         1,
+		RecipientsID:   []string{"subj-1", "subj-2"},
+		MessagePayload: `{"id":2,"chat_id":1,"sender_subject_id":"subj-2","content":"test-content-2","version":1}`,
+		Operation:      model.AddOperation,
 	},
 }
 
@@ -191,11 +176,6 @@ func cleanupDB(t *testing.T) {
 	if err != nil {
 		t.Fatalf("cleanup db: %v", err)
 	}
-
-	_, err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE", storage.LastReadOutboxTable))
-	if err != nil {
-		t.Fatalf("cleanup db: %v", err)
-	}
 }
 
 func initData(t *testing.T) {
@@ -228,14 +208,7 @@ func initData(t *testing.T) {
 	}
 
 	for _, ms := range InitMessageOutboxes {
-		_, err = s.MessageOutbox().AddMessageOutbox(t.Context(), ms.RecipientID, ms.MessageID, ms.Operation)
-		if err != nil {
-			t.Fatalf("create message outbox: %v", err)
-		}
-	}
-
-	for _, ms := range InitLastReadOutboxes {
-		_, err = s.LastReadOutbox().AddLastReadOutbox(t.Context(), ms.RecipientID, ms.SubjectID, ms.ChatID, ms.MessageID)
+		_, err = s.MessageOutbox().AddMessageOutbox(t.Context(), ms.ChatID, ms.RecipientsID, ms.MessagePayload, ms.Operation)
 		if err != nil {
 			t.Fatalf("create message outbox: %v", err)
 		}

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/1ocknight/mess/chat/internal/model"
+	"github.com/lib/pq"
 )
 
 type ChatEntity struct {
@@ -99,53 +100,29 @@ func MessageEntitiesToModels(entities []*MessageEntity) []*model.Message {
 }
 
 type MessageOutboxEntity struct {
-	ID          int        `db:"id"`
-	RecipientID string     `db:"recipient_id"`
-	MessageID   int        `db:"message_id"`
-	Operation   int        `db:"operation"`
-	DeletedAt   *time.Time `db:"deleted_at"`
+	ID             int            `db:"id"`
+	ChatID         int            `db:"chat_id"`
+	RecipientsID   pq.StringArray `db:"recipients_id"`
+	MessagePayload string         `db:"message_payload"`
+	Operation      int            `db:"operation"`
+	DeletedAt      *time.Time     `db:"deleted_at"`
+	CreatedAt      time.Time      `db:"created_at"`
 }
 
 func (e *MessageOutboxEntity) ToModel() *model.MessageOutbox {
 	return &model.MessageOutbox{
-		ID:          e.ID,
-		RecipientID: e.RecipientID,
-		MessageID:   e.MessageID,
-		Operation:   model.Operation(e.Operation),
-		DeletedAt:   e.DeletedAt,
+		ID:             e.ID,
+		ChatID:         e.ChatID,
+		RecipientsID:   []string(e.RecipientsID),
+		MessagePayload: e.MessagePayload,
+		Operation:      model.Operation(e.Operation),
+		DeletedAt:      e.DeletedAt,
+		CreatedAt:      e.CreatedAt,
 	}
 }
 
 func MessageOutboxEntitiesToModels(entities []*MessageOutboxEntity) []*model.MessageOutbox {
 	models := make([]*model.MessageOutbox, 0, len(entities))
-	for _, entity := range entities {
-		models = append(models, entity.ToModel())
-	}
-	return models
-}
-
-type LastReadOutboxEntity struct {
-	ID          int        `db:"id"`
-	RecipientID string     `db:"recipient_id"`
-	ChatID      int        `db:"chat_id"`
-	SubjectID   string     `db:"subject_id"`
-	MessageID   int        `db:"message_id"`
-	DeletedAt   *time.Time `db:"deleted_at"`
-}
-
-func (e *LastReadOutboxEntity) ToModel() *model.LastReadOutbox {
-	return &model.LastReadOutbox{
-		ID:          e.ID,
-		RecipientID: e.RecipientID,
-		ChatID:      e.ChatID,
-		SubjectID:   e.SubjectID,
-		MessageID:   e.MessageID,
-		DeletedAt:   e.DeletedAt,
-	}
-}
-
-func LastReadOutboxEntityToModels(entities []*LastReadOutboxEntity) []*model.LastReadOutbox {
-	models := make([]*model.LastReadOutbox, 0, len(entities))
 	for _, entity := range entities {
 		models = append(models, entity.ToModel())
 	}
