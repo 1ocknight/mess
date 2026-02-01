@@ -20,8 +20,8 @@ type ChatResponse struct {
 	ChatID          int    `json:"chat_id"`
 	SecondSubjectID string `json:"second_subject_id"`
 
-	LastReads    map[string]LastReadResponse `json:"last_reads"`
-	MessageCount int                         `json:"message_count"`
+	LastReads     map[string]LastReadResponse `json:"last_reads"`
+	MessagesCount int                         `json:"messages_count"`
 
 	LastMessage MessageResponse `json:"last_message"`
 
