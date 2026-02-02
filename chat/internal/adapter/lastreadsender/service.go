@@ -7,6 +7,6 @@ import (
 )
 
 type Service interface {
-	Send(ctx context.Context, recipients []string, lastRead model.LastRead) error
+	Send(ctx context.Context, recipients []string, lastRead *model.LastRead) error
 	Close() error
 }

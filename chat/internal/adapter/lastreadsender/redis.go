@@ -21,7 +21,7 @@ func New(cfg redisclient.Config) Service {
 	}
 }
 
-func (i *IMPL) Send(ctx context.Context, recipients []string, lastRead model.LastRead) error {
+func (i *IMPL) Send(ctx context.Context, recipients []string, lastRead *model.LastRead) error {
 	mess := mqdto.LastRead{
 		ChatID:        lastRead.ChatID,
 		SubjectID:     lastRead.SubjectID,
