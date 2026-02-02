@@ -17,7 +17,7 @@ type Config struct {
 	Timeout      time.Duration `yaml:"timeout"`
 }
 
-type Keycloak struct {
+type IMPL struct {
 	cfg    Config
 	client *resty.Client
 	oauth  *clientcredentials.Config
@@ -36,23 +36,23 @@ func New(cfg Config) (Service, error) {
 	client := resty.New()
 	client.SetTimeout(cfg.Timeout)
 
-	return &Keycloak{
+	return &IMPL{
 		cfg:    cfg,
 		client: client,
 		oauth:  oauthConfig,
 	}, nil
 }
 
-func (k *Keycloak) Exists(ctx context.Context, subjectID string) (bool, error) {
-	token, err := k.oauth.Token(ctx)
+func (i *IMPL) Exists(ctx context.Context, subjectID string) (bool, error) {
+	token, err := i.oauth.Token(ctx)
 	if err != nil {
 		return false, err
 	}
 
 	url := fmt.Sprintf("%s/admin/realms/%s/users/%s",
-		k.cfg.KeycloakURL, k.cfg.Realm, subjectID)
+		i.cfg.KeycloakURL, i.cfg.Realm, subjectID)
 
-	resp, err := k.client.R().
+	resp, err := i.client.R().
 		SetContext(ctx).
 		SetAuthToken(token.AccessToken).
 		Get(url)

@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/1ocknight/mess/chat/internal/adapter/subjectexist"
 	"github.com/1ocknight/mess/chat/internal/transport"
-	"github.com/1ocknight/mess/chat/internal/worker"
 	"github.com/1ocknight/mess/shared/postgres"
+	"github.com/1ocknight/mess/shared/redisclient"
 	"github.com/1ocknight/mess/shared/verify"
 	"github.com/goccy/go-yaml"
 )
@@ -17,11 +18,12 @@ type Config struct {
 	Postgres       postgres.Config  `yaml:"postgres"`
 	HTTP           transport.Config `yaml:"http"`
 
-	MessageWorker worker.MessageWorkerConfig `yaml:"message_worker"`
+	// MessageWorker worker.MessageWorkerConfig `yaml:"message_worker"`
 
-	LoggerDebug bool `yaml:"logger_debug"`
-
-	Verify verify.Config `yaml:"verify"`
+	LoggerDebug    bool                `yaml:"logger_debug"`
+	LastReadSender redisclient.Config  `yaml:"last_read_sender"`
+	SubjectExist   subjectexist.Config `yaml:"subject_exist"`
+	Verify         verify.Config       `yaml:"verify"`
 }
 
 func LoadConfig() (*Config, error) {

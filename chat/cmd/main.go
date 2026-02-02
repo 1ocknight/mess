@@ -12,15 +12,16 @@ import (
 	"syscall"
 
 	"github.com/1ocknight/mess/chat/config"
+	"github.com/1ocknight/mess/chat/internal/adapter/lastreadsender"
+	"github.com/1ocknight/mess/chat/internal/adapter/subjectexist"
 	"github.com/1ocknight/mess/chat/internal/ctxkey"
 	"github.com/1ocknight/mess/chat/internal/domain"
 	"github.com/1ocknight/mess/chat/internal/loglables"
 	"github.com/1ocknight/mess/chat/internal/storage"
 	"github.com/1ocknight/mess/chat/internal/transport"
-	"github.com/1ocknight/mess/chat/internal/worker"
-	"github.com/1ocknight/mess/shared/auth/keycloak"
 	"github.com/1ocknight/mess/shared/logger"
 	"github.com/1ocknight/mess/shared/postgres"
+	"github.com/1ocknight/mess/shared/verify"
 )
 
 func main() {
@@ -62,31 +63,24 @@ func main() {
 	}
 	lg.Info("up migrations")
 
-	dom := domain.New(storage)
-
-	keycloak, err := keycloak.New(cfg.Keycloak, lg)
+	subjEx, err := subjectexist.New(cfg.SubjectExist)
 	if err != nil {
-		lg.Error(fmt.Errorf("keycloak new: %w", err))
+		lg.Error(fmt.Errorf("subjectexist new: %w", err))
 		return
 	}
 
-	messageWorkerLg := lg.With(loglables.Service, "message worker")
-	messageWorker, err := worker.NewMessageWorker(storage, messageWorkerLg, &cfg.MessageWorker)
+	lrs := lastreadsender.New(cfg.LastReadSender)
+	defer lrs.Close()
+
+	dom := domain.New(storage, subjEx, lrs)
+
+	verify, err := verify.New(cfg.Verify, lg)
 	if err != nil {
-		lg.Error(fmt.Errorf("new message worker: %w", err))
+		lg.Error(fmt.Errorf("verify new: %w", err))
 		return
 	}
-	go messageWorker.Run(ctx)
 
-	lastreadWorkerLg := lg.With(loglables.Service, "lastread worker")
-	lastreadWorker, err := worker.NewLastReadWorker(storage, lastreadWorkerLg, &cfg.LastReadWorker)
-	if err != nil {
-		lg.Error(fmt.Errorf("new lastread worker: %w", err))
-		return
-	}
-	go lastreadWorker.Run(ctx)
-
-	server := transport.NewServer(cfg.HTTP, lg, dom, keycloak)
+	server := transport.NewServer(cfg.HTTP, lg, dom, verify)
 	go func() {
 		if err := server.Run(); err != nil && !errors.Is(http.ErrServerClosed, err) {
 			lg.Error(fmt.Errorf("server run: %w", err))
@@ -105,6 +99,8 @@ func main() {
 		lg.Error(fmt.Errorf("server stop: %w", err))
 	}
 	lg.Info("server is stop")
+
+	lrs.Close()
 
 	cancel()
 	lg.Info("successful stop")

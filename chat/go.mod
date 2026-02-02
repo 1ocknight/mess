@@ -3,7 +3,7 @@ module github.com/1ocknight/mess/chat
 go 1.25.6
 
 require (
-	github.com/1ocknight/mess/shared v0.0.0-20260129121508-5a600cb821be
+	github.com/1ocknight/mess/shared v0.0.0-20260202081058-4799a90eac0c
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0
@@ -19,9 +19,11 @@ require (
 	github.com/IBM/sarama v1.46.3 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
+	github.com/Nerzal/gocloak/v13 v13.9.0 // indirect
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
@@ -29,6 +31,7 @@ require (
 	github.com/containerd/platforms v0.2.1 // indirect
 	github.com/cpuguy83/dockercfg v0.3.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/docker v28.5.1+incompatible // indirect
 	github.com/docker/go-connections v0.6.0 // indirect
@@ -46,8 +49,10 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.27.0 // indirect
+	github.com/go-resty/resty/v2 v2.17.1 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/golang-migrate/migrate/v4 v4.19.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.5 // indirect
@@ -79,6 +84,7 @@ require (
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -87,6 +93,8 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.54.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
+	github.com/redis/go-redis/v9 v9.17.3 // indirect
+	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/shirou/gopsutil/v4 v4.25.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
@@ -106,6 +114,7 @@ require (
 	golang.org/x/crypto v0.46.0 // indirect
 	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/oauth2 v0.34.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
