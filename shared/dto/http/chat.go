@@ -28,6 +28,10 @@ type ChatResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type AddChatRequest struct {
+	SecondSubjectID string `json:"second_subject_id"`
+}
+
 type AddMessageRequest struct {
 	Content string `json:"content"`
 }
