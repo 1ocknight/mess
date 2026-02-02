@@ -28,8 +28,8 @@ func (i *IMPL) BatchSend(ctx context.Context, recipients []string, messages []mo
 
 	chatID := messages[0].ChatID
 
-	sendDTO := make([][]byte, len(messages))
-	for idx, m := range messages {
+	sendDTO := make([][]byte, 0, len(messages))
+	for _, m := range messages {
 		messageModel, err := model.UnmarshalMessage(m.MessagePayload)
 		if err != nil {
 			return fmt.Errorf("unmarshal message payload: %w", err)
@@ -55,7 +55,7 @@ func (i *IMPL) BatchSend(ctx context.Context, recipients []string, messages []mo
 			return fmt.Errorf("marshal message dto: %w", err)
 		}
 
-		sendDTO[idx] = data
+		sendDTO = append(sendDTO, data)
 	}
 
 	pipe := i.client.Pipeline()

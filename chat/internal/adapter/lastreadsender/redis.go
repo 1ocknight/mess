@@ -43,9 +43,9 @@ func (i *IMPL) Send(ctx context.Context, recipients []string, lastRead *model.La
 			redisclient.ChannelTypeLastRead,
 		)
 
-		err := i.client.Publish(ctx, channel, data)
-		if err != nil {
-			return fmt.Errorf("publish last read message to redis: %v", err)
+		resp := i.client.Publish(ctx, channel, data)
+		if resp.Err() != nil {
+			return fmt.Errorf("publish last read message to redis: %w", resp.Err())
 		}
 	}
 
