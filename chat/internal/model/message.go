@@ -17,7 +17,7 @@ type Message struct {
 	DeletedAt       *time.Time `json:"deleted_at,omitempty"`
 }
 
-func (m *Message) Marshal() (string, error) {
+func (m *Message) ToString() (string, error) {
 	data, err := json.Marshal(m)
 	if err != nil {
 		return "", err
