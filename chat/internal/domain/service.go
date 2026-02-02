@@ -3,6 +3,8 @@ package domain
 import (
 	"context"
 
+	"github.com/1ocknight/mess/chat/internal/adapter/lastreadsender"
+	"github.com/1ocknight/mess/chat/internal/adapter/subjectexist"
 	"github.com/1ocknight/mess/chat/internal/model"
 	"github.com/1ocknight/mess/chat/internal/storage"
 )
@@ -40,25 +42,29 @@ var DefaultPaginationChat = storage.PaginationFilterIntLastID{
 }
 
 type Service interface {
-	AddChat(ctx context.Context, secondSubjectID string) (*model.Chat, error)
 	GetChatsMetadata(ctx context.Context, filter *ChatPaginationFilter) ([]*model.ChatMetadata, error)
-	GetChatBySubjectID(ctx context.Context, secondSubjectID string) (*model.Chat, error)
 
-	GetLastReads(ctx context.Context, chatID int) ([]*model.LastRead, error)
+	AddChat(ctx context.Context, secondSubjectID string) (*model.ChatMetadata, error)
+	GetChatMetadataBySubjectID(ctx context.Context, secondSubjectID string) (*model.ChatMetadata, error)
+	GetChatMetadataByID(ctx context.Context, chatID int) (*model.ChatMetadata, error)
+
 	UpdateLastRead(ctx context.Context, chatID int, messageID int) (*model.LastRead, error)
 
 	GetMessages(ctx context.Context, chatID int, filter *MessagePaginationFilter) ([]*model.Message, error)
-	GetMessagesToLastRead(ctx context.Context, chatID int, limit int) ([]*model.Message, error)
 	SendMessage(ctx context.Context, chatID int, content string) (*model.Message, error)
 	UpdateMessage(ctx context.Context, messageID int, content string, version int) (*model.Message, error)
 }
 
 type Domain struct {
-	Storage storage.Service
+	s   storage.Service
+	se  subjectexist.Service
+	lrs lastreadsender.Service
 }
 
-func New(s storage.Service) Service {
+func New(s storage.Service, se subjectexist.Service, lrs lastreadsender.Service) Service {
 	return &Domain{
-		Storage: s,
+		s:   s,
+		se:  se,
+		lrs: lrs,
 	}
 }

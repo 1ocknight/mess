@@ -7,8 +7,8 @@ import (
 
 	"github.com/1ocknight/mess/chat/internal/model"
 
-	sq "github.com/Masterminds/squirrel"
 	"github.com/1ocknight/mess/shared/postgres"
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -54,22 +54,6 @@ func (s *Storage) CreateMessage(ctx context.Context, chatID int, senderSubjectID
 	}
 
 	return s.doAndReturnMessage(ctx, query, args)
-}
-
-func (s *Storage) GetMessagesByIDs(ctx context.Context, messageIDs []int) ([]*model.Message, error) {
-	query, args, err := sq.
-		Select(AllLabelsSelect).
-		From(MessageTable).
-		Where(sq.Eq{MessageIDLabel: messageIDs}).
-		Where(sq.Expr(deletedATIsNullMessageFilter)).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
-
-	if err != nil {
-		return nil, fmt.Errorf("build sql: %w", err)
-	}
-
-	return s.doAndReturnMessages(ctx, query, args)
 }
 
 func (s *Storage) GetMessageByID(ctx context.Context, messageID int) (*model.Message, error) {
@@ -181,4 +165,21 @@ func (s *Storage) DeleteMessagesChatID(ctx context.Context, chatID int) ([]*mode
 	}
 
 	return s.doAndReturnMessages(ctx, query, args)
+}
+
+func (s *Storage) GetMessageByNumber(ctx context.Context, chatID int, number int) (*model.Message, error) {
+	query, args, err := sq.
+		Select(AllLabelsSelect).
+		From(MessageTable).
+		Where(sq.Eq{MessageChatIDLabel: chatID}).
+		Where(sq.Eq{MessageNumberLabel: number}).
+		Where(sq.Expr(deletedATIsNullMessageFilter)).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("build sql: %w", err)
+	}
+
+	return s.doAndReturnMessage(ctx, query, args)
 }

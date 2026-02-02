@@ -28,7 +28,6 @@ type LastRead interface {
 
 	GetLastReadsByChatIDs(ctx context.Context, chatIDs []int) ([]*model.LastRead, error)
 	GetLastReadsByChatID(ctx context.Context, chatID int) ([]*model.LastRead, error)
-	GetLastReadBySubjectID(ctx context.Context, subjectID string, chatID int) (*model.LastRead, error)
 
 	UpdateLastRead(ctx context.Context, subjectID string, chatID int, messageID int, messageNumber int) (*model.LastRead, error)
 
@@ -38,10 +37,10 @@ type LastRead interface {
 type Message interface {
 	CreateMessage(ctx context.Context, chatID int, senderSubjectID string, content string, number int) (*model.Message, error)
 
-	GetMessagesByIDs(ctx context.Context, messageIDs []int) ([]*model.Message, error)
 	GetMessageByID(ctx context.Context, messageID int) (*model.Message, error)
 	GetLastMessagesByChatsID(ctx context.Context, chatsID []int) ([]*model.Message, error)
 	GetMessagesByChatID(ctx context.Context, chatID int, filter *PaginationFilterIntLastID) ([]*model.Message, error)
+	GetMessageByNumber(ctx context.Context, chatID int, number int) (*model.Message, error)
 
 	UpdateMessageContent(ctx context.Context, messageID int, content string, version int) (*model.Message, error)
 
