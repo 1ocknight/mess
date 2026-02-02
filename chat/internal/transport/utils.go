@@ -27,21 +27,30 @@ func MessagesModelToMessageDTO(messages []*model.Message) []*httpdto.MessageResp
 	return resMessages
 }
 
-func ChatsMetadataModelToDTO(chatsMetadata []*model.ChatMetadata) []*httpdto.ChatsMetadataResponse {
-	resChats := make([]*httpdto.ChatsMetadataResponse, 0, len(chatsMetadata))
+func ChatMetadataModelToDTO(cm *model.ChatMetadata) *httpdto.ChatResponse {
+	return &httpdto.ChatResponse{
+		ChatID:          cm.ChatID,
+		SecondSubjectID: cm.SecondSubjectID,
+
+		MessagesCount: cm.MessagesCount,
+
+		LastMessage: httpdto.MessageResponse{
+			ID:        cm.LastMessage.ID,
+			Number:    cm.LastMessage.Number,
+			Version:   cm.LastMessage.Version,
+			Content:   cm.LastMessage.Content,
+			SenderID:  cm.LastMessage.SenderSubjectID,
+			CreatedAt: cm.LastMessage.CreatedAt,
+		},
+
+		UpdatedAt: cm.UpdatedAt,
+	}
+}
+
+func ChatsMetadataModelToDTO(chatsMetadata []*model.ChatMetadata) []*httpdto.ChatResponse {
+	resChats := make([]*httpdto.ChatResponse, 0, len(chatsMetadata))
 	for _, cm := range chatsMetadata {
-		resChats = append(resChats, &httpdto.ChatsMetadataResponse{
-			ChatID:          cm.ChatID,
-			SecondSubjectID: cm.SecondSubjectID,
-			UpdatedAt:       cm.UpdatedAt,
-			LastMessage: httpdto.MessageResponse{
-				ID:       cm.LastMessage.MessageID,
-				Content:  cm.LastMessage.Content,
-				SenderID: cm.LastMessage.SenderID,
-			},
-			UnreadCount:       cm.UnreadCount,
-			IsLastMessageRead: cm.IsLastMessageRead,
-		})
+		resChats = append(resChats, ChatMetadataModelToDTO(cm))
 	}
 
 	return resChats

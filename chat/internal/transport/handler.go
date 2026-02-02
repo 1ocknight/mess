@@ -2,11 +2,9 @@ package transport
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/1ocknight/mess/chat/internal/ctxkey"
 	"github.com/1ocknight/mess/chat/internal/domain"
 	httpdto "github.com/1ocknight/mess/shared/dto/http"
 	"github.com/gin-gonic/gin"
@@ -23,33 +21,19 @@ func NewHandler(domain domain.Service) *Handler {
 }
 
 func (h *Handler) AddChat(c *gin.Context) {
-	secondSubjID := c.Param("subject_id")
-	if secondSubjID == "" {
-		h.sendError(c, InvalidRequestError)
+	var req httpdto.AddChatRequest
+	if err := c.BindJSON(&req); err != nil {
+		h.sendError(c, err)
 		return
 	}
 
-	chat, err := h.domain.AddChat(c.Request.Context(), secondSubjID)
+	chat, err := h.domain.AddChat(c.Request.Context(), req.SecondSubjectID)
 	if err != nil {
 		h.sendError(c, err)
 		return
 	}
 
-	lastReads, err := h.domain.GetLastReads(c.Request.Context(), chat.ID)
-	if err != nil {
-		h.sendError(c, err)
-		return
-	}
-	lastReadsMap := map[string]int{}
-	for _, lr := range lastReads {
-		lastReadsMap[lr.SubjectID] = lr.MessageID
-	}
-
-	c.JSON(http.StatusCreated, httpdto.ChatResponse{
-		ChatID:          chat.ID,
-		SecondSubjectID: secondSubjID,
-		LastReads:       lastReadsMap,
-	})
+	c.JSON(http.StatusCreated, ChatMetadataModelToDTO(chat))
 }
 
 func (h *Handler) GetChatBySubjectID(c *gin.Context) {
@@ -59,87 +43,36 @@ func (h *Handler) GetChatBySubjectID(c *gin.Context) {
 		return
 	}
 
-	var limit int
-	var err error
-
-	sLimit := c.Query("limit")
-	if sLimit != "" {
-		limit, err = strconv.Atoi(sLimit)
-		if err != nil {
-			h.sendError(c, err)
-			return
-		}
-	}
-
-	chat, err := h.domain.GetChatBySubjectID(c.Request.Context(), id)
+	chat, err := h.domain.GetChatMetadataBySubjectID(c.Request.Context(), id)
 	if err != nil {
 		h.sendError(c, err)
 		return
 	}
 
-	h.returnChatResponse(c, chat.ID, limit)
+	c.JSON(http.StatusOK, ChatMetadataModelToDTO(chat))
 }
 
 func (h *Handler) GetChatByID(c *gin.Context) {
-	var limit int
 	var err error
-
-	sLimit := c.Query("limit")
-	if sLimit != "" {
-		limit, err = strconv.Atoi(sLimit)
-		if err != nil {
-			h.sendError(c, err)
-			return
-		}
-	}
 
 	sChatID := c.Param("chat_id")
 	if sChatID == "" {
 		h.sendError(c, InvalidRequestError)
 		return
 	}
-
 	chatID, err := strconv.Atoi(sChatID)
 	if err != nil {
 		h.sendError(c, err)
 		return
 	}
 
-	h.returnChatResponse(c, chatID, limit)
-}
-
-func (h *Handler) returnChatResponse(c *gin.Context, chatID int, limit int) {
-	subj, err := ctxkey.ExtractSubject(c.Request.Context())
+	chat, err := h.domain.GetChatMetadataByID(c.Request.Context(), chatID)
 	if err != nil {
 		h.sendError(c, err)
 		return
 	}
 
-	lastReads, err := h.domain.GetLastReads(c.Request.Context(), chatID)
-	if err != nil {
-		h.sendError(c, err)
-		return
-	}
-
-	var secondID string
-	lastReadsMap := map[string]int{}
-	for _, lr := range lastReads {
-		if lr.SubjectID != subj.GetSubjectId() {
-			secondID = lr.SubjectID
-		}
-		lastReadsMap[lr.SubjectID] = lr.MessageID
-	}
-
-	if secondID == "" {
-		h.sendError(c, fmt.Errorf("not found second subject id"))
-		return
-	}
-
-	c.JSON(http.StatusOK, httpdto.ChatResponse{
-		ChatID:          chatID,
-		SecondSubjectID: secondID,
-		LastReads:       lastReadsMap,
-	})
+	c.JSON(http.StatusOK, ChatMetadataModelToDTO(chat))
 }
 
 func (h *Handler) GetChats(c *gin.Context) {
@@ -164,16 +97,21 @@ func (h *Handler) GetChats(c *gin.Context) {
 }
 
 func (h *Handler) GetMessages(c *gin.Context) {
-	sChat := c.Query("chat_id")
-	sLimit := c.Query("limit")
-	sBefore := c.Query("before")
-	sAfter := c.Query("after")
+	sChatID := c.Param("chat_id")
+	if sChatID == "" {
+		h.sendError(c, InvalidRequestError)
+		return
+	}
 
-	chatID, err := strconv.Atoi(sChat)
+	chatID, err := strconv.Atoi(sChatID)
 	if err != nil {
 		h.sendError(c, err)
 		return
 	}
+
+	sLimit := c.Query("limit")
+	sBefore := c.Query("before")
+	sAfter := c.Query("after")
 
 	filter, err := MakeMessagePaginationFilter(sLimit, sBefore, sAfter)
 	if err != nil {
@@ -192,13 +130,25 @@ func (h *Handler) GetMessages(c *gin.Context) {
 }
 
 func (h *Handler) AddMessage(c *gin.Context) {
-	var req *httpdto.AddMessageRequest
+	sChatID := c.Param("chat_id")
+	if sChatID == "" {
+		h.sendError(c, InvalidRequestError)
+		return
+	}
+
+	chatID, err := strconv.Atoi(sChatID)
+	if err != nil {
+		h.sendError(c, err)
+		return
+	}
+
+	var req httpdto.AddMessageRequest
 	if err := c.BindJSON(&req); err != nil {
 		h.sendError(c, err)
 		return
 	}
 
-	mess, err := h.domain.SendMessage(c.Request.Context(), req.ChatID, req.Content)
+	mess, err := h.domain.SendMessage(c.Request.Context(), chatID, req.Content)
 	if err != nil {
 		h.sendError(c, err)
 		return
@@ -208,37 +158,59 @@ func (h *Handler) AddMessage(c *gin.Context) {
 }
 
 func (h *Handler) UpdateMessage(c *gin.Context) {
-	var req *httpdto.UpdateMessageRequest
-	if err := c.BindJSON(&req); err != nil {
-		h.sendError(c, err)
+	sMessageID := c.Param("message_id")
+	if sMessageID == "" {
+		h.sendError(c, InvalidRequestError)
 		return
 	}
 
-	mess, err := h.domain.UpdateMessage(c.Request.Context(), req.MessageID, req.Content, req.Version)
+	messageID, err := strconv.Atoi(sMessageID)
 	if err != nil {
 		h.sendError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, MessageModelToMessageDTO(mess))
+	var req httpdto.UpdateMessageRequest
+	if err := c.BindJSON(&req); err != nil {
+		h.sendError(c, err)
+		return
+	}
+
+	mess, err := h.domain.UpdateMessage(c.Request.Context(), messageID, req.Content, req.Version)
+	if err != nil {
+		h.sendError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, MessageModelToMessageDTO(mess))
 }
 
 func (h *Handler) UpdateLastRead(c *gin.Context) {
-	var req *httpdto.UpdateLastReadRequest
-	if err := c.BindJSON(&req); err != nil {
-		h.sendError(c, err)
+	sChatID := c.Param("chat_id")
+	if sChatID == "" {
+		h.sendError(c, InvalidRequestError)
 		return
 	}
 
-	lastRead, err := h.domain.UpdateLastRead(c.Request.Context(), req.ChatID, req.MessageID)
+	chatID, err := strconv.Atoi(sChatID)
 	if err != nil {
 		h.sendError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, httpdto.UpdateLastReadResponse{
-		MessageID: lastRead.MessageID,
-	})
+	var req httpdto.UpdateLastReadRequest
+	if err := c.BindJSON(&req); err != nil {
+		h.sendError(c, err)
+		return
+	}
+
+	_, err = h.domain.UpdateLastRead(c.Request.Context(), chatID, req.MessageID)
+	if err != nil {
+		h.sendError(c, err)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func (h *Handler) sendError(c *gin.Context, err error) {

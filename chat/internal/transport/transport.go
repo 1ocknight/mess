@@ -50,16 +50,18 @@ func NewServer(cfg Config, lg logger.Logger, domain domain.Service, verify verif
 	r.Use(LogResponseMiddleware())
 	r.Use(InitSubjectMiddleware(verify))
 
-	r.GET("/chat/subject/:subject_id", h.GetChatBySubjectID)
-	r.POST("/chat/subject/:subject_id", h.AddChat)
-	r.GET("/chat/:chat_id", h.GetChatByID)
 	r.GET("/chats", h.GetChats)
+	r.POST("/chats", h.AddChat)
 
-	r.GET("/messages", h.GetMessages)
-	r.POST("/message", h.AddMessage)
-	r.PATCH("/message", h.UpdateMessage)
+	r.GET("/chats/subject/:subject_id", h.GetChatBySubjectID)
+	r.GET("/chats/:chat_id", h.GetChatByID)
 
-	r.PATCH("/lastread", h.UpdateLastRead)
+	r.GET("/chats/:chat_id/messages", h.GetMessages)
+	
+	r.POST("/chats/:chat_id/messages", h.AddMessage)
+	r.PATCH("/chats/:chat_id/messages/:message_id", h.UpdateMessage)
+
+	r.PATCH("/chats/:chat_id/lastread", h.UpdateLastRead)
 
 	return &HTTPServer{
 		cfg: &cfg,
