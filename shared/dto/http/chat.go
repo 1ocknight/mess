@@ -29,17 +29,14 @@ type ChatResponse struct {
 }
 
 type AddMessageRequest struct {
-	ChatID  int    `json:"chat_id"`
 	Content string `json:"content"`
 }
 
 type UpdateMessageRequest struct {
-	MessageID int    `json:"message_id"`
-	Content   string `json:"content"`
-	Version   int    `json:"version"`
+	Content string `json:"content"`
+	Version int    `json:"version"`
 }
 
 type UpdateLastReadRequest struct {
-	ChatID    int `json:"chat_id"`
 	MessageID int `json:"message_id"`
 }
