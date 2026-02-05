@@ -23,7 +23,7 @@ type ChatResponse struct {
 	LastReads     map[string]LastReadResponse `json:"last_reads"`
 	MessagesCount int                         `json:"messages_count"`
 
-	LastMessage MessageResponse `json:"last_message"`
+	LastMessage *MessageResponse `json:"last_message"`
 
 	UpdatedAt time.Time `json:"updated_at"`
 }
