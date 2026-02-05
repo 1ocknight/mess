@@ -31,10 +31,7 @@ func (d *Domain) UpdateLastRead(ctx context.Context, chatID int, messageID int) 
 		return nil, fmt.Errorf("update last read: %w", err)
 	}
 
-	err = d.lrs.Send(ctx, chat.GetParticipants(), lastRead)
-	if err != nil {
-		return nil, fmt.Errorf("send last read: %w", err)
-	}
+	d.lrs.Send(ctx, chat.GetParticipants(), lastRead)
 
 	return lastRead, nil
 }

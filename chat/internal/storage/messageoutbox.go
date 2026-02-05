@@ -57,36 +57,11 @@ func (s *Storage) AddMessageOutbox(ctx context.Context, chatID int, recipientsID
 	return s.doAndReturnMessageOutbox(ctx, query, args)
 }
 
-func (s *Storage) GetMessageOutbox(ctx context.Context, limit int) ([]*model.MessageOutbox, error) {
-	query1, args1, err := sq.
+func (s *Storage) GetMessageOutbox(ctx context.Context, groupsCnt int, groupNumber int, limit int) ([]*model.MessageOutbox, error) {
+	query, args, err := sq.
 		Select(AllLabelsSelect).
 		From(MessageOutboxTable).
-		Where(sq.Expr(deletedATIsNullMessageOutboxFilter)).
-		OrderBy(MessageOutboxCreatedAtLabel).
-		Limit(1).
-		Suffix(SkipLocked).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
-	if err != nil {
-		return nil, fmt.Errorf("build lock query: %w", err)
-	}
-
-	lockedRows, err := s.doAndReturnMessageOutboxes(ctx, query1, args1)
-	if err != nil {
-		return nil, fmt.Errorf("lock rows: %w", err)
-	}
-
-	if len(lockedRows) == 0 {
-		return []*model.MessageOutbox{}, nil
-	}
-
-	chatID := lockedRows[0].ChatID
-
-	// Получение всех сообщений для заблокированного чата
-	query2, args2, err := sq.
-		Select(AllLabelsSelect).
-		From(MessageOutboxTable).
-		Where(sq.Eq{MessageOutboxChatIDLabel: chatID}).
+		Where(sq.Expr(fmt.Sprintf("%s %% ? = ?", MessageOutboxChatIDLabel), groupsCnt, groupNumber)).
 		Where(sq.Expr(deletedATIsNullMessageOutboxFilter)).
 		Limit(uint64(limit)).
 		PlaceholderFormat(sq.Dollar).
@@ -95,7 +70,7 @@ func (s *Storage) GetMessageOutbox(ctx context.Context, limit int) ([]*model.Mes
 		return nil, fmt.Errorf("build main query sql: %w", err)
 	}
 
-	return s.doAndReturnMessageOutboxes(ctx, query2, args2)
+	return s.doAndReturnMessageOutboxes(ctx, query, args)
 }
 
 func (s *Storage) DeleteMessageOutbox(ctx context.Context, ids []int) ([]*model.MessageOutbox, error) {

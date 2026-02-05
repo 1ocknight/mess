@@ -85,14 +85,14 @@ var InitMessageOutboxes = []*model.MessageOutbox{
 		ChatID:         1,
 		RecipientsID:   []string{"subj-1", "subj-2"},
 		MessagePayload: `{"id":1,"chat_id":1,"sender_subject_id":"subj-1","content":"test-content-1","version":1}`,
-		Operation:      model.AddOperation,
+		Operation:      model.SendMessageOperation,
 	},
 	{
 		ID:             2,
 		ChatID:         1,
 		RecipientsID:   []string{"subj-1", "subj-2"},
 		MessagePayload: `{"id":2,"chat_id":1,"sender_subject_id":"subj-2","content":"test-content-2","version":1}`,
-		Operation:      model.AddOperation,
+		Operation:      model.SendMessageOperation,
 	},
 }
 

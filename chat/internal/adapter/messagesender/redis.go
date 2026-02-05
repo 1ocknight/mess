@@ -1,4 +1,4 @@
-package lastreadsender
+package messagesender
 
 import (
 	"context"
@@ -21,14 +21,15 @@ func New(cfg redisclient.Config) Service {
 	}
 }
 
-func (i *IMPL) BatchSend(ctx context.Context, recipients []string, messages []model.MessageOutbox) error {
+func (i *IMPL) BatchSend(ctx context.Context, messages []model.MessageOutbox) error {
 	if len(messages) == 0 {
 		return nil
 	}
 
-	chatID := messages[0].ChatID
+	pipe := i.client.Pipeline()
 
-	sendDTO := make([][]byte, 0, len(messages))
+	tp := redisclient.ChannelTypeMessage
+
 	for _, m := range messages {
 		messageModel, err := model.UnmarshalMessage(m.MessagePayload)
 		if err != nil {
@@ -45,7 +46,7 @@ func (i *IMPL) BatchSend(ctx context.Context, recipients []string, messages []mo
 		}
 
 		res := &mqdto.SendMessage{
-			ChatID:    chatID,
+			ChatID:    messageModel.ChatID,
 			Message:   &mess,
 			Operation: mqdto.Operation(m.Operation),
 		}
@@ -55,20 +56,8 @@ func (i *IMPL) BatchSend(ctx context.Context, recipients []string, messages []mo
 			return fmt.Errorf("marshal message dto: %w", err)
 		}
 
-		sendDTO = append(sendDTO, data)
-	}
-
-	pipe := i.client.Pipeline()
-	for _, r := range recipients {
-		channel := fmt.Sprintf("%v:%v:%v:%v:%v",
-			redisclient.ChannelKeySubject,
-			r,
-			redisclient.ChannelKeyChat,
-			chatID,
-			redisclient.ChannelTypeMessage,
-		)
-
-		for _, data := range sendDTO {
+		for _, r := range m.RecipientsID {
+			channel := redisclient.GetChannel(&r, &messageModel.ChatID, &tp)
 			pipe.Publish(ctx, channel, data)
 		}
 	}

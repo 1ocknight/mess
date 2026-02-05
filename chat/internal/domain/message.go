@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/1ocknight/mess/chat/internal/ctxkey"
-	loglables "github.com/1ocknight/mess/chat/internal/loglables"
 	"github.com/1ocknight/mess/chat/internal/model"
 	"github.com/1ocknight/mess/chat/internal/storage"
 	"github.com/1ocknight/mess/shared/utils"
@@ -17,6 +16,7 @@ func (d *Domain) GetMessages(ctx context.Context, chatID int, filter *MessagePag
 	if err != nil {
 		return nil, fmt.Errorf("extract subject: %w", err)
 	}
+
 	chat, err := d.s.Chat().GetChatByID(ctx, chatID)
 	if err != nil {
 		return nil, fmt.Errorf("get chat by in: %w", err)
@@ -54,9 +54,8 @@ func (d *Domain) GetMessages(ctx context.Context, chatID int, filter *MessagePag
 		return nil, fmt.Errorf("update last read: %w", err)
 	}
 
-	err = d.lrs.Send(ctx, chat.GetParticipants(), lastRead)
-	if err != nil {
-		return nil, fmt.Errorf("send last read: %w", err)
+	if lastRead != nil {
+		d.lrs.Send(ctx, chat.GetParticipants(), lastRead)
 	}
 
 	return messages, nil
@@ -66,10 +65,6 @@ func (d *Domain) SendMessage(ctx context.Context, chatID int, content string) (*
 	subj, err := ctxkey.ExtractSubject(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("extract subject: %w", err)
-	}
-	lg, err := ctxkey.ExtractLogger(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("extract logger: %w", err)
 	}
 
 	tx, err := d.s.WithTransaction(ctx)
@@ -82,48 +77,34 @@ func (d *Domain) SendMessage(ctx context.Context, chatID int, content string) (*
 	if err != nil {
 		return nil, fmt.Errorf("increment chat message number: %w", err)
 	}
-	lg = lg.With(loglables.Chat, *chat)
 
 	message, err := tx.Message().CreateMessage(ctx, chatID, subj.GetSubjectId(), content, chat.MessagesCount)
 	if err != nil {
 		return nil, fmt.Errorf("create message: %w", err)
 	}
-	lg = lg.With(loglables.Message, *message)
-
 	payload, err := message.ToString()
 	if err != nil {
-		return nil, fmt.Errorf("marshal message to string: %w", err)
+		return nil, fmt.Errorf("marshal message payload: %w", err)
 	}
-	outbox, err := tx.MessageOutbox().AddMessageOutbox(ctx, chat.ID, chat.GetParticipants(), payload, model.AddOperation)
+
+	_, err = tx.LastRead().UpdateLastRead(ctx, subj.GetSubjectId(), chatID, message.ID, message.Number)
+	if err != nil && !errors.Is(err, storage.ErrNoRows) {
+		return nil, fmt.Errorf("update last read: %w", err)
+	}
+
+	_, err = tx.MessageOutbox().AddMessageOutbox(ctx, chat.ID, chat.GetParticipants(), payload, model.SendMessageOperation)
 	if err != nil {
 		return nil, fmt.Errorf("add message outbox: %w", err)
 	}
-	lg = lg.With(loglables.MessageOutbox, *outbox)
-
-	lastRead, err := tx.LastRead().UpdateLastRead(ctx, subj.GetSubjectId(), chatID, message.ID, message.Number)
-	if err != nil {
-		return nil, fmt.Errorf("update last read: %w", err)
-	}
-	lg = lg.With(loglables.LastRead, *lastRead)
 
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("commit: %w", err)
-	}
-	lg.Debug("send message")
-
-	err = d.lrs.Send(ctx, chat.GetParticipants(), lastRead)
-	if err != nil {
-		return nil, fmt.Errorf("send last read: %w", err)
 	}
 
 	return message, nil
 }
 
 func (d *Domain) UpdateMessage(ctx context.Context, messageID int, content string, version int) (*model.Message, error) {
-	lg, err := ctxkey.ExtractLogger(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("extract logger: %w", err)
-	}
 	subj, err := ctxkey.ExtractSubject(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("extract subject: %w", err)
@@ -137,6 +118,11 @@ func (d *Domain) UpdateMessage(ctx context.Context, messageID int, content strin
 		return nil, SubjectNotHaveThisResource
 	}
 
+	chat, err := d.s.Chat().GetChatByID(ctx, mess.ChatID)
+	if err != nil {
+		return nil, fmt.Errorf("get chat by in: %w", err)
+	}
+
 	tx, err := d.s.WithTransaction(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("storage with transaction: %w", err)
@@ -147,22 +133,19 @@ func (d *Domain) UpdateMessage(ctx context.Context, messageID int, content strin
 	if err != nil {
 		return nil, fmt.Errorf("update message content: %w", err)
 	}
-	lg = lg.With(loglables.Message, *message)
-
 	payload, err := message.ToString()
 	if err != nil {
-		return nil, fmt.Errorf("marshal message to string: %w", err)
+		return nil, fmt.Errorf("marshal message payload: %w", err)
 	}
-	outbox, err := tx.MessageOutbox().AddMessageOutbox(ctx, message.ChatID, []string{message.SenderSubjectID}, payload, model.UpdateOperation)
+
+	_, err = tx.MessageOutbox().AddMessageOutbox(ctx, chat.ID, chat.GetParticipants(), payload, model.UpdateMessageOperation)
 	if err != nil {
 		return nil, fmt.Errorf("add message outbox: %w", err)
 	}
-	lg = lg.With(loglables.MessageOutbox, *outbox)
 
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("commit: %w", err)
 	}
-	lg.Debug("update message")
 
 	return message, nil
 }

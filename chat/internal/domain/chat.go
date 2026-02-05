@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/1ocknight/mess/chat/internal/ctxkey"
-	loglables "github.com/1ocknight/mess/chat/internal/loglables"
 	"github.com/1ocknight/mess/chat/internal/model"
 )
 
@@ -41,7 +40,8 @@ func (d *Domain) GetChatsMetadata(ctx context.Context, filter *ChatPaginationFil
 	for _, read := range lastReads {
 		reads, ok := lastReadsMap[read.ChatID]
 		if !ok {
-			lastReadsMap[read.ChatID] = map[string]*model.LastRead{}
+			reads = map[string]*model.LastRead{}
+			lastReadsMap[read.ChatID] = reads
 		}
 
 		reads[read.SubjectID] = read
@@ -85,10 +85,6 @@ func (d *Domain) AddChat(ctx context.Context, secondSubjectID string) (*model.Ch
 	if err != nil {
 		return nil, fmt.Errorf("extract subject: %w", err)
 	}
-	lg, err := ctxkey.ExtractLogger(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("extract logger: %w", err)
-	}
 
 	exists, err := d.se.Exists(ctx, secondSubjectID)
 	if err != nil {
@@ -108,24 +104,20 @@ func (d *Domain) AddChat(ctx context.Context, secondSubjectID string) (*model.Ch
 	if err != nil {
 		return nil, fmt.Errorf("create chat: %w", err)
 	}
-	lg = lg.With(loglables.Chat, *chat)
 
 	lastReadSubj, err := tx.LastRead().CreateLastRead(ctx, subj.GetSubjectId(), chat.ID)
 	if err != nil {
 		return nil, fmt.Errorf("create last read subj: %w", err)
 	}
-	lg = lg.With(loglables.LastReadSubject, *lastReadSubj)
 
 	lastReadSecond, err := tx.LastRead().CreateLastRead(ctx, secondSubjectID, chat.ID)
 	if err != nil {
 		return nil, fmt.Errorf("create last read second subj: %w", err)
 	}
-	lg = lg.With(loglables.LastReadSecond, *lastReadSecond)
 
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("commit: %w", err)
 	}
-	lg.Debug("add last reads with chat")
 
 	return &model.ChatMetadata{
 		ChatID:          chat.ID,

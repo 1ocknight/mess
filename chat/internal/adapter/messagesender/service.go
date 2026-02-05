@@ -1,4 +1,4 @@
-package lastreadsender
+package messagesender
 
 import (
 	"context"
@@ -7,6 +7,6 @@ import (
 )
 
 type Service interface {
-	BatchSend(ctx context.Context, recipients []string, messages []model.MessageOutbox) error
+	BatchSend(ctx context.Context, messages []model.MessageOutbox) error
 	Close() error
 }

@@ -49,7 +49,7 @@ type Message interface {
 
 type MessageOutbox interface {
 	AddMessageOutbox(ctx context.Context, chatID int, recipientsID []string, messagePayload string, operation model.Operation) (*model.MessageOutbox, error)
-	GetMessageOutbox(ctx context.Context, limit int) ([]*model.MessageOutbox, error)
+	GetMessageOutbox(ctx context.Context, groupsCnt int, groupNumber int, limit int) ([]*model.MessageOutbox, error)
 	DeleteMessageOutbox(ctx context.Context, ids []int) ([]*model.MessageOutbox, error)
 }
 
