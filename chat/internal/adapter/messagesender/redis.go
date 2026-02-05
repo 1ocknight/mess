@@ -21,7 +21,7 @@ func New(cfg redisclient.Config) Service {
 	}
 }
 
-func (i *IMPL) BatchSend(ctx context.Context, messages []model.MessageOutbox) error {
+func (i *IMPL) BatchSend(ctx context.Context, messages []*model.MessageOutbox) error {
 	if len(messages) == 0 {
 		return nil
 	}
