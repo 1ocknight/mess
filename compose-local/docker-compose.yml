@@ -96,6 +96,21 @@ services:
     volumes:
     - ./init/keycloak-kafka/target/keycloak-kafka-1.4.0-jar-with-dependencies.jar:/opt/keycloak/providers/kafka.jar
   
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    command: redis-server --appendonly yes --requirepass redispass
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  
   profile:
     build:
       context: ../profile/
@@ -126,6 +141,7 @@ services:
       - keycloak
       - postgres 
       - kafka
+      - redis
     ports:
       - 8081:8080
     restart: unless-stopped
@@ -162,4 +178,4 @@ services:
 volumes:
   miniodata:  
   pqdata:
-  localstack-data:
+  redisdata:

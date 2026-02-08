@@ -1,13 +1,14 @@
 package storage
 
 import (
-	"github.com/1ocknight/mess/chat/internal/model"
 	"context"
 	"fmt"
 	"time"
 
-	sq "github.com/Masterminds/squirrel"
+	"github.com/1ocknight/mess/chat/internal/model"
+
 	"github.com/1ocknight/mess/shared/postgres"
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -68,7 +69,7 @@ func (s *Storage) GetChatByID(ctx context.Context, chatID int) (*model.Chat, err
 	return s.doAndReturnChat(ctx, query, args)
 }
 
-func (s *Storage) GetChatIDBySubjects(ctx context.Context, firstSubjectID string, secondSubjectID string) (*model.Chat, error) {
+func (s *Storage) GetChatBySubjects(ctx context.Context, firstSubjectID string, secondSubjectID string) (*model.Chat, error) {
 	subjects := []string{firstSubjectID, secondSubjectID}
 	query, args, err := sq.
 		Select(AllLabelsSelect).

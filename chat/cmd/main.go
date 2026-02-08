@@ -13,12 +13,14 @@ import (
 
 	"github.com/1ocknight/mess/chat/config"
 	"github.com/1ocknight/mess/chat/internal/adapter/lastreadsender"
+	"github.com/1ocknight/mess/chat/internal/adapter/messagesender"
 	"github.com/1ocknight/mess/chat/internal/adapter/subjectexist"
 	"github.com/1ocknight/mess/chat/internal/ctxkey"
 	"github.com/1ocknight/mess/chat/internal/domain"
 	"github.com/1ocknight/mess/chat/internal/loglables"
 	"github.com/1ocknight/mess/chat/internal/storage"
 	"github.com/1ocknight/mess/chat/internal/transport"
+	messagesenderworker "github.com/1ocknight/mess/chat/internal/worker/messagesender"
 	"github.com/1ocknight/mess/shared/logger"
 	"github.com/1ocknight/mess/shared/postgres"
 	"github.com/1ocknight/mess/shared/verify"
@@ -69,8 +71,14 @@ func main() {
 		return
 	}
 
-	lrs := lastreadsender.New(cfg.LastReadSender)
+	lrsLG := lg.With(loglables.Layer, "last_read_sender")
+	lrs := lastreadsender.New(cfg.LastReadSender, lrsLG)
 	defer lrs.Close()
+
+	mswLG := lg.With(loglables.Layer, "message_sender_worker")
+	ms := messagesender.New(cfg.MessageSender)
+	messageWorker := messagesenderworker.New(cfg.MessageSenderWorker, storage, ms, mswLG)
+	messageWorker.Start(ctx)
 
 	dom := domain.New(storage, subjEx, lrs)
 

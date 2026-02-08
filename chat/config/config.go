@@ -7,6 +7,7 @@ import (
 
 	"github.com/1ocknight/mess/chat/internal/adapter/subjectexist"
 	"github.com/1ocknight/mess/chat/internal/transport"
+	messagesenderworker "github.com/1ocknight/mess/chat/internal/worker/messagesender"
 	"github.com/1ocknight/mess/shared/postgres"
 	"github.com/1ocknight/mess/shared/redisclient"
 	"github.com/1ocknight/mess/shared/verify"
@@ -14,16 +15,15 @@ import (
 )
 
 type Config struct {
-	MigrationsPath string           `yaml:"migrations_path"`
-	Postgres       postgres.Config  `yaml:"postgres"`
-	HTTP           transport.Config `yaml:"http"`
-
-	// MessageWorker worker.MessageWorkerConfig `yaml:"message_worker"`
-
-	LoggerDebug    bool                `yaml:"logger_debug"`
-	LastReadSender redisclient.Config  `yaml:"last_read_sender"`
-	SubjectExist   subjectexist.Config `yaml:"subject_exist"`
-	Verify         verify.Config       `yaml:"verify"`
+	MigrationsPath      string                     `yaml:"migrations_path"`
+	Postgres            postgres.Config            `yaml:"postgres"`
+	HTTP                transport.Config           `yaml:"http"`
+	LoggerDebug         bool                       `yaml:"logger_debug"`
+	LastReadSender      redisclient.Config         `yaml:"last_read_sender"`
+	MessageSender       redisclient.Config         `yaml:"message_sender"`
+	SubjectExist        subjectexist.Config        `yaml:"subject_exist"`
+	MessageSenderWorker messagesenderworker.Config `yaml:"message_sender_worker"`
+	Verify              verify.Config              `yaml:"verify"`
 }
 
 func LoadConfig() (*Config, error) {

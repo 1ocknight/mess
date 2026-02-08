@@ -15,7 +15,7 @@ type Chat interface {
 	CreateChat(ctx context.Context, firstSubjectID, secondSubjectID string) (*model.Chat, error)
 
 	GetChatByID(ctx context.Context, chatID int) (*model.Chat, error)
-	GetChatIDBySubjects(ctx context.Context, firstSubjectID, secondSubjectID string) (*model.Chat, error)
+	GetChatBySubjects(ctx context.Context, firstSubjectID, secondSubjectID string) (*model.Chat, error)
 	GetChatsBySubjectID(ctx context.Context, subjectID string, filter *PaginationFilterIntLastID) ([]*model.Chat, error)
 
 	IncrementChatMessageNumber(ctx context.Context, chatID int) (*model.Chat, error)

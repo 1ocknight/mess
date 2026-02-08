@@ -8,6 +8,8 @@ const (
 	RequestID       = "request_id"
 	StatusResponse  = "status"
 
-	Service   = "service"
-	Layer     = "layer"
+	Service = "service"
+	Layer   = "layer"
+
+	IDs = "ids"
 )

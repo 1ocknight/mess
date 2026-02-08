@@ -28,20 +28,24 @@ func MessagesModelToMessageDTO(messages []*model.Message) []*httpdto.MessageResp
 }
 
 func ChatMetadataModelToDTO(cm *model.ChatMetadata) *httpdto.ChatResponse {
+	var lastMessage *httpdto.MessageResponse
+	if cm.LastMessage != nil {
+		lastMessage = &httpdto.MessageResponse{
+			ID:        cm.LastMessage.ID,
+			Version:   cm.LastMessage.Version,
+			Content:   cm.LastMessage.Content,
+			SenderID:  cm.LastMessage.SenderSubjectID,
+			CreatedAt: cm.LastMessage.CreatedAt,
+		}
+	}
+
 	return &httpdto.ChatResponse{
 		ChatID:          cm.ChatID,
 		SecondSubjectID: cm.SecondSubjectID,
 
 		MessagesCount: cm.MessagesCount,
 
-		LastMessage: httpdto.MessageResponse{
-			ID:        cm.LastMessage.ID,
-			Number:    cm.LastMessage.Number,
-			Version:   cm.LastMessage.Version,
-			Content:   cm.LastMessage.Content,
-			SenderID:  cm.LastMessage.SenderSubjectID,
-			CreatedAt: cm.LastMessage.CreatedAt,
-		},
+		LastMessage: lastMessage,
 
 		UpdatedAt: cm.UpdatedAt,
 	}

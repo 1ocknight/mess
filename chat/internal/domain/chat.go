@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/1ocknight/mess/chat/internal/ctxkey"
@@ -137,7 +138,7 @@ func (d *Domain) GetChatMetadataBySubjectID(ctx context.Context, secondSubjectID
 		return nil, fmt.Errorf("extract subject: %w", err)
 	}
 
-	chat, err := d.s.Chat().GetChatIDBySubjects(ctx, subj.GetSubjectId(), secondSubjectID)
+	chat, err := d.s.Chat().GetChatBySubjects(ctx, subj.GetSubjectId(), secondSubjectID)
 	if err != nil {
 		return nil, fmt.Errorf("get chat by subjects: %w", err)
 	}
@@ -170,7 +171,7 @@ func (d *Domain) returnChatMetadata(ctx context.Context, subjID string, chat *mo
 	}
 
 	lastMessage, err := d.s.Message().GetMessageByNumber(ctx, chat.ID, chat.MessagesCount)
-	if err != nil {
+	if err != nil && !errors.Is(err, ErrNotFound) {
 		return nil, fmt.Errorf("get last message by chat id: %w", err)
 	}
 

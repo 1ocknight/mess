@@ -1,8 +1,9 @@
 package storage_test
 
 import (
-	"github.com/1ocknight/mess/chat/internal/storage"
 	"testing"
+
+	"github.com/1ocknight/mess/chat/internal/storage"
 
 	"github.com/1ocknight/mess/shared/utils"
 )
@@ -35,7 +36,7 @@ func TestStorage_GetChatIDBySubjects(t *testing.T) {
 	initData(t)
 	defer cleanupDB(t)
 
-	chat, err := s.Chat().GetChatIDBySubjects(t.Context(), InitChats[0].FirstSubjectID, InitChats[0].SecondSubjectID)
+	chat, err := s.Chat().GetChatBySubjects(t.Context(), InitChats[0].SecondSubjectID, InitChats[0].FirstSubjectID)
 	if err != nil {
 		t.Fatalf("get chat by id: %v", err)
 	}

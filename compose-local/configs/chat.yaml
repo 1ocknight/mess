@@ -6,33 +6,43 @@ postgres:
   db_name: chat
   ssl_mode: disable
 
-keycloak:
-  jwks_endpoint: http://keycloak:8080/realms/main/protocol/openid-connect/certs
-
 http: 
+  cors_url: 
+  - http://localhost:5173
+  - http://localhost:3000
   host: 0.0.0.0 
   port: 8080
   debug_mode: true
 
 migrations_path: file://migrations
 
-message_worker:
-  kafka_producer: 
-    brokers: 
-    - kafka:29092 
-    topic: message-event 
-    retry: 1
-    timeout: 5s
-  delay: 10s
-  messages_limit: 100
-  users_limit: 10
+logger_debug: true
 
-last_read_worker:
-  kafka_producer: 
-    brokers: 
-    - kafka:29092 
-    topic: lastread-event 
-    retry: 1
-    timeout: 5s
-  delay: 5s
-  limit: 10
+last_read_sender:
+  addr: redis:6379
+  db: 0
+  password: redispass
+  timeout: 1s
+
+message_sender:
+  addr: redis:6379
+  db: 0
+  password: redispass
+  timeout: 1s
+
+subject_exist:
+  keycloak_url: http://keycloak:8080
+  realm: main
+  client_id: user-checker-service
+  client_secret: user-checker-secret
+  timeout: 2s
+
+message_sender_worker:
+  enabled: true
+  groups_count: 1
+  group_number: 0
+  messages_limit: 10
+  delay: 1s
+
+verify:
+  jwks_endpoint: http://keycloak:8080/realms/main/protocol/openid-connect/certs

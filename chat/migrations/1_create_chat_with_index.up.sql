@@ -11,3 +11,10 @@ CREATE TABLE chat (
 CREATE INDEX idx_chat_subjects_not_deleted
 ON chat (first_subject_id, second_subject_id)
 WHERE deleted_at IS NULL;
+
+CREATE UNIQUE INDEX idx_chat_unique_subjects
+ON chat (
+    LEAST(first_subject_id, second_subject_id),
+    GREATEST(first_subject_id, second_subject_id)
+)
+WHERE deleted_at IS NULL;

@@ -22,6 +22,10 @@ github.com/1ocknight/mess/shared v0.0.0-20260202080440-da95ed237a42 h1:5/36DsaU8
 github.com/1ocknight/mess/shared v0.0.0-20260202080440-da95ed237a42/go.mod h1:/huwCrSyuIUhp5lwAP/vNKPPHskiJzk3anzpqscj5tA=
 github.com/1ocknight/mess/shared v0.0.0-20260202081058-4799a90eac0c h1:hdYALMd8aqgGCbmi8mdySCg2SmJjuI0gfPEnJkzFZ/c=
 github.com/1ocknight/mess/shared v0.0.0-20260202081058-4799a90eac0c/go.mod h1:/huwCrSyuIUhp5lwAP/vNKPPHskiJzk3anzpqscj5tA=
+github.com/1ocknight/mess/shared v0.0.0-20260203141954-e714fed5598c h1:k9GniDeT/ZjwL/x+KInmBSPNUg93ETJzrUsoBgiVNt8=
+github.com/1ocknight/mess/shared v0.0.0-20260203141954-e714fed5598c/go.mod h1:/huwCrSyuIUhp5lwAP/vNKPPHskiJzk3anzpqscj5tA=
+github.com/1ocknight/mess/shared v0.0.0-20260205183629-52b2469aa94f h1:Q/8jH6I4e1D26RGzVeJIjHkmFb2C2qSmwjf/7X8AGT0=
+github.com/1ocknight/mess/shared v0.0.0-20260205183629-52b2469aa94f/go.mod h1:/huwCrSyuIUhp5lwAP/vNKPPHskiJzk3anzpqscj5tA=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20240806141605-e8a1dd7889d6 h1:He8afgbRMd7mFxO99hRNu+6tazq8nFF9lIwo9JFroBk=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20240806141605-e8a1dd7889d6/go.mod h1:8o94RPi1/7XTJvwPpRSzSUedZrtlirdB3r9Z20bi2f8=
 github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 h1:L/gRVlceqvL25UVaW/CKtUDjefjrs0SPonmDGUVOYP0=
