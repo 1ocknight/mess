@@ -3,7 +3,7 @@ module github.com/1ocknight/mess/chat
 go 1.25.6
 
 require (
-	github.com/1ocknight/mess/shared v0.0.0-20260205183629-52b2469aa94f
+	github.com/1ocknight/mess/shared v0.0.0-20260210185516-7482756132c3
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0

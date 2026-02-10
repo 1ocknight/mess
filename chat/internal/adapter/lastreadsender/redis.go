@@ -40,7 +40,7 @@ func (i *IMPL) Send(ctx context.Context, recipients []string, lastRead *model.La
 	op := redisclient.ChannelTypeLastRead
 
 	for _, r := range recipients {
-		channel := redisclient.GetChannel(&r, &lastRead.ChatID, &op)
+		channel := redisclient.BuildWriteChannel(r, lastRead.ChatID, op)
 
 		resp := i.client.Publish(ctx, channel, data)
 		if resp.Err() != nil {

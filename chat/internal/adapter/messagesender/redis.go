@@ -57,7 +57,7 @@ func (i *IMPL) BatchSend(ctx context.Context, messages []*model.MessageOutbox) e
 		}
 
 		for _, r := range m.RecipientsID {
-			channel := redisclient.GetChannel(&r, &messageModel.ChatID, &tp)
+			channel := redisclient.BuildWriteChannel(r, messageModel.ChatID, tp)
 			pipe.Publish(ctx, channel, data)
 		}
 	}
