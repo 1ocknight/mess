@@ -3,7 +3,7 @@ module github.com/1ocknight/mess/websocket
 go 1.25.6
 
 require (
-	github.com/1ocknight/mess/shared v0.0.0-20260126214321-0feb7a38dc6b
+	github.com/1ocknight/mess/shared v0.0.0-20260210191341-57fb0e43cbaa
 	github.com/goccy/go-yaml v1.19.2
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
@@ -13,7 +13,9 @@ require (
 require (
 	github.com/IBM/sarama v1.46.3 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/eapache/go-resiliency v1.7.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
@@ -28,6 +30,7 @@ require (
 	github.com/klauspost/compress v1.18.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
+	github.com/redis/go-redis/v9 v9.17.3 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 )

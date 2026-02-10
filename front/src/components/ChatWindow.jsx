@@ -61,13 +61,15 @@ export default function ChatWindow({ chatId, token, myProfile }) {
 
         // Инициализируем last_read другого юзера
         const otherSubjectId = fullChat.second_subject_id;
-        const otherLastReadId = fullChat.last_reads?.[otherSubjectId] || 0;
+        const otherLastReadObj = fullChat.last_reads?.[otherSubjectId];
+        const otherLastReadId = otherLastReadObj?.message_id || 0;
         if (isMounted) {
           setOtherUserLastRead(otherLastReadId);
         }
 
         // Вычисляем last_read для текущего пользователя
-        const lastReadId = fullChat.last_reads?.[myProfile.subject_id] || 0;
+        const myLastReadObj = fullChat.last_reads?.[myProfile.subject_id];
+        const lastReadId = myLastReadObj?.message_id || 0;
 
         let finalMessages = [];
         let hasMoreUpFlag = false;

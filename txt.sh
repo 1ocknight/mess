@@ -5,3 +5,6 @@ export ACCESS_TOKEN=$( curl -s -X POST \
 | jq -r '.access_token')
 
 wscat -c ws://localhost:8082/ws?token=$ACCESS_TOKEN
+
+docker exec -it redis redis-cli -a redispass
+PSUBSCRIBE *

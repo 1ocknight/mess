@@ -5,18 +5,17 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/1ocknight/mess/shared/auth/keycloak"
+	"github.com/1ocknight/mess/shared/verify"
+	"github.com/1ocknight/mess/websocket/internal/hub/general"
 	"github.com/1ocknight/mess/websocket/internal/transport"
-	"github.com/1ocknight/mess/websocket/internal/worker"
 	"github.com/goccy/go-yaml"
 )
 
 type Config struct {
-	Keycloak       keycloak.Config            `yaml:"keycloak"`
-	MessageWorker  worker.MessageWorkerConfig `yaml:"message_worker"`
-	LastReadWorker worker.LastReadConfig      `yaml:"lastread_worker"`
-	HTTP           transport.HTTPConfig       `yaml:"http"`
-	WSConfig       transport.WSHandlerConfig  `yaml:"ws_config"`
+	Verify     verify.Config           `yaml:"verify"`
+	HTTP       transport.HTTPConfig    `yaml:"http"`
+	GeneralHub general.Config          `yaml:"general_hub"`
+	Handler    transport.HandlerConfig `yaml:"handler"`
 }
 
 func LoadConfig() (*Config, error) {

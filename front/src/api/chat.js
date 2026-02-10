@@ -4,7 +4,7 @@ const API_BASE = 'http://localhost:8081';
 
 // Получить чат по subject_id
 export async function getChatBySubject(subjectId, token) {
-  const res = await fetch(`${API_BASE}/chat/subject/${subjectId}`, {
+  const res = await fetch(`${API_BASE}/chats/subject/${subjectId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error('Failed to fetch chat by subject');
@@ -13,9 +13,13 @@ export async function getChatBySubject(subjectId, token) {
 
 // Добавить чат по subject_id
 export async function addChat(subjectId, token) {
-  const res = await fetch(`${API_BASE}/chat/subject/${subjectId}`, {
+  const res = await fetch(`${API_BASE}/chats`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ second_subject_id: subjectId }),
   });
   if (!res.ok) throw new Error('Failed to add chat');
   return res.json();
@@ -26,16 +30,22 @@ export async function openChatByID(chatId, token, limit) {
   const params = new URLSearchParams();
   if (limit) params.append('limit', limit);
 
-  const res = await fetch(`${API_BASE}/chat/${chatId}?${params.toString()}`, {
+  const res = await fetch(`${API_BASE}/chats/${chatId}?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error('Failed to fetch chat by ID');
   return res.json();
 }
 
-// Получить все чаты
-export async function getChats(token) {
-  const res = await fetch(`${API_BASE}/chats`, {
+// Получить все чаты с пагинацией
+export async function getChats(token, { limit, before, after } = {}) {
+  const params = new URLSearchParams();
+  if (limit) params.append('limit', limit);
+  if (before !== undefined) params.append('before', before);
+  if (after !== undefined) params.append('after', after);
+
+  const url = `${API_BASE}/chats?${params.toString()}`;
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error('Failed to fetch chats');
@@ -48,14 +58,16 @@ export async function getMessages(
   token,
   { chat_id, before, after, limit } = {}
 ) {
-  const params = new URLSearchParams();
+  if (!chat_id) {
+    throw new Error('chat_id is required');
+  }
 
-  if (chat_id) params.append('chat_id', chat_id);
+  const params = new URLSearchParams();
   if (before !== undefined) params.append('before', before);
   if (after !== undefined) params.append('after', after);
   if (limit) params.append('limit', limit);
 
-  const url = `${API_BASE}/messages?${params.toString()}`;
+  const url = `${API_BASE}/chats/${chat_id}/messages?${params.toString()}`;
   console.log('[getMessages] Fetching:', url);
 
   const res = await fetch(url, {
@@ -78,27 +90,27 @@ export async function getMessages(
 
 // Добавить сообщение
 export async function addMessage(chatId, content, token) {
-  const res = await fetch(`${API_BASE}/message`, {
+  const res = await fetch(`${API_BASE}/chats/${chatId}/messages`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ chat_id: chatId, content }),
+    body: JSON.stringify({ content }),
   });
   if (!res.ok) throw new Error('Failed to add message');
   return res.json();
 }
 
 // Обновить сообщение
-export async function updateMessage(messageId, content, version, token) {
-  const res = await fetch(`${API_BASE}/message`, {
+export async function updateMessage(chatId, messageId, content, version, token) {
+  const res = await fetch(`${API_BASE}/chats/${chatId}/messages/${messageId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ message_id: messageId, content, version }),
+    body: JSON.stringify({ content, version }),
   });
   if (!res.ok) throw new Error('Failed to update message');
   return res.json();
@@ -108,13 +120,13 @@ export async function updateMessage(messageId, content, version, token) {
 
 // Обновить последний прочитанный message_id в чате
 export async function updateLastRead(chatId, messageId, token) {
-  const res = await fetch(`${API_BASE}/lastread`, {
+  const res = await fetch(`${API_BASE}/chats/${chatId}/lastread`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ chat_id: chatId, message_id: messageId }),
+    body: JSON.stringify({ message_id: messageId }),
   });
   if (!res.ok) throw new Error('Failed to update last read');
   return res.json();

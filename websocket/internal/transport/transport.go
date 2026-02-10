@@ -6,43 +6,52 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/1ocknight/mess/shared/auth"
 	"github.com/1ocknight/mess/shared/logger"
+	"github.com/1ocknight/mess/shared/verify"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
 
-type Server struct {
-	cfg         HTTPConfig
-	Router      *mux.Router
-	AuthService auth.Service
-	lg          logger.Logger
-	httpServer  *http.Server
+type HTTPConfig struct {
+	CorsUrl []string `yaml:"cors_url"`
+	Host    string   `yaml:"host"`
+	Port    string   `yaml:"port"`
 }
 
-func NewServer(cfg HTTPConfig, authService auth.Service, handler *Handler, lg logger.Logger) *Server {
+type Server struct {
+	cfg        HTTPConfig
+	Router     *mux.Router
+	ver        verify.Service
+	lg         logger.Logger
+	httpServer *http.Server
+}
+
+func NewServer(cfg HTTPConfig, ver verify.Service, handler *Handler, lg logger.Logger) *Server {
 	r := mux.NewRouter()
 
 	s := &Server{
-		cfg:         cfg,
-		Router:      r,
-		AuthService: authService,
-		lg:          lg,
+		cfg:    cfg,
+		Router: r,
+		ver:    ver,
+		lg:     lg,
 	}
 
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000 "}, // фронт
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Origin", "Content-Type", "Authorization"},
-		ExposedHeaders:   []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           int((12 * time.Hour).Seconds()), // rs/cors требует int секунд
-	})
-	r.Use(c.Handler)
-	r.Use(SubjectMiddleware(authService, lg))
+	if len(cfg.CorsUrl) != 0 {
+		c := cors.New(cors.Options{
+			AllowedOrigins:   cfg.CorsUrl,
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Origin", "Content-Type", "Authorization"},
+			ExposedHeaders:   []string{"Content-Length"},
+			AllowCredentials: true,
+			MaxAge:           int((12 * time.Hour).Seconds()),
+		})
+		r.Use(c.Handler)
+	}
 
-	// WS endpoint
-	r.HandleFunc("/ws", handler.WSHandler)
+	r.Use(SubjectMiddleware(ver, lg))
+
+	r.HandleFunc("/ws", handler.General)
+	// r.HandleFunc("/ws/chat/{chat_id}", handler.Chat)
 
 	s.httpServer = &http.Server{
 		Addr:    fmt.Sprintf("%v:%v", cfg.Host, cfg.Port),
