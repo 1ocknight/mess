@@ -140,7 +140,6 @@ services:
     depends_on:
       - keycloak
       - postgres 
-      - kafka
       - redis
     ports:
       - 8081:8080
@@ -157,7 +156,7 @@ services:
       - ./configs/ws.yaml:/root/ws.yaml
     depends_on:
       - keycloak
-      - kafka
+      - redis
     ports:
       - 8082:8080
     restart: unless-stopped

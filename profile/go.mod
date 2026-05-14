@@ -3,7 +3,7 @@ module github.com/1ocknight/mess/profile
 go 1.25.6
 
 require (
-	github.com/1ocknight/mess/shared v0.0.0-20260126214321-0feb7a38dc6b
+	github.com/1ocknight/mess/shared v0.0.0-20260210191341-57fb0e43cbaa
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/aws/aws-sdk-go-v2 v1.41.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.95.1

@@ -8,8 +8,8 @@ import (
 	"github.com/1ocknight/mess/profile/internal/adapter/avatar"
 	"github.com/1ocknight/mess/profile/internal/transport"
 	workers "github.com/1ocknight/mess/profile/internal/wokers"
-	"github.com/1ocknight/mess/shared/auth/keycloak"
 	"github.com/1ocknight/mess/shared/postgres"
+	"github.com/1ocknight/mess/shared/verify"
 	"github.com/goccy/go-yaml"
 )
 
@@ -18,7 +18,7 @@ type Config struct {
 	Postgres       postgres.Config              `yaml:"postgres"`
 	S3             avatar.Config                `yaml:"s3"`
 	HTTP           transport.Config             `yaml:"http"`
-	Keycloak       keycloak.Config              `yaml:"keycloak"`
+	Verify         verify.Config                `yaml:"verify"`
 	AvatarDeleter  workers.AvatarDeleterConfig  `yaml:"avatar_deleter"`
 	ProfileDeleter workers.ProfileDeleterConfig `yaml:"profile_deleter"`
 }

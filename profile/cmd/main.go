@@ -18,9 +18,9 @@ import (
 	"github.com/1ocknight/mess/profile/internal/storage"
 	"github.com/1ocknight/mess/profile/internal/transport"
 	workers "github.com/1ocknight/mess/profile/internal/wokers"
-	"github.com/1ocknight/mess/shared/auth/keycloak"
 	"github.com/1ocknight/mess/shared/logger"
 	"github.com/1ocknight/mess/shared/postgres"
+	"github.com/1ocknight/mess/shared/verify"
 )
 
 func main() {
@@ -73,7 +73,11 @@ func main() {
 	}
 	lg.Info("avatar deleter started")
 
-	pd := workers.NewProfileDeleter(cfg.ProfileDeleter, storage)
+	pd, err := workers.NewProfileDeleter(cfg.ProfileDeleter, storage)
+	if err != nil {
+		lg.Error(fmt.Errorf("profile deleter new: %w", err))
+		return
+	}
 	pdelLog := lg.With(loglables.Layer, "worker_profile_deleter")
 	err = pd.Start(ctxkey.WithLogger(ctx, pdelLog))
 	if err != nil {
@@ -82,13 +86,13 @@ func main() {
 	}
 	lg.Info("profile deleter started")
 
-	keycloak, err := keycloak.New(cfg.Keycloak, lg)
+	ver, err := verify.New(cfg.Verify, lg)
 	if err != nil {
-		lg.Error(fmt.Errorf("keycloak new: %w", err))
+		lg.Error(fmt.Errorf("verify new: %w", err))
 		return
 	}
 
-	server := transport.NewServer(cfg.HTTP, lg, dom, keycloak)
+	server := transport.NewServer(cfg.HTTP, lg, dom, ver)
 	go func() {
 		if err := server.Run(); err != nil && !errors.Is(http.ErrServerClosed, err) {
 			lg.Error(fmt.Errorf("server run: %w", err))

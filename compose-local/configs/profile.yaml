@@ -21,7 +21,7 @@ http:
   port: 8080
   debug_mode: true
 
-keycloak:
+verify:
   jwks_endpoint: http://localhost:7070/realms/main/protocol/openid-connect/certs
 
 avatar_deleter:
@@ -29,16 +29,13 @@ avatar_deleter:
   interval: 10m
 
 profile_deleter:
-  client_kafka: 
-    brokers: 
+  kafka:
+    brokers:
     - localhost:9092
-    topic: keycloak-events
-    group_id: 1
-  admin_kafka: 
-    brokers: 
-    - localhost:9092
-    topic: keycloak-admin-events
-    group_id: 1
+    topics:
+    - keycloak-events
+    - keycloak-admin-events
+    group_id: profile-deleter
   delay: 10s
 
 migrations_path: file://migrations

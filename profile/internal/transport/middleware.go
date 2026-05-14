@@ -6,7 +6,7 @@ import (
 
 	"github.com/1ocknight/mess/profile/internal/ctxkey"
 	"github.com/1ocknight/mess/profile/internal/loglables"
-	"github.com/1ocknight/mess/shared/auth"
+	"github.com/1ocknight/mess/shared/verify"
 	"github.com/1ocknight/mess/shared/logger"
 	"github.com/1ocknight/mess/shared/requestmeta"
 	"github.com/gin-gonic/gin"
@@ -79,11 +79,11 @@ func LogResponseMiddleware() gin.HandlerFunc {
 	}
 }
 
-func InitSubjectMiddleware(auth auth.Service) gin.HandlerFunc {
+func InitSubjectMiddleware(v verify.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
 
-		sub, err := auth.Verify(token)
+		sub, err := v.Verify(token)
 		if err != nil {
 			c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("verify token: %w", err))
 			return
