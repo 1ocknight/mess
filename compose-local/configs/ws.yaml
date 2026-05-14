@@ -5,6 +5,7 @@ http:
   cors_url:
   - http://localhost:5173
   - http://localhost:3000
+  - http://front:80
   host: 0.0.0.0 
   port: 8080
 

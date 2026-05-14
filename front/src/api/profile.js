@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '/api/profile';
 
 export async function getProfile(token) {
   const res = await fetch(`${API_BASE}/profile`, {

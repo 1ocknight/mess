@@ -16,14 +16,16 @@ services:
     image: minio/minio:latest
     container_name: minio 
     environment:
-      MINIO_SERVER_URL: http://localhost:9000
+      MINIO_SERVER_URL: http://minio:9000
       MINIO_API_CORS_ALLOW_ORIGIN: '*'
       MINIO_NOTIFY_KAFKA_ENABLE_avatar-events: "on"
-      MINIO_NOTIFY_KAFKA_BROKERS_avatar-events: "localhost:9092"
+      MINIO_NOTIFY_KAFKA_BROKERS_avatar-events: "kafka:29092"
       MINIO_NOTIFY_KAFKA_TOPIC_avatar-events: "avatar-events"
-    network_mode: host
     volumes:
       - miniodata:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
     command: server /data --console-address ":9001"
     restart: unless-stopped
 
@@ -81,6 +83,8 @@ services:
       KC_DB_URL_DATABASE: keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_RELATIVE_PATH: /
       KAFKA_TOPIC: keycloak-events
       KAFKA_ADMIN_TOPIC: keycloak-admin-events
       KAFKA_CLIENT_ID: keycloak
@@ -125,7 +129,8 @@ services:
       - postgres 
       - minio 
       - kafka
-    network_mode: host
+    ports:
+      - "8080:8080"
     restart: unless-stopped
   
   chat:
@@ -159,6 +164,20 @@ services:
       - redis
     ports:
       - 8082:8080
+    restart: unless-stopped
+
+  front:
+    build:
+      context: ../front/
+      dockerfile: dockerfile
+    container_name: front
+    depends_on:
+      - profile
+      - chat
+      - ws
+      - keycloak
+    ports:
+      - "3000:80"
     restart: unless-stopped
 
   # e2e:

@@ -7,7 +7,7 @@ export const WSProvider = ({ token, children }) => {
   const [messages, setMessages] = useState([]);
 
   const wsUrl = token
-    ? `ws://localhost:8082/ws?token=${encodeURIComponent(token)}`
+    ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api/ws/ws?token=${encodeURIComponent(token)}`
     : null;
 
   const {

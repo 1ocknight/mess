@@ -7,9 +7,10 @@ postgres:
   ssl_mode: disable
 
 http: 
-  cors_url: 
+  cors_url:
   - http://localhost:5173
   - http://localhost:3000
+  - http://front:80
   host: 0.0.0.0 
   port: 8080
   debug_mode: true
