@@ -1,12 +1,15 @@
 FROM golang:1.25.6-alpine AS builder
+ARG TARGETARCH
 WORKDIR /temp
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app ./cmd/main.go
+COPY shared/go.mod shared/go.sum ./shared/
+COPY profile/go.mod profile/go.sum ./profile/
+RUN cd profile && go mod download
+COPY shared/ ./shared/
+COPY profile/ ./profile/
+RUN cd profile && CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /temp/app ./cmd/main.go
 
 FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /temp/app .
-COPY --from=builder /temp/migrations migrations
+COPY --from=builder /temp/profile/migrations migrations
 CMD ["./app"]

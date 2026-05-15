@@ -55,6 +55,7 @@ type Consumer struct {
 
 	handler   *handler
 	messageCh chan *MessageIMPL
+	errCh     chan error
 	cancel    context.CancelFunc
 	done      chan struct{}
 }
@@ -69,24 +70,51 @@ func New(cfg Config) (Service, error) {
 	}
 
 	msgCh := make(chan *MessageIMPL)
+	errCh := make(chan error, 1)
 	handler := &handler{
 		msgCh: msgCh,
 	}
 
-	return &Consumer{
+	ctx, cancel := context.WithCancel(context.Background())
+
+	c := &Consumer{
 		cfg:       cfg,
 		client:    client,
 		handler:   handler,
 		messageCh: msgCh,
-	}, nil
+		errCh:     errCh,
+		cancel:    cancel,
+		done:      make(chan struct{}),
+	}
+
+	go func() {
+		defer close(c.done)
+		for {
+			if err := client.Consume(ctx, cfg.Topics, handler); err != nil {
+				select {
+				case errCh <- fmt.Errorf("consume: %w", err):
+				default:
+				}
+				return
+			}
+			if ctx.Err() != nil {
+				return
+			}
+		}
+	}()
+
+	return c, nil
 }
 
 func (c *Consumer) FetchMessage(ctx context.Context) (Message, error) {
-	if err := c.client.Consume(ctx, c.cfg.Topics, c.handler); err != nil {
-		return nil, fmt.Errorf("consume: %w", err)
+	select {
+	case msg := <-c.messageCh:
+		return msg, nil
+	case err := <-c.errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
-
-	return <-c.messageCh, nil
 }
 
 func (c *Consumer) Commit(msg Message) error {
@@ -100,6 +128,6 @@ func (c *Consumer) Commit(msg Message) error {
 
 func (c *Consumer) Close() error {
 	c.cancel()
-	close(c.messageCh)
+	<-c.done
 	return c.client.Close()
 }

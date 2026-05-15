@@ -1,7 +1,16 @@
 //realms
 resource "keycloak_realm" "realm-main" {
-  realm   = "main"
-  enabled = true
+  realm                = "main"
+  enabled              = true
+  registration_allowed = true
+}
+
+resource "keycloak_required_action" "delete_account" {
+  realm_id       = keycloak_realm.realm-main.id
+  alias          = "delete_account"
+  name           = "Delete Account"
+  enabled        = true
+  default_action = false
 }
 
 //clients
@@ -21,6 +30,29 @@ resource "keycloak_openid_client" "client-main" {
   valid_redirect_uris = [
     "*"
   ]
+}
+
+resource "keycloak_openid_client" "client-front" {
+  realm_id  = keycloak_realm.realm-main.id
+  client_id = "front"
+
+  name    = "Frontend SPA"
+  enabled = true
+
+  access_type                  = "PUBLIC"
+  standard_flow_enabled        = true
+  direct_access_grants_enabled = false
+  service_accounts_enabled     = false
+
+  valid_redirect_uris = [
+    "*"
+  ]
+
+  web_origins = [
+    "+"
+  ]
+
+  pkce_code_challenge_method = "S256"
 }
 
 // Service account client для проверки существования пользователей
