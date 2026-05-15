@@ -32,7 +32,7 @@ message_sender:
   timeout: 1s
 
 subject_exist:
-  keycloak_url: http://keycloak:8080
+  keycloak_url: http://keycloak:8080/auth
   realm: main
   client_id: user-checker-service
   client_secret: user-checker-secret
