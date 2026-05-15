@@ -86,6 +86,7 @@ services:
       KC_PROXY_HEADERS: xforwarded
       KC_HTTP_RELATIVE_PATH: /auth
       KC_HOSTNAME: http://localhost:3000/auth
+      KC_HOSTNAME_ADMIN: http://localhost:7070/auth
       KC_HOSTNAME_STRICT: "false"
       KAFKA_TOPIC: keycloak-events
       KAFKA_ADMIN_TOPIC: keycloak-admin-events
