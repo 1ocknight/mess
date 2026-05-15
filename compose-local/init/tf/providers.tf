@@ -13,6 +13,7 @@ terraform {
 
 provider "keycloak" {
   url       = var.keycloak_url
+  base_path = "/auth"
   realm     = "master"
   client_id = "admin-cli"
   username  = var.keycloak_user
