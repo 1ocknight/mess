@@ -13,6 +13,7 @@ s3:
     access_key_id: profile
     secret_access_key: profile-secret
     path_style: true
+  public_endpoint: http://localhost:9000
   bucket: avatar
   presign_duration: 1m
 

@@ -14,6 +14,7 @@ import (
 
 type Config struct {
 	Client          s3client.Config `yaml:"client"`
+	PublicEndpoint  string          `yaml:"public_endpoint"`
 	Bucket          string          `yaml:"bucket"`
 	PresignDuration time.Duration   `yaml:"presign_duration"`
 }
@@ -30,7 +31,19 @@ func New(ctx context.Context, cfg Config) (Service, error) {
 		return nil, fmt.Errorf("create s3 client: %w", err)
 	}
 
-	p := s3.NewPresignClient(client)
+	// If a public endpoint is configured, create a separate client for presigning
+	// so that presigned URLs are accessible from the browser.
+	presignClient := client
+	if cfg.PublicEndpoint != "" {
+		publicCfg := cfg.Client
+		publicCfg.Endpoint = cfg.PublicEndpoint
+		presignClient, err = s3client.New(ctx, publicCfg)
+		if err != nil {
+			return nil, fmt.Errorf("create public s3 client: %w", err)
+		}
+	}
+
+	p := s3.NewPresignClient(presignClient)
 
 	return &S3{
 		cfg: cfg,
