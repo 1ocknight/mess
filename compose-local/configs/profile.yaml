@@ -22,7 +22,7 @@ http:
   debug_mode: true
 
 verify:
-  jwks_endpoint: http://keycloak:8080/realms/main/protocol/openid-connect/certs
+  jwks_endpoint: http://keycloak:8080/auth/realms/main/protocol/openid-connect/certs
 
 avatar_deleter:
   run_hour_utc: -1

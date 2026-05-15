@@ -1,5 +1,5 @@
 verify:
-  jwks_endpoint: http://keycloak:8080/realms/main/protocol/openid-connect/certs
+  jwks_endpoint: http://keycloak:8080/auth/realms/main/protocol/openid-connect/certs
 
 http: 
   cors_url:
