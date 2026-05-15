@@ -87,7 +87,7 @@ func (s *S3) DeleteObjects(ctx context.Context, subjIDs []string) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("delete objects")
+		return fmt.Errorf("delete objects: %w", err)
 	}
 
 	return nil

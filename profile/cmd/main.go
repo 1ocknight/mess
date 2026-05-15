@@ -94,7 +94,7 @@ func main() {
 
 	server := transport.NewServer(cfg.HTTP, lg, dom, ver)
 	go func() {
-		if err := server.Run(); err != nil && !errors.Is(http.ErrServerClosed, err) {
+		if err := server.Run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			lg.Error(fmt.Errorf("server run: %w", err))
 			return
 		}

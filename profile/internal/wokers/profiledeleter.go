@@ -2,7 +2,6 @@ package workers
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -10,79 +9,55 @@ import (
 	"github.com/1ocknight/mess/profile/internal/ctxkey"
 	"github.com/1ocknight/mess/profile/internal/loglables"
 	"github.com/1ocknight/mess/profile/internal/storage"
-	"github.com/1ocknight/mess/shared/messagequeue"
-	"github.com/1ocknight/mess/shared/messagequeue/kafka"
+	"github.com/1ocknight/mess/shared/adapter/subjectdeletereader"
 )
 
 type ProfileDeleterConfig struct {
-	ClientKafka kafka.ConsumerConfig `yaml:"client_kafka"`
-	AdminKafka  kafka.ConsumerConfig `yaml:"admin_kafka"`
-	Delay       time.Duration        `yaml:"delay"`
-}
-
-type ProfileDeleteMessage interface {
-	GetSubjectID() string
-}
-
-type ClientProfileDeleteMessage struct {
-	SubjectID string `json:"userId"`
-}
-
-func (cpdm *ClientProfileDeleteMessage) GetSubjectID() string {
-	return cpdm.SubjectID
-}
-
-type AdminProfileDeleteMessage struct {
-	SubjectID string `json:"resourceId"`
-}
-
-func (apdm *AdminProfileDeleteMessage) GetSubjectID() string {
-	return apdm.SubjectID
+	Kafka subjectdeletereader.Config `yaml:"kafka"`
+	Delay time.Duration              `yaml:"delay"`
 }
 
 type ProfileDeleter struct {
-	CFG            ProfileDeleterConfig
-	ClientConsumer messagequeue.Consumer
-	AdminConsumer  messagequeue.Consumer
-	Storage        storage.Service
+	CFG      ProfileDeleterConfig
+	Consumer subjectdeletereader.Service
+	Storage  storage.Service
 }
 
-func NewProfileDeleter(cfg ProfileDeleterConfig, s storage.Service) *ProfileDeleter {
-	clientConsumer := kafka.NewConsumer(cfg.ClientKafka)
-	adminConsumer := kafka.NewConsumer(cfg.AdminKafka)
+func NewProfileDeleter(cfg ProfileDeleterConfig, s storage.Service) (*ProfileDeleter, error) {
+	consumer, err := subjectdeletereader.New(cfg.Kafka)
+	if err != nil {
+		return nil, fmt.Errorf("new subject delete reader: %w", err)
+	}
 
 	return &ProfileDeleter{
-		CFG:            cfg,
-		ClientConsumer: clientConsumer,
-		AdminConsumer:  adminConsumer,
-		Storage:        s,
-	}
+		CFG:      cfg,
+		Consumer: consumer,
+		Storage:  s,
+	}, nil
 }
 
-func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeue.Consumer, store storage.Service) error {
+func (pd *ProfileDeleter) Delete(ctx context.Context) error {
 	lg, err := ctxkey.ExtractLogger(ctx)
 	if err != nil {
 		return fmt.Errorf("extract logger: %w", err)
 	}
 
-	mqMsg, err := cons.ReadMessage(ctx)
+	msg, err := pd.Consumer.FetchMessage(ctx)
 	if err != nil {
-		return fmt.Errorf("read message: %w", err)
+		return fmt.Errorf("fetch message: %w", err)
 	}
 
-	var msg T
-	if err := json.Unmarshal(mqMsg.Value(), &msg); err != nil {
-		return fmt.Errorf("unmarshal: %w", err)
-	}
+	subjectID := msg.GetSubjectID()
 
-	tx, err := store.WithTransaction(ctx)
+	tx, err := pd.Storage.WithTransaction(ctx)
 	if err != nil {
 		return fmt.Errorf("with transaction: %w", err)
 	}
+	defer tx.Rollback()
 
-	prof, err := tx.Profile().DeleteProfile(ctx, msg.GetSubjectID())
+	prof, err := tx.Profile().DeleteProfile(ctx, subjectID)
 	if err != nil && errors.Is(err, storage.ErrNoRows) {
-		if err := cons.Commit(ctx, mqMsg); err != nil {
+		if err := pd.Consumer.Commit(msg); err != nil {
 			return fmt.Errorf("commit message: %w", err)
 		}
 		lg.Info("profile not found, nothing to delete")
@@ -103,7 +78,7 @@ func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeu
 		return fmt.Errorf("commit: %w", err)
 	}
 
-	if err := cons.Commit(ctx, mqMsg); err != nil {
+	if err := pd.Consumer.Commit(msg); err != nil {
 		return fmt.Errorf("commit message: %w", err)
 	}
 
@@ -111,14 +86,6 @@ func ProfileDelete[T ProfileDeleteMessage](ctx context.Context, cons messagequeu
 	lg.Info("success deleted")
 
 	return nil
-}
-
-func (pd *ProfileDeleter) ClientDelete(ctx context.Context) error {
-	return ProfileDelete[*ClientProfileDeleteMessage](ctx, pd.ClientConsumer, pd.Storage)
-}
-
-func (pd *ProfileDeleter) AdminDelete(ctx context.Context) error {
-	return ProfileDelete[*AdminProfileDeleteMessage](ctx, pd.AdminConsumer, pd.Storage)
 }
 
 func (pd *ProfileDeleter) Start(ctx context.Context) error {
@@ -129,29 +96,12 @@ func (pd *ProfileDeleter) Start(ctx context.Context) error {
 
 	go func() {
 		for {
-			err := pd.ClientDelete(ctx)
+			err := pd.Delete(ctx)
 			if err == nil {
 				continue
 			}
 
-			lg.Error(fmt.Errorf("client delete: %w", err))
-
-			select {
-			case <-time.After(pd.CFG.Delay):
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
-
-	go func() {
-		for {
-			err := pd.AdminDelete(ctx)
-			if err == nil {
-				continue
-			}
-
-			lg.Error(fmt.Errorf("admin delete: %w", err))
+			lg.Error(fmt.Errorf("profile delete: %w", err))
 
 			select {
 			case <-time.After(pd.CFG.Delay):

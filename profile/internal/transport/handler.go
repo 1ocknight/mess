@@ -61,6 +61,7 @@ func (h *Handler) GetProfiles(c *gin.Context) {
 
 	if after != "" && before != "" {
 		h.sendError(c, fmt.Errorf("%w, wait after or before null", InvalidRequestError))
+		return
 	}
 
 	var limit int
@@ -69,6 +70,7 @@ func (h *Handler) GetProfiles(c *gin.Context) {
 		limit, err = strconv.Atoi(sLimit)
 		if err != nil {
 			h.sendError(c, fmt.Errorf("%w, atoi: %w", InvalidRequestError, err))
+			return
 		}
 	}
 

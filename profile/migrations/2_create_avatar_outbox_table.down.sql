@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS avatar_key_outbox;
+DROP TABLE IF EXISTS avatar_outbox;
